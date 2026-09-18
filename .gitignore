@@ -1,0 +1,8 @@
+# Ignore executables and logs
+cloudflared.exe
+*.log
+__pycache__/
+*.pyc
+.system_generated/
+*.vbs
+*.bat
