@@ -8,3 +8,4 @@ joblib>=1.3.0
 yfinance>=0.2.40
 requests>=2.31.0
 windows-toasts>=1.1.0; sys_platform == 'win32'
+
