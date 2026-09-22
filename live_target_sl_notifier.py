@@ -19,33 +19,44 @@ import pandas as pd
 import yfinance as yf
 import requests
 
-# Ensure UTF-8 output and handle pythonw.exe / background daemons safely
-LOG_FILE_PATH = "c:/Users/gmt7220/Desktop/Kali_Linux/notifier_daemon.log"
-try:
-    if sys.stdout is None or not hasattr(sys.stdout, 'isatty') or not sys.stdout.isatty():
-        sys.stdout = open(LOG_FILE_PATH, 'a', encoding='utf-8', buffering=1, errors='replace')
-    elif hasattr(sys.stdout, 'reconfigure'):
-        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-except Exception:
-    sys.stdout = open(LOG_FILE_PATH, 'a', encoding='utf-8', buffering=1, errors='replace')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+LOG_FILE_PATH = os.path.join(BASE_DIR, "notifier_daemon.log")
 
-try:
-    if sys.stderr is None or not hasattr(sys.stderr, 'isatty') or not sys.stderr.isatty():
-        sys.stderr = open(LOG_FILE_PATH, 'a', encoding='utf-8', buffering=1, errors='replace')
-    elif hasattr(sys.stderr, 'reconfigure'):
-        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
-except Exception:
-    sys.stderr = open(LOG_FILE_PATH, 'a', encoding='utf-8', buffering=1, errors='replace')
+IS_CI = bool(os.environ.get("GITHUB_ACTIONS") or os.environ.get("CI"))
+
+if not IS_CI:
+    try:
+        if sys.stdout is None or not hasattr(sys.stdout, 'isatty') or not sys.stdout.isatty():
+            sys.stdout = open(LOG_FILE_PATH, 'a', encoding='utf-8', buffering=1, errors='replace')
+        elif hasattr(sys.stdout, 'reconfigure'):
+            sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    except Exception:
+        pass
+
+    try:
+        if sys.stderr is None or not hasattr(sys.stderr, 'isatty') or not sys.stderr.isatty():
+            sys.stderr = open(LOG_FILE_PATH, 'a', encoding='utf-8', buffering=1, errors='replace')
+        elif hasattr(sys.stderr, 'reconfigure'):
+            sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+    except Exception:
+        pass
+else:
+    try:
+        if hasattr(sys.stdout, 'reconfigure'):
+            sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    except Exception:
+        pass
 
 NTFY_URL = "https://ntfy.sh/ritika_quant_ai_engine"
-ALERT_CACHE_PATH = "sent_alerts_cache.json"
-RECENT_ALERTS_PATH = "recent_live_alerts.json"
+ALERT_CACHE_PATH = os.path.join(BASE_DIR, "sent_alerts_cache.json")
+RECENT_ALERTS_PATH = os.path.join(BASE_DIR, "recent_live_alerts.json")
 USER_HOLDINGS_PATHS = [
+    os.path.join(BASE_DIR, "user_active_holdings.json"),
     "user_active_holdings.json",
     "/home/sendritika25/trading_ai/user_active_holdings.json",
     "c:/Users/gmt7220/Desktop/Kali_Linux/user_active_holdings.json"
 ]
-LOG_PATH = "prediction_log.csv" if os.path.exists("prediction_log.csv") else "/home/sendritika25/trading_ai/prediction_log.csv"
+LOG_PATH = os.path.join(BASE_DIR, "prediction_log.csv") if os.path.exists(os.path.join(BASE_DIR, "prediction_log.csv")) else "/home/sendritika25/trading_ai/prediction_log.csv"
 
 ALL_MONITORED_STOCKS = [
     'POLYCAB.NS', 'HAL.NS', 'BHARTIARTL.NS', 'SUZLON.NS', 'MAZDOCK.NS',
@@ -254,23 +265,59 @@ def check_live_targets_and_notify():
             k_sl = f"{today_str}_{sym}_SL_HIT"
             k_peak = f"{today_str}_{sym}_PEAK_REVERSAL"
 
+            # Institutional Indicators: VWAP, RVOL, ATR, RSI calculation
+            cum_vp = (df['Close'] * df['Volume']).cumsum()
+            cum_vol = df['Volume'].cumsum()
+            vwap = round(float(cum_vp.iloc[-1] / (cum_vol.iloc[-1] + 1e-9)), 2)
+
+            avg_vol_20 = float(df['Volume'].tail(20).mean()) if len(df) >= 20 else float(df['Volume'].mean())
+            cur_vol = float(df['Volume'].iloc[-1])
+            rvol = round(cur_vol / (avg_vol_20 + 1e-9), 2)
+
+            tr1 = df['High'] - df['Low']
+            tr2 = (df['High'] - df['Close'].shift(1)).abs()
+            tr3 = (df['Low'] - df['Close'].shift(1)).abs()
+            tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)
+            atr = float(tr.tail(14).mean())
+            if pd.isna(atr) or atr <= 0:
+                atr = curr_price * 0.015
+
+            delta = df['Close'].diff()
+            gain = (delta.where(delta > 0, 0)).tail(14).mean()
+            loss = (-delta.where(delta < 0, 0)).tail(14).mean()
+            rs = gain / (loss + 1e-9)
+            rsi = round(float(100 - (100 / (1 + rs))), 1)
+
             # -------------------------------------------------------------
-            # CONDITION 0: PROACTIVE FRESH BUY BREAKOUT OPPORTUNITY (UNIVERSE)
+            # CONDITION 0: INSTITUTIONAL NOISE-FILTERED BREAKOUT (UNIVERSE)
+            # Eliminates 9:15-9:30 AM gap-traps, low-volume noise, & below-VWAP traps
             # -------------------------------------------------------------
-            if not is_user_holding and day_chg >= 0.8 and k_buy not in sent_alerts:
-                buy_tg_intra = round(curr_price * 1.025, 2)
-                buy_sl_intra = round(curr_price * 0.985, 2)
+            now_dt_check = datetime.now()
+            is_opening_noise = (now_dt_check.hour == 9 and now_dt_check.minute < 30)
+            is_institutional_breakout = (
+                not is_opening_noise and
+                curr_price > vwap and
+                48.0 <= rsi <= 68.0 and
+                (rvol >= 1.2 or day_chg >= 1.2)
+            )
+
+            if not is_user_holding and day_chg >= 0.8 and is_institutional_breakout and k_buy not in sent_alerts:
+                buy_tg_intra = round(curr_price + max(curr_price * 0.02, 1.5 * atr), 2)
+                buy_sl_intra = round(curr_price - min(curr_price * 0.025, max(curr_price * 0.012, 1.2 * atr)), 2)
                 expected_prof = round(buy_tg_intra - curr_price, 2)
-                title = f"🚀 BUY ALERT: {name} Breaking Out (+{day_chg:+.2f}%)!"
+                title = f"🚀 VERIFIED BUY BREAKOUT: {name} (+{day_chg:+.2f}%)!"
                 msg = (
-                    f"🚀 FRESH HIGH-PROFIT BUY OPPORTUNITY: {name}!\n"
+                    f"🚀 INSTITUTIONAL VERIFIED BREAKOUT: {name}!\n"
                     f"========================================\n"
                     f"• Live Price: ₹{curr_price:,.2f} (+{day_chg:+.2f}% TODAY)\n"
-                    f"• 🎯 Intraday Target (+2.5%): ₹{buy_tg_intra:,.2f} (+₹{expected_prof:,.2f}/sh)\n"
+                    f"• 🌊 VWAP: ₹{vwap:,.2f} (Price strictly above VWAP)\n"
+                    f"• 📊 Relative Volume: {rvol}x (Institutional Surge)\n"
+                    f"• 📈 RSI: {rsi} (Sweet-Spot Momentum)\n"
+                    f"• 🎯 Intraday Target: ₹{buy_tg_intra:,.2f} (+₹{expected_prof:,.2f}/sh)\n"
                     f"• 🎯 Delivery Target (+15.0%): ₹{round(curr_price * 1.15, 2):,.2f}\n"
-                    f"• 🛡️ Stop-Loss (-1.5%): ₹{buy_sl_intra:,.2f}\n"
+                    f"• 🛡️ ATR Adaptive Stop-Loss: ₹{buy_sl_intra:,.2f}\n"
                     f"========================================\n"
-                    f"💡 AI Momentum Breakout Confirmed. Enter trade now!\n\n"
+                    f"💡 Noise Filtered & Institutional Trend Confirmed. Enter now!\n\n"
                     f"👉 1-Tap Broker Links:\n"
                     f"• Zerodha: https://kite.zerodha.com\n"
                     f"• Groww: https://groww.in/search?q={name}"
@@ -282,7 +329,7 @@ def check_live_targets_and_notify():
                     "timestamp": now_str,
                     "symbol": sym,
                     "name": name,
-                    "trade_type": "Buy Opportunity",
+                    "trade_type": "Institutional Buy",
                     "alert_type": "BUY_SIGNAL",
                     "title": title,
                     "message": msg,

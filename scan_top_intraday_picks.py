@@ -1,20 +1,29 @@
 import os
+import sys
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 import yfinance as yf
 import pandas as pd
 import numpy as np
 import joblib
 
-MODEL_PATH = "/home/sendritika25/trading_ai/offline_quant_model.pkl"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_CANDIDATES = [
+    os.path.join(BASE_DIR, "offline_quant_model.pkl"),
+    "offline_quant_model.pkl",
+    "/home/sendritika25/trading_ai/offline_quant_model.pkl"
+]
+
+model = None
+for mp in MODEL_CANDIDATES:
+    if os.path.exists(mp):
+        try:
+            model = joblib.load(mp)
+            break
+        except Exception:
+            pass
+
 candidates = ['INFY.NS', 'MARUTI.NS', 'RELIANCE.NS', 'TCS.NS', 'SUNPHARMA.NS', 'BAJFINANCE.NS', 'HINDUNILVR.NS', 'TITAN.NS', 'BHARTIARTL.NS', 'DIXON.NS']
-
-if os.path.exists(MODEL_PATH):
-    try:
-        model = joblib.load(MODEL_PATH)
-    except Exception:
-        model = None
-else:
-    model = None
-
 picks = []
 
 for sym in candidates:

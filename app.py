@@ -48,6 +48,34 @@ def save_user_active_holdings(holdings_list):
     except Exception as e:
         print(f"Error saving user holdings: {e}")
 
+# =========================================================
+# AUTONOMOUS CLOUD BACKGROUND NOTIFIER (24/7 CLOUD ALERTS)
+# =========================================================
+@st.cache_resource
+def start_autonomous_cloud_notifier():
+    import threading
+    import time
+
+    def _cloud_notifier_loop():
+        # Short initial delay to let Streamlit finish first render
+        time.sleep(10)
+        while True:
+            try:
+                import live_target_sl_notifier
+                live_target_sl_notifier.check_live_targets_and_notify()
+            except Exception as e:
+                pass
+            time.sleep(60)
+
+    t = threading.Thread(target=_cloud_notifier_loop, daemon=True, name="QuantAI_24x7_Cloud_Notifier")
+    t.start()
+    return True
+
+try:
+    start_autonomous_cloud_notifier()
+except Exception:
+    pass
+
 
 # =========================================================
 # STYLING & CUSTOM CSS
