@@ -951,12 +951,24 @@ with col_main_content:
             b_icon = "⚡"
             b_title = f"INTRADAY PEAK ALERT: {a_name} (+{a_gain:+.2f}%) Consolidating!"
             b_desc = f"Peak reached ₹{a_curr:,.2f}. Consider booking profit before pullback."
-        else:
+        elif a_type == "BUY_SIGNAL":
+            b_bg = "linear-gradient(90deg, rgba(16, 185, 129, 0.22), rgba(5, 150, 105, 0.12))"
+            b_border = "#10b981"
+            b_icon = "🚀"
+            b_title = f"VERIFIED BUY BREAKOUT: {a_name} (+{a_gain:+.2f}%)!"
+            b_desc = f"Current Price: ₹{a_curr:,.2f}. Institutional breakout confirmed."
+        elif a_type == "SL_HIT":
             b_bg = "linear-gradient(90deg, rgba(239, 68, 68, 0.22), rgba(220, 38, 38, 0.12))"
             b_border = "#ef4444"
             b_icon = "🛑"
             b_title = f"STOP LOSS HIT: {a_name} Exit Alert ({a_gain:+.2f}%)"
             b_desc = f"Price at ₹{a_curr:,.2f}. Exit recommended to protect capital."
+        else:
+            b_bg = "linear-gradient(90deg, rgba(56, 189, 248, 0.18), rgba(14, 165, 233, 0.08))"
+            b_border = "#38bdf8"
+            b_icon = "ℹ️"
+            b_title = f"LIVE MARKET UPDATE: {a_name} ({a_gain:+.2f}%)"
+            b_desc = f"Price at ₹{a_curr:,.2f}. Position is actively monitored."
 
         st.markdown(f"""
         <div style="background:{b_bg}; border:1px solid {b_border}; border-radius:10px; padding:10px 16px; margin: 10px 0 14px 0; display:flex; justify-content:space-between; align-items:center; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
