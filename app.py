@@ -1629,17 +1629,27 @@ with col_main_content:
                     
                     matched_alert = h_alerts_map.get(sym)
                     if matched_alert:
-                        curr_p = float(matched_alert.get("current", entry_p))
-                        gain_p = float(matched_alert.get("gain_pct", 0.0))
                         atype = matched_alert.get("alert_type", "")
-                        if atype == "TARGET_HIT":
+                        if atype == "SL_HIT":
+                            curr_p = float(matched_alert.get("current", entry_p))
+                            gain_p = float(matched_alert.get("gain_pct", 0.0))
+                            ai_status = "🛑 SL TRIGGERED • EXIT"
+                        elif atype == "TARGET_HIT":
+                            curr_p = float(matched_alert.get("current", entry_p))
+                            gain_p = float(matched_alert.get("gain_pct", 0.0))
                             ai_status = "🎯 TARGET HIT • SELL NOW"
                         elif atype == "TRAILING_SL":
+                            curr_p = float(matched_alert.get("current", entry_p))
+                            gain_p = float(matched_alert.get("gain_pct", 0.0))
                             ai_status = "🛡️ TRAILING SL (0% RISK)"
                         elif atype == "PEAK_REVERSAL":
+                            curr_p = float(matched_alert.get("current", entry_p))
+                            gain_p = float(matched_alert.get("gain_pct", 0.0))
                             ai_status = "⚡ PEAK REVERSAL • BOOK PROFIT"
                         else:
-                            ai_status = "🛑 SL TRIGGERED • EXIT"
+                            curr_p = entry_p
+                            gain_p = 0.0
+                            ai_status = "🟢 ACTIVE MONITORING"
                     else:
                         curr_p = entry_p
                         gain_p = 0.0
