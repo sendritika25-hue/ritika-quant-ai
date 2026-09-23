@@ -10,36 +10,6 @@
     "status": "ACTIVE"
   },
   {
-    "symbol": "SUZLON.NS",
-    "name": "SUZLON",
-    "entry": 45.24,
-    "target": 58.81,
-    "sl": 42.98,
-    "trade_type": "Delivery",
-    "buy_time": "2026-09-07 12:06",
-    "status": "ACTIVE"
-  },
-  {
-    "symbol": "SOLARINDS.NS",
-    "name": "SOLARINDS",
-    "entry": 21950.0,
-    "target": 22498.75,
-    "sl": 21620.75,
-    "trade_type": "Intraday",
-    "buy_time": "2026-09-07 16:24",
-    "status": "ACTIVE"
-  },
-  {
-    "symbol": "CUMMINSIND.NS",
-    "name": "CUMMINSIND",
-    "entry": 5128.0,
-    "target": 5256.2,
-    "sl": 5051.08,
-    "trade_type": "Intraday",
-    "buy_time": "2026-09-09 10:25",
-    "status": "ACTIVE"
-  },
-  {
     "symbol": "ZOMATO.NS",
     "name": "ZOMATO",
     "entry": 238.4,
@@ -80,43 +50,33 @@
     "status": "ACTIVE"
   },
   {
-    "symbol": "BHEL.NS",
-    "name": "BHEL",
-    "entry": 431.55,
-    "target": 442.34,
-    "sl": 425.08,
+    "symbol": "VBL.NS",
+    "name": "VBL",
+    "entry": 436.6,
+    "target": 447.5,
+    "sl": 431.35,
     "trade_type": "Intraday",
-    "buy_time": "2026-09-09 12:38",
+    "buy_time": "2026-09-23 10:52",
     "status": "ACTIVE"
   },
   {
-    "symbol": "BEL.NS",
-    "name": "BEL",
-    "entry": 407.5,
-    "target": 417.69,
-    "sl": 401.39,
+    "symbol": "BANDHANBNK.NS",
+    "name": "BANDHANBNK",
+    "entry": 191.67,
+    "target": 196.45,
+    "sl": 188.8,
     "trade_type": "Intraday",
-    "buy_time": "2026-09-09 12:40",
+    "buy_time": "2026-09-23 10:52",
     "status": "ACTIVE"
   },
   {
-    "symbol": "KAYNES.NS",
-    "name": "KAYNES",
-    "entry": 3616.8,
-    "target": 3707.22,
-    "sl": 3562.55,
+    "symbol": "POLYCAB.NS",
+    "name": "POLYCAB",
+    "entry": 8391.5,
+    "target": 8560.0,
+    "sl": 8310.0,
     "trade_type": "Intraday",
-    "buy_time": "2026-09-09 12:58",
-    "status": "ACTIVE"
-  },
-  {
-    "symbol": "OBEROIRLTY.NS",
-    "name": "OBEROIRLTY",
-    "entry": 1814.30,
-    "target": 1859.65,
-    "sl": 1787.08,
-    "trade_type": "Delivery",
-    "buy_time": "2026-09-09 13:09",
+    "buy_time": "2026-09-23 10:52",
     "status": "ACTIVE"
   }
 ]
