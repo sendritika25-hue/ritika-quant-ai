@@ -2229,8 +2229,12 @@ with col_main_content:
                     badge = "🛡️ ZERO RISK TRAILING SL"
                 elif a_type == "PEAK_REVERSAL":
                     badge = "⚡ PEAK PROFIT REVERSAL"
-                else:
+                elif a_type == "BUY_SIGNAL":
+                    badge = "🚀 FRESH BUY BREAKOUT"
+                elif a_type == "SL_HIT":
                     badge = "🛑 STOP LOSS HIT"
+                else:
+                    badge = "ℹ️ MARKET UPDATE"
 
                 formatted_alerts.append({
                     "Time": a.get("timestamp", "")[-8:],
