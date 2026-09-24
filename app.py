@@ -306,21 +306,53 @@ TICKER_ALIASES = {
     'NIFTY': '^NSEI', 'NIFTY 50': '^NSEI', 'NIFTY50': '^NSEI', 'NYFTY 50': '^NSEI', 'NYFTY': '^NSEI', 'NSEI': '^NSEI',
     'BANKNIFTY': '^NSEBANK', 'NIFTY BANK': '^NSEBANK', 'BANK NIFTY': '^NSEBANK',
     'SENSEX': '^BSESN', 'BSE SENSEX': '^BSESN', 'SUNSEX': '^BSESN', 'SUNSEX 30': '^BSESN', 'SENSEX 30': '^BSESN',
-    'RELIANCE': 'RELIANCE.NS', 'RIL': 'RELIANCE.NS',
+    'RELIANCE': 'RELIANCE.NS', 'RIL': 'RELIANCE.NS', 'MUKESH AMBANI': 'RELIANCE.NS',
     'NYKA': 'NYKAA.NS', 'NYKAA': 'NYKAA.NS', 'FSN': 'NYKAA.NS',
     'PAYTM': 'PAYTM.NS', 'ONE97': 'PAYTM.NS',
-    'ZOMATO': 'ZOMATO.NS', 'SWIGGY': 'SWIGGY.NS',
+    'ZOMATO': 'ZOMATO.NS', 'SWIGGY': 'SWIGGY.NS', 'BLINKIT': 'ZOMATO.NS',
     'TATA MOTORS': 'TATAMOTORS.NS', 'TATAMOTORS': 'TATAMOTORS.NS', 'TATA MOTOR': 'TATAMOTORS.NS',
-    'TCS': 'TCS.NS', 'INFY': 'INFY.NS', 'INFOSYS': 'INFY.NS',
+    'TATA STEEL': 'TATASTEEL.NS', 'TATASTEEL': 'TATASTEEL.NS',
+    'TATA ELXSI': 'TATAELXSI.NS', 'TATAELXSI': 'TATAELXSI.NS',
+    'TCS': 'TCS.NS', 'TATA CONSULTANCY': 'TCS.NS',
+    'INFY': 'INFY.NS', 'INFOSYS': 'INFY.NS',
     'HDFC': 'HDFCBANK.NS', 'HDFCBANK': 'HDFCBANK.NS',
     'ICICI': 'ICICIBANK.NS', 'ICICIBANK': 'ICICIBANK.NS',
-    'SBI': 'SBIN.NS', 'SBIN': 'SBIN.NS',
-    'ADANI': 'ADANIENT.NS', 'ADANIENT': 'ADANIENT.NS', 'ADANI PORTS': 'ADANIPORTS.NS',
+    'SBI': 'SBIN.NS', 'SBIN': 'SBIN.NS', 'STATE BANK': 'SBIN.NS',
+    'ADANI': 'ADANIENT.NS', 'ADANIENT': 'ADANIENT.NS', 'ADANI PORTS': 'ADANIPORTS.NS', 'ADANIPORTS': 'ADANIPORTS.NS',
     'GOLD': 'GOLDBEES.NS', 'GOLDBEES': 'GOLDBEES.NS',
     'SILVER': 'SILVERBEES.NS', 'SILVERBEES': 'SILVERBEES.NS',
     'BITCOIN': 'BTC-INR', 'BTC': 'BTC-INR', 'CRYPTO': 'BTC-INR',
-    'POLYCAB': 'POLYCAB.NS', 'HAL': 'HAL.NS', 'BHARTIARTL': 'BHARTIARTL.NS', 'SUZLON': 'SUZLON.NS',
-    'COFORGE': 'COFORGE.NS', 'KAYNES': 'KAYNES.NS', 'DIXON': 'DIXON.NS'
+    'POLYCAB': 'POLYCAB.NS', 'HAL': 'HAL.NS', 'HINDUSTAN AERONAUTICS': 'HAL.NS',
+    'BHARTIARTL': 'BHARTIARTL.NS', 'AIRTEL': 'BHARTIARTL.NS', 'BHARTI': 'BHARTIARTL.NS',
+    'SUZLON': 'SUZLON.NS', 'COFORGE': 'COFORGE.NS', 'KAYNES': 'KAYNES.NS',
+    'DIXON': 'DIXON.NS', 'DIXON TECH': 'DIXON.NS',
+    'PHOENIXLTD': 'PHOENIXLTD.NS', 'PHOENIX': 'PHOENIXLTD.NS', 'PHOENIX MILLS': 'PHOENIXLTD.NS',
+    'MOTHERSON': 'MOTHERSON.NS', 'SAMVARDHANA MOTHERSON': 'MOTHERSON.NS', 'MOTHER': 'MOTHERSON.NS',
+    'CIPLA': 'CIPLA.NS', 'BDL': 'BDL.NS', 'BHARAT DYNAMICS': 'BDL.NS',
+    'BEL': 'BEL.NS', 'BHARAT ELECTRONICS': 'BEL.NS',
+    'VBL': 'VBL.NS', 'VARUN BEVERAGES': 'VBL.NS',
+    'BANDHAN': 'BANDHANBNK.NS', 'BANDHANBNK': 'BANDHANBNK.NS', 'BANDHAN BANK': 'BANDHANBNK.NS',
+    'DLF': 'DLF.NS', 'OBEROI': 'OBEROIRLTY.NS', 'OBEROIRLTY': 'OBEROIRLTY.NS',
+    'MARUTI': 'MARUTI.NS', 'MARUTI SUZUKI': 'MARUTI.NS',
+    'LALPATHLAB': 'LALPATHLAB.NS', 'DR LAL': 'LALPATHLAB.NS', 'LALPATH': 'LALPATHLAB.NS',
+    'MCX': 'MCX.NS', 'IDEA': 'IDEA.NS', 'VODAFONE': 'IDEA.NS', 'VI': 'IDEA.NS',
+    'SUNPHARMA': 'SUNPHARMA.NS', 'SUN PHARMA': 'SUNPHARMA.NS',
+    'TITAN': 'TITAN.NS', 'ITC': 'ITC.NS', 'LT': 'LT.NS', 'L&T': 'LT.NS', 'LARSEN': 'LT.NS',
+    'TRENT': 'TRENT.NS', 'ZUDIO': 'TRENT.NS', 'MAZDOCK': 'MAZDOCK.NS', 'MAZAGON': 'MAZDOCK.NS',
+    'COCHINSHIP': 'COCHINSHIP.NS', 'COCHIN': 'COCHINSHIP.NS',
+    'BHEL': 'BHEL.NS', 'IREDA': 'IREDA.NS', 'RPOWER': 'RPOWER.NS', 'RELIANCE POWER': 'RPOWER.NS',
+    'YESBANK': 'YESBANK.NS', 'IRCTC': 'IRCTC.NS', 'UPL': 'UPL.NS',
+    'METROPOLIS': 'METROPOLIS.NS', 'CUMMINSIND': 'CUMMINSIND.NS', 'CUMMINS': 'CUMMINSIND.NS',
+    'KEI': 'KEI.NS', 'SOLARINDS': 'SOLARINDS.NS', 'SOLAR': 'SOLARINDS.NS',
+    'FEDERALBNK': 'FEDERALBNK.NS', 'FEDERAL BANK': 'FEDERALBNK.NS',
+    'APOLLOHOSP': 'APOLLOHOSP.NS', 'APOLLO HOSPITALS': 'APOLLOHOSP.NS',
+    'ULTRACEMCO': 'ULTRACEMCO.NS', 'ULTRATECH': 'ULTRACEMCO.NS',
+    'ICICIGI': 'ICICIGI.NS', 'CDSL': 'CDSL.NS', 'POWERGRID': 'POWERGRID.NS',
+    'PFC': 'PFC.NS', 'HINDALCO': 'HINDALCO.NS', 'RECLTD': 'RECLTD.NS', 'REC': 'RECLTD.NS',
+    'DIVISLAB': 'DIVISLAB.NS', 'TIMKEN': 'TIMKEN.NS', 'IDFCFIRSTB': 'IDFCFIRSTB.NS', 'IDFC': 'IDFCFIRSTB.NS',
+    'BANKBARODA': 'BANKBARODA.NS', 'BOB': 'BANKBARODA.NS', 'JSWSTEEL': 'JSWSTEEL.NS', 'JSW': 'JSWSTEEL.NS',
+    'UNIONBANK': 'UNIONBANK.NS', 'PNB': 'PNB.NS', 'CANBK': 'CANBK.NS', 'CANARA BANK': 'CANBK.NS',
+    'PIDILITIND': 'PIDILITIND.NS', 'FEVICOL': 'PIDILITIND.NS'
 }
 
 SECTOR_MAP = {
@@ -436,18 +468,45 @@ BASE_PRICE_MAP = {
     "BTC-INR": 5845000.00
 }
 
-def resolve_ticker(user_input):
+def resolve_ticker_with_details(user_input):
+    if not user_input:
+        return "^NSEI", False
     raw_str = str(user_input).strip().upper()
     clean = raw_str.replace(".NS", "").replace(".BO", "").strip()
+    
+    # 1. Exact alias match
     if clean in TICKER_ALIASES:
-        return TICKER_ALIASES[clean]
+        res = TICKER_ALIASES[clean]
+        canonical = res.replace(".NS", "").replace(".BO", "")
+        return res, (clean != canonical)
+        
+    canonical_vals = {v.replace(".NS", "").replace(".BO", ""): v for v in TICKER_ALIASES.values()}
+    if clean in canonical_vals:
+        return canonical_vals[clean], False
+
+    # 2. Substring & prefix containment
+    for k, sym in TICKER_ALIASES.items():
+        if len(clean) >= 3 and (clean == k or clean in k or k in clean):
+            return sym, True
+
+    # 3. Multi-word first token
     parts = clean.split()
-    if len(parts) > 1:
-        first = parts[0]
-        if first in TICKER_ALIASES:
-            return TICKER_ALIASES[first]
-        return f"{first}.NS"
-    return f"{clean}.NS"
+    if len(parts) > 1 and parts[0] in TICKER_ALIASES:
+        return TICKER_ALIASES[parts[0]], True
+
+    # 4. Fuzzy Spell-Correction (handles typos like 'mothrson', 'dxon', 'cpla', 'phonix', 'relince')
+    matches = difflib.get_close_matches(clean, list(TICKER_ALIASES.keys()), n=1, cutoff=0.55)
+    if matches:
+        return TICKER_ALIASES[matches[0]], True
+
+    # Default fallback
+    if clean.startswith("^"):
+        return clean, False
+    return f"{clean}.NS", False
+
+def resolve_ticker(user_input):
+    sym, _ = resolve_ticker_with_details(user_input)
+    return sym
 
 def generate_fallback_dataframe(ticker):
     base_p = BASE_PRICE_MAP.get(ticker, 1250.00)
@@ -860,7 +919,9 @@ with col_main_content:
     col_h1, col_h2 = st.columns([1.8, 2.2])
     with col_h1:
         raw_ticker_input = st.text_input("🔍 Search Ticker (e.g. SENSEX, NIFTY 50, POLYCAB, HAL)", label_visibility="collapsed", key="global_ticker_search_ref")
-        selected_ticker = resolve_ticker(raw_ticker_input)
+        selected_ticker, is_search_corr = resolve_ticker_with_details(raw_ticker_input)
+        if is_search_corr and raw_ticker_input.strip():
+            st.markdown(f"<div style='font-size:11px; color:#4ade80; margin: 2px 0 0 4px;'>✨ AI Auto-Corrected: <b>{raw_ticker_input}</b> ➔ <b>{selected_ticker}</b></div>", unsafe_allow_html=True)
 
     with col_h2:
         btn_c1, btn_c2, btn_c3, btn_c4 = st.columns([0.7, 1.4, 1.4, 1.5])
@@ -1703,7 +1764,12 @@ with col_main_content:
             st.markdown("### ➕ Manually Add Bought Stock To Track")
             ac1, ac2, ac3, ac4 = st.columns(4)
             with ac1:
-                add_sym = st.text_input("Stock Ticker", value="HAL.NS", key="add_h_sym")
+                add_sym = st.text_input("Stock Ticker", value="HAL.NS", key="add_h_sym", help="Type any stock name or typo e.g. mothrson, sbi, dixon. Auto-corrects automatically!")
+                add_r_disp, add_c_disp = resolve_ticker_with_details(add_sym)
+                if add_c_disp:
+                    st.markdown(f"<div style='font-size:11px; color:#4ade80; margin-top:2px;'>✨ Auto-Corrected: <b>{add_r_disp}</b></div>", unsafe_allow_html=True)
+                else:
+                    st.markdown(f"<div style='font-size:11px; color:#94a3b8; margin-top:2px;'>🎯 Target Stock: <b style='color:#38bdf8;'>{add_r_disp}</b></div>", unsafe_allow_html=True)
             with ac2:
                 add_entry = st.number_input("Buy Entry Price (₹)", value=4850.0, min_value=1.0, key="add_h_entry")
             with ac3:
@@ -1907,7 +1973,12 @@ with col_main_content:
             st.markdown("### ⚡ Execute 1-Click Virtual Trade Order")
             vo_c1, vo_c2, vo_c3, vo_c4, vo_c5 = st.columns([2, 1.2, 1.2, 2.2, 2])
             with vo_c1:
-                v_stock = st.text_input("Stock Ticker", value="BHARTIARTL.NS", key="v_trade_stock")
+                v_stock = st.text_input("Stock Ticker", value="MOTHERSON.NS", key="v_trade_stock", help="Type any stock name or typo e.g. mothrson, sbi, dixon, cipla. Auto-corrects automatically!")
+                sym_r_disp, is_c_disp = resolve_ticker_with_details(v_stock)
+                if is_c_disp:
+                    st.markdown(f"<div style='font-size:11px; color:#4ade80; margin-top:2px;'>✨ Auto-Corrected: <b>{sym_r_disp}</b></div>", unsafe_allow_html=True)
+                else:
+                    st.markdown(f"<div style='font-size:11px; color:#94a3b8; margin-top:2px;'>🎯 Target Stock: <b style='color:#38bdf8;'>{sym_r_disp}</b></div>", unsafe_allow_html=True)
             with vo_c2:
                 v_shares = st.number_input("Shares Qty", value=ps_res['shares'], min_value=1, key="v_trade_qty")
             with vo_c3:
