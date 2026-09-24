@@ -10,26 +10,6 @@
     "status": "ACTIVE"
   },
   {
-    "symbol": "ZOMATO.NS",
-    "name": "ZOMATO",
-    "entry": 238.4,
-    "target": 244.36,
-    "sl": 234.82,
-    "trade_type": "Intraday",
-    "buy_time": "2026-09-09 11:02",
-    "status": "ACTIVE"
-  },
-  {
-    "symbol": "SBIN.NS",
-    "name": "SBIN",
-    "entry": 1006.4,
-    "target": 1177.49,
-    "sl": 956.08,
-    "trade_type": "Delivery",
-    "buy_time": "2026-09-09 11:13",
-    "status": "ACTIVE"
-  },
-  {
     "symbol": "RELIANCE.NS",
     "name": "RELIANCE",
     "entry": 1289.5,
@@ -50,33 +30,63 @@
     "status": "ACTIVE"
   },
   {
-    "symbol": "VBL.NS",
-    "name": "VBL",
-    "entry": 436.6,
-    "target": 447.5,
-    "sl": 431.35,
+    "symbol": "PHOENIXLTD.NS",
+    "name": "PHOENIXLTD",
+    "entry": 2029.8,
+    "target": 2070.4,
+    "sl": 2009.5,
     "trade_type": "Intraday",
-    "buy_time": "2026-09-23 10:52",
+    "buy_time": "2026-09-24 10:58",
     "status": "ACTIVE"
   },
   {
-    "symbol": "BANDHANBNK.NS",
-    "name": "BANDHANBNK",
-    "entry": 191.67,
-    "target": 196.45,
-    "sl": 188.8,
+    "symbol": "MOTHERSON.NS",
+    "name": "MOTHERSON",
+    "entry": 164.1,
+    "target": 167.38,
+    "sl": 162.46,
     "trade_type": "Intraday",
-    "buy_time": "2026-09-23 10:52",
+    "buy_time": "2026-09-24 10:58",
     "status": "ACTIVE"
   },
   {
-    "symbol": "POLYCAB.NS",
-    "name": "POLYCAB",
-    "entry": 8391.5,
-    "target": 8560.0,
-    "sl": 8310.0,
+    "symbol": "DIXON.NS",
+    "name": "DIXON",
+    "entry": 13265.0,
+    "target": 13530.3,
+    "sl": 13132.35,
     "trade_type": "Intraday",
-    "buy_time": "2026-09-23 10:52",
+    "buy_time": "2026-09-24 10:58",
+    "status": "ACTIVE"
+  },
+  {
+    "symbol": "SBIN.NS",
+    "name": "SBIN",
+    "entry": 987.6,
+    "target": 1007.35,
+    "sl": 977.72,
+    "trade_type": "Intraday",
+    "buy_time": "2026-09-24 10:58",
+    "status": "ACTIVE"
+  },
+  {
+    "symbol": "BDL.NS",
+    "name": "BDL",
+    "entry": 1175.0,
+    "target": 1198.5,
+    "sl": 1163.25,
+    "trade_type": "Intraday",
+    "buy_time": "2026-09-24 10:58",
+    "status": "ACTIVE"
+  },
+  {
+    "symbol": "CIPLA.NS",
+    "name": "CIPLA",
+    "entry": 1393.6,
+    "target": 1421.47,
+    "sl": 1379.66,
+    "trade_type": "Intraday",
+    "buy_time": "2026-09-24 10:58",
     "status": "ACTIVE"
   }
 ]
