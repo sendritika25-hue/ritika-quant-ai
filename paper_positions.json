@@ -1,43 +1,7 @@
 {
-  "cash": 100893.02,
+  "cash": 59467.92,
   "realized_profit": 893.02,
   "positions": [
-    {
-      "Ticker": "MOTHERSON.NS",
-      "Type": "INTRADAY (MIS)",
-      "BuyPrice": 164.10,
-      "Shares": 100,
-      "AITarget": 167.38,
-      "AIScore": "88% (High Conviction)",
-      "BuyTime": "2026-09-24 10:58"
-    },
-    {
-      "Ticker": "DIXON.NS",
-      "Type": "INTRADAY (MIS)",
-      "BuyPrice": 13265.00,
-      "Shares": 1,
-      "AITarget": 13530.30,
-      "AIScore": "92% (Breakout)",
-      "BuyTime": "2026-09-24 10:58"
-    },
-    {
-      "Ticker": "CIPLA.NS",
-      "Type": "INTRADAY (MIS)",
-      "BuyPrice": 1393.60,
-      "Shares": 11,
-      "AITarget": 1421.47,
-      "AIScore": "89% (High Conviction)",
-      "BuyTime": "2026-09-24 10:58"
-    },
-    {
-      "Ticker": "BDL.NS",
-      "Type": "INTRADAY (MIS)",
-      "BuyPrice": 1175.00,
-      "Shares": 14,
-      "AITarget": 1198.50,
-      "AIScore": "87% (Defence Momentum)",
-      "BuyTime": "2026-09-24 10:58"
-    },
     {
       "Ticker": "SBIN.NS",
       "Type": "INTRADAY (MIS)",
@@ -48,31 +12,49 @@
       "BuyTime": "2026-09-24 10:58"
     },
     {
-      "Ticker": "POLYCAB.NS",
+      "Ticker": "SOLARINDS.NS",
       "Type": "DELIVERY (CNC)",
-      "BuyPrice": 9125.50,
-      "Shares": 5,
-      "AITarget": 10494.30,
-      "AIScore": "88% (High Confidence)",
-      "BuyTime": "2026-09-01 10:00"
+      "BuyPrice": 19765.00,
+      "Shares": 1,
+      "AITarget": 22729.75,
+      "AIScore": "88% (High Conviction)",
+      "BuyTime": "2026-09-24 13:20"
     },
     {
-      "Ticker": "BHARTIARTL.NS",
+      "Ticker": "COCHINSHIP.NS",
       "Type": "DELIVERY (CNC)",
-      "BuyPrice": 1680.00,
-      "Shares": 25,
-      "AITarget": 1932.00,
-      "AIScore": "85% (High Confidence)",
-      "BuyTime": "2026-09-01 10:00"
+      "BuyPrice": 1381.50,
+      "Shares": 4,
+      "AITarget": 1588.72,
+      "AIScore": "87% (Defence Momentum)",
+      "BuyTime": "2026-09-24 13:20"
     },
     {
-      "Ticker": "HAL.NS",
+      "Ticker": "COFORGE.NS",
       "Type": "DELIVERY (CNC)",
-      "BuyPrice": 4850.00,
+      "BuyPrice": 1791.50,
+      "Shares": 3,
+      "AITarget": 2060.22,
+      "AIScore": "89% (High Conviction)",
+      "BuyTime": "2026-09-24 13:20"
+    },
+    {
+      "Ticker": "ICICIBANK.NS",
+      "Type": "DELIVERY (CNC)",
+      "BuyPrice": 1337.90,
+      "Shares": 4,
+      "AITarget": 1538.59,
+      "AIScore": "86% (Banking Breakout)",
+      "BuyTime": "2026-09-24 13:20"
+    },
+    {
+      "Ticker": "DLF.NS",
+      "Type": "DELIVERY (CNC)",
+      "BuyPrice": 676.00,
       "Shares": 8,
-      "AITarget": 5626.00,
-      "AIScore": "91% (Ultra Conviction)",
-      "BuyTime": "2026-09-01 10:00"
+      "AITarget": 777.40,
+      "AIScore": "85% (Realty Momentum)",
+      "BuyTime": "2026-09-24 13:20"
     }
   ]
 }

@@ -285,18 +285,21 @@ def save_paper_account_data(cash, realized_profit, positions):
 
 _paper_data = load_paper_account_data()
 if "paper_cash" not in st.session_state:
-    st.session_state["paper_cash"] = _paper_data.get("cash", 100893.02)
+    st.session_state["paper_cash"] = _paper_data.get("cash", 59467.92)
 if "realized_profit" not in st.session_state:
     st.session_state["realized_profit"] = _paper_data.get("realized_profit", 893.02)
 if "paper_positions" not in st.session_state:
     st.session_state["paper_positions"] = _paper_data.get("positions", [])
 
-# Auto-purge any legacy demo tickers (Maruti and Lalpathlab) if present in session state
+# Auto-purge any sold morning tickers or legacy demo holdings from session state
+sold_or_demo_tickers = ["MOTHERSON.NS", "DIXON.NS", "CIPLA.NS", "BDL.NS", "POLYCAB.NS", "BHARTIARTL.NS", "HAL.NS", "MARUTI.NS", "LALPATHLAB.NS"]
 if "paper_positions" in st.session_state:
-    st.session_state["paper_positions"] = [
-        p for p in st.session_state["paper_positions"]
-        if p.get("Ticker") not in ["MARUTI.NS", "LALPATHLAB.NS"]
-    ]
+    has_stale = any(p.get("Ticker") in sold_or_demo_tickers for p in st.session_state["paper_positions"])
+    if has_stale:
+        st.session_state["paper_positions"] = _paper_data.get("positions", [])
+        st.session_state["paper_cash"] = _paper_data.get("cash", 59467.92)
+        st.session_state["realized_profit"] = _paper_data.get("realized_profit", 893.02)
+        save_paper_account_data(st.session_state["paper_cash"], st.session_state["realized_profit"], st.session_state["paper_positions"])
 
 if "watchlist_items" not in st.session_state:
     st.session_state["watchlist_items"] = [
