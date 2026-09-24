@@ -1733,30 +1733,23 @@ with col_main_content:
                     
                     matched_alert = h_alerts_map.get(sym)
                     if matched_alert:
-                        atype = matched_alert.get("alert_type", "")
-                        if atype == "SL_HIT":
-                            curr_p = float(matched_alert.get("current", entry_p))
-                            gain_p = float(matched_alert.get("gain_pct", 0.0))
-                            ai_status = "🛑 SL TRIGGERED • EXIT"
-                        elif atype == "TARGET_HIT":
-                            curr_p = float(matched_alert.get("current", entry_p))
-                            gain_p = float(matched_alert.get("gain_pct", 0.0))
-                            ai_status = "🎯 TARGET HIT • SELL NOW"
-                        elif atype == "TRAILING_SL":
-                            curr_p = float(matched_alert.get("current", entry_p))
-                            gain_p = float(matched_alert.get("gain_pct", 0.0))
-                            ai_status = "🛡️ TRAILING SL (0% RISK)"
-                        elif atype == "PEAK_REVERSAL":
-                            curr_p = float(matched_alert.get("current", entry_p))
-                            gain_p = float(matched_alert.get("gain_pct", 0.0))
-                            ai_status = "⚡ PEAK REVERSAL • BOOK PROFIT"
-                        else:
-                            curr_p = entry_p
-                            gain_p = 0.0
-                            ai_status = "🟢 ACTIVE MONITORING"
+                        curr_p = float(matched_alert.get("current", entry_p))
                     else:
                         curr_p = entry_p
-                        gain_p = 0.0
+
+                    # Accurately compute live gain % from actual buy entry
+                    gain_p = round(((curr_p - entry_p) / entry_p) * 100, 2) if entry_p > 0 else 0.0
+
+                    # Dynamic and accurate status based on actual Target and Stop-Loss
+                    if tg_p > 0 and curr_p >= tg_p:
+                        ai_status = "🎯 TARGET HIT • SELL NOW"
+                    elif sl_p > 0 and curr_p <= sl_p:
+                        ai_status = "🛑 SL TRIGGERED • EXIT"
+                    elif (ttype == "Delivery" and gain_p >= 5.0) or (ttype != "Delivery" and gain_p >= 1.2):
+                        ai_status = "🛡️ TRAILING SL (0% RISK)"
+                    elif matched_alert and matched_alert.get("alert_type") == "PEAK_REVERSAL":
+                        ai_status = "⚡ PEAK REVERSAL • BOOK PROFIT"
+                    else:
                         ai_status = "🟢 ACTIVE MONITORING"
 
                     display_rows.append({
