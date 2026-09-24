@@ -257,18 +257,39 @@ if "logged_in" not in st.session_state:
 if "current_user" not in st.session_state:
     st.session_state["current_user"] = ""
 
-if "paper_cash" not in st.session_state:
-    st.session_state["paper_cash"] = 100000.00
+PAPER_STORE_FILE = "paper_positions.json"
 
-# PRE-SET TOP 3 AI BALANCED TEST PICKS IN PAPER POSITIONS
+def load_paper_account_data():
+    if os.path.exists(PAPER_STORE_FILE):
+        try:
+            with open(PAPER_STORE_FILE, "r") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {
+        "cash": 100893.02,
+        "realized_profit": 893.02,
+        "positions": []
+    }
+
+def save_paper_account_data(cash, realized_profit, positions):
+    try:
+        with open(PAPER_STORE_FILE, "w") as f:
+            json.dump({
+                "cash": round(float(cash), 2),
+                "realized_profit": round(float(realized_profit), 2),
+                "positions": positions
+            }, f, indent=2)
+    except Exception:
+        pass
+
+_paper_data = load_paper_account_data()
+if "paper_cash" not in st.session_state:
+    st.session_state["paper_cash"] = _paper_data.get("cash", 100893.02)
+if "realized_profit" not in st.session_state:
+    st.session_state["realized_profit"] = _paper_data.get("realized_profit", 893.02)
 if "paper_positions" not in st.session_state:
-    st.session_state["paper_positions"] = [
-        {"Ticker": "MARUTI.NS", "Type": "INTRADAY (MIS)", "BuyPrice": 12813.00, "Shares": 2, "AITarget": 13133.32, "AIScore": "88% (High Conviction)", "BuyTime": datetime.now().strftime("%Y-%m-%d %H:%M")},
-        {"Ticker": "LALPATHLAB.NS", "Type": "INTRADAY (MIS)", "BuyPrice": 1902.50, "Shares": 10, "AITarget": 1950.06, "AIScore": "85% (Safe Compounder)", "BuyTime": datetime.now().strftime("%Y-%m-%d %H:%M")},
-        {"Ticker": "POLYCAB.NS", "Type": "DELIVERY (CNC)", "BuyPrice": 9125.50, "Shares": 5, "AITarget": 10494.30, "AIScore": "88% (High Confidence)", "BuyTime": "2026-09-01"},
-        {"Ticker": "BHARTIARTL.NS", "Type": "DELIVERY (CNC)", "BuyPrice": 1680.00, "Shares": 25, "AITarget": 1932.00, "AIScore": "85% (High Confidence)", "BuyTime": "2026-09-01"},
-        {"Ticker": "HAL.NS", "Type": "DELIVERY (CNC)", "BuyPrice": 4850.00, "Shares": 8, "AITarget": 5626.00, "AIScore": "91% (Ultra Conviction)", "BuyTime": "2026-09-01"}
-    ]
+    st.session_state["paper_positions"] = _paper_data.get("positions", [])
 
 if "watchlist_items" not in st.session_state:
     st.session_state["watchlist_items"] = [
@@ -1942,6 +1963,7 @@ with col_main_content:
                             else:
                                 curr_holding_obj["Shares"] -= qty_to_reduce
                                 st.success(f"✅ Sold {qty_to_reduce} shares of {t_name}! Cash Credited: +₹{proceeds:,.2f} | Remaining: {curr_holding_obj['Shares']} shares.")
+                            save_paper_account_data(st.session_state["paper_cash"], st.session_state["realized_profit"], st.session_state["paper_positions"])
                             st.rerun()
 
             st.markdown("<div style='height:15px;'></div>", unsafe_allow_html=True)
@@ -2031,6 +2053,7 @@ with col_main_content:
                                 realized = v_shares * est_buy
                                 st.session_state["paper_cash"] += realized
                                 st.success(f"✅ Partially Sold {v_shares} shares of {sym_r}! Remaining: {curr_p['Shares']} shares. Realized ₹{realized:,.2f} credited to Cash.")
+                            save_paper_account_data(st.session_state["paper_cash"], st.session_state["realized_profit"], st.session_state["paper_positions"])
                             st.rerun()
                         else:
                             st.warning(f"⚠️ You do not currently hold {sym_r} in your paper portfolio to sell.")
@@ -2044,6 +2067,7 @@ with col_main_content:
                             "AIScore": "94% (High Confidence)" if "TRENT" in sym_r else "87% (High Confidence)",
                             "BuyTime": datetime.now().strftime("%Y-%m-%d %H:%M")
                         })
+                        save_paper_account_data(st.session_state["paper_cash"], st.session_state["realized_profit"], st.session_state["paper_positions"])
                         st.success(f"✅ Executed Virtual {h_type} Order: BUY {v_shares} shares of {sym_r}! Target: ₹{t_price}")
                         st.rerun()
 

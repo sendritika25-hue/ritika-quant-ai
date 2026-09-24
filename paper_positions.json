@@ -1,0 +1,78 @@
+{
+  "cash": 100893.02,
+  "realized_profit": 893.02,
+  "positions": [
+    {
+      "Ticker": "MOTHERSON.NS",
+      "Type": "INTRADAY (MIS)",
+      "BuyPrice": 164.10,
+      "Shares": 100,
+      "AITarget": 167.38,
+      "AIScore": "88% (High Conviction)",
+      "BuyTime": "2026-09-24 10:58"
+    },
+    {
+      "Ticker": "DIXON.NS",
+      "Type": "INTRADAY (MIS)",
+      "BuyPrice": 13265.00,
+      "Shares": 1,
+      "AITarget": 13530.30,
+      "AIScore": "92% (Breakout)",
+      "BuyTime": "2026-09-24 10:58"
+    },
+    {
+      "Ticker": "CIPLA.NS",
+      "Type": "INTRADAY (MIS)",
+      "BuyPrice": 1393.60,
+      "Shares": 11,
+      "AITarget": 1421.47,
+      "AIScore": "89% (High Conviction)",
+      "BuyTime": "2026-09-24 10:58"
+    },
+    {
+      "Ticker": "BDL.NS",
+      "Type": "INTRADAY (MIS)",
+      "BuyPrice": 1175.00,
+      "Shares": 14,
+      "AITarget": 1198.50,
+      "AIScore": "87% (Defence Momentum)",
+      "BuyTime": "2026-09-24 10:58"
+    },
+    {
+      "Ticker": "SBIN.NS",
+      "Type": "INTRADAY (MIS)",
+      "BuyPrice": 987.60,
+      "Shares": 16,
+      "AITarget": 1007.35,
+      "AIScore": "85% (PSU Surge)",
+      "BuyTime": "2026-09-24 10:58"
+    },
+    {
+      "Ticker": "POLYCAB.NS",
+      "Type": "DELIVERY (CNC)",
+      "BuyPrice": 9125.50,
+      "Shares": 5,
+      "AITarget": 10494.30,
+      "AIScore": "88% (High Confidence)",
+      "BuyTime": "2026-09-01 10:00"
+    },
+    {
+      "Ticker": "BHARTIARTL.NS",
+      "Type": "DELIVERY (CNC)",
+      "BuyPrice": 1680.00,
+      "Shares": 25,
+      "AITarget": 1932.00,
+      "AIScore": "85% (High Confidence)",
+      "BuyTime": "2026-09-01 10:00"
+    },
+    {
+      "Ticker": "HAL.NS",
+      "Type": "DELIVERY (CNC)",
+      "BuyPrice": 4850.00,
+      "Shares": 8,
+      "AITarget": 5626.00,
+      "AIScore": "91% (Ultra Conviction)",
+      "BuyTime": "2026-09-01 10:00"
+    }
+  ]
+}
