@@ -1014,16 +1014,44 @@ with col_main_content:
     else:
         all_live_alerts = []
 
-    user_tracked_syms = {h.get("symbol") for h in load_user_active_holdings()}
-    urgent_holding_alerts = [a for a in all_live_alerts if a.get("symbol") in user_tracked_syms]
+    user_holdings = load_user_active_holdings()
+    holdings_map = {h.get("symbol"): h for h in user_holdings}
+
+    # Filter out false or stale alerts that do not reflect actual current holding price/SL
+    urgent_holding_alerts = []
+    for a in all_live_alerts:
+        s = a.get("symbol")
+        if s in holdings_map:
+            h = holdings_map[s]
+            entry_p = float(h.get("entry", 0.0))
+            sl_p = float(h.get("sl", 0.0))
+            tg_p = float(h.get("target", 0.0))
+            curr_p = float(a.get("current", entry_p))
+            atype = a.get("alert_type")
+            
+            # If alert says SL_HIT, verify current price actually breached stop-loss!
+            if atype == "SL_HIT":
+                if sl_p > 0 and curr_p > sl_p:
+                    continue  # Stop loss NOT hit in reality! Discard stale/false alert!
+            elif atype == "TARGET_HIT":
+                if tg_p > 0 and curr_p < tg_p:
+                    continue  # Target NOT reached in reality!
+            urgent_holding_alerts.append(a)
 
     if urgent_holding_alerts:
         top_alert = urgent_holding_alerts[0]
         a_name = top_alert.get("name", top_alert.get("symbol", ""))
         a_type = top_alert.get("alert_type", "")
-        a_gain = top_alert.get("gain_pct", 0.0)
-        a_curr = top_alert.get("current", 0.0)
+        a_curr = float(top_alert.get("current", 0.0))
         a_ttype = top_alert.get("trade_type", "")
+        
+        # Calculate real mathematical gain % from actual buy entry
+        h_matched = holdings_map.get(top_alert.get("symbol"), {})
+        real_entry = float(h_matched.get("entry", 0.0))
+        if real_entry > 0 and a_curr > 0:
+            a_gain = round(((a_curr - real_entry) / real_entry) * 100, 2)
+        else:
+            a_gain = float(top_alert.get("gain_pct", 0.0))
 
         if a_type == "TARGET_HIT":
             b_bg = "linear-gradient(90deg, rgba(16, 185, 129, 0.22), rgba(5, 150, 105, 0.12))"
