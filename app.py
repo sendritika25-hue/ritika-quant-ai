@@ -291,6 +291,13 @@ if "realized_profit" not in st.session_state:
 if "paper_positions" not in st.session_state:
     st.session_state["paper_positions"] = _paper_data.get("positions", [])
 
+# Auto-purge any legacy demo tickers (Maruti and Lalpathlab) if present in session state
+if "paper_positions" in st.session_state:
+    st.session_state["paper_positions"] = [
+        p for p in st.session_state["paper_positions"]
+        if p.get("Ticker") not in ["MARUTI.NS", "LALPATHLAB.NS"]
+    ]
+
 if "watchlist_items" not in st.session_state:
     st.session_state["watchlist_items"] = [
         {"Ticker": "NYKAA.NS", "Name": "FSN E-Commerce Ventures", "Sector": "E-Commerce", "Price": "₹339.10", "Change": "+1.25%", "Signal": "BUY", "Target": "₹379.79"},
@@ -1785,12 +1792,13 @@ with col_main_content:
             st.markdown("### ➕ Manually Add Bought Stock To Track")
             ac1, ac2, ac3, ac4 = st.columns(4)
             with ac1:
-                add_sym = st.text_input("Stock Ticker", value="HAL.NS", key="add_h_sym", help="Type any stock name or typo e.g. mothrson, sbi, dixon. Auto-corrects automatically!")
-                add_r_disp, add_c_disp = resolve_ticker_with_details(add_sym)
-                if add_c_disp:
-                    st.markdown(f"<div style='font-size:11px; color:#4ade80; margin-top:2px;'>✨ Auto-Corrected: <b>{add_r_disp}</b></div>", unsafe_allow_html=True)
-                else:
-                    st.markdown(f"<div style='font-size:11px; color:#94a3b8; margin-top:2px;'>🎯 Target Stock: <b style='color:#38bdf8;'>{add_r_disp}</b></div>", unsafe_allow_html=True)
+                add_sym = st.text_input("Stock Ticker", value="", placeholder="e.g. SBIN, BDL, DIXON", key="add_h_sym", help="Type any stock name or typo e.g. mothrson, sbi, dixon. Auto-corrects automatically!")
+                if add_sym.strip():
+                    add_r_disp, add_c_disp = resolve_ticker_with_details(add_sym)
+                    if add_c_disp:
+                        st.markdown(f"<div style='font-size:11px; color:#4ade80; margin-top:2px;'>✨ Auto-Corrected: <b>{add_r_disp}</b></div>", unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"<div style='font-size:11px; color:#94a3b8; margin-top:2px;'>🎯 Target Stock: <b style='color:#38bdf8;'>{add_r_disp}</b></div>", unsafe_allow_html=True)
             with ac2:
                 add_entry = st.number_input("Buy Entry Price (₹)", value=4850.0, min_value=1.0, key="add_h_entry")
             with ac3:
@@ -1803,7 +1811,10 @@ with col_main_content:
             st.markdown(f"<div style='font-size:11px; color:#94a3b8; margin: 4px 0 12px 0;'>🛡️ <b>1% Capital Sizing:</b> For ₹1,00,000 capital, recommended safe buy size is <b style='color:#4ade80;'>{safe_p1_shares['shares']} shares</b> (₹{safe_p1_shares['total_invested']:,.2f}). Max risk if SL hits: <b style='color:#fca5a5;'>₹{safe_p1_shares['risk_amount']:,.2f}</b>.</div>", unsafe_allow_html=True)
             
             if st.button("🚀 Start 24x7 AI Monitoring For Position", use_container_width=True, key="start_track_manual"):
-                clean_s = resolve_ticker(add_sym)
+                if not add_sym.strip():
+                    st.warning("⚠️ Please enter a stock ticker (e.g. SBIN, DIXON, BDL) to track.")
+                else:
+                    clean_s = resolve_ticker(add_sym)
                 cur_h = load_user_active_holdings()
                 if clean_s not in [h["symbol"] for h in cur_h]:
                     cur_h.append({
@@ -1995,12 +2006,13 @@ with col_main_content:
             st.markdown("### ⚡ Execute 1-Click Virtual Trade Order")
             vo_c1, vo_c2, vo_c3, vo_c4, vo_c5 = st.columns([2, 1.2, 1.2, 2.2, 2])
             with vo_c1:
-                v_stock = st.text_input("Stock Ticker", value="MOTHERSON.NS", key="v_trade_stock", help="Type any stock name or typo e.g. mothrson, sbi, dixon, cipla. Auto-corrects automatically!")
-                sym_r_disp, is_c_disp = resolve_ticker_with_details(v_stock)
-                if is_c_disp:
-                    st.markdown(f"<div style='font-size:11px; color:#4ade80; margin-top:2px;'>✨ Auto-Corrected: <b>{sym_r_disp}</b></div>", unsafe_allow_html=True)
-                else:
-                    st.markdown(f"<div style='font-size:11px; color:#94a3b8; margin-top:2px;'>🎯 Target Stock: <b style='color:#38bdf8;'>{sym_r_disp}</b></div>", unsafe_allow_html=True)
+                v_stock = st.text_input("Stock Ticker", value="", placeholder="e.g. MOTHERSON, CIPLA, DIXON", key="v_trade_stock", help="Type any stock name or typo e.g. mothrson, sbi, dixon, cipla. Auto-corrects automatically!")
+                if v_stock.strip():
+                    sym_r_disp, is_c_disp = resolve_ticker_with_details(v_stock)
+                    if is_c_disp:
+                        st.markdown(f"<div style='font-size:11px; color:#4ade80; margin-top:2px;'>✨ Auto-Corrected: <b>{sym_r_disp}</b></div>", unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"<div style='font-size:11px; color:#94a3b8; margin-top:2px;'>🎯 Target Stock: <b style='color:#38bdf8;'>{sym_r_disp}</b></div>", unsafe_allow_html=True)
             with vo_c2:
                 v_shares = st.number_input("Shares Qty", value=ps_res['shares'], min_value=1, key="v_trade_qty")
             with vo_c3:
@@ -2018,7 +2030,10 @@ with col_main_content:
             with vo_c5:
                 st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True)
                 if st.button("🚀 Execute Virtual Order", use_container_width=True):
-                    sym_r = resolve_ticker(v_stock)
+                    if not v_stock.strip():
+                        st.warning("⚠️ Please enter a stock ticker (e.g. MOTHERSON, CIPLA, DIXON) to trade.")
+                    else:
+                        sym_r = resolve_ticker(v_stock)
                     base_p = BASE_PRICE_MAP.get(sym_r, 2811.40 if "TRENT" in sym_r else 1680.00)
                     try:
                         t_data = yf.Ticker(sym_r).history(period="1d")
