@@ -1814,6 +1814,27 @@ with col_main_content:
 
             st.markdown("<div style='height:15px;'></div>", unsafe_allow_html=True)
             st.markdown("### ➕ Manually Add Bought Stock To Track")
+            if "last_tracked_ticker" not in st.session_state:
+                st.session_state["last_tracked_ticker"] = ""
+
+            cur_typed_sym = st.session_state.get("add_h_sym", "").strip()
+            if cur_typed_sym:
+                cur_resolved = resolve_ticker(cur_typed_sym)
+                if cur_resolved != st.session_state["last_tracked_ticker"]:
+                    st.session_state["last_tracked_ticker"] = cur_resolved
+                    p_fetch = BASE_PRICE_MAP.get(cur_resolved, 0.0)
+                    if p_fetch <= 0:
+                        try:
+                            df_q = yf.Ticker(cur_resolved).history(period="1d")
+                            if not df_q.empty:
+                                p_fetch = round(float(df_q['Close'].iloc[-1]), 2)
+                        except Exception:
+                            pass
+                    if p_fetch > 0:
+                        st.session_state["add_h_entry"] = float(p_fetch)
+                        st.session_state["add_h_tg"] = round(p_fetch * 1.15, 2)
+                        st.session_state["add_h_sl"] = round(p_fetch * 0.95, 2)
+
             ac1, ac2, ac3, ac4 = st.columns(4)
             with ac1:
                 add_sym = st.text_input("Stock Ticker", value="", placeholder="e.g. SBIN, BDL, DIXON", key="add_h_sym", help="Type any stock name or typo e.g. mothrson, sbi, dixon. Auto-corrects automatically!")
@@ -1824,11 +1845,14 @@ with col_main_content:
                     else:
                         st.markdown(f"<div style='font-size:11px; color:#94a3b8; margin-top:2px;'>🎯 Target Stock: <b style='color:#38bdf8;'>{add_r_disp}</b></div>", unsafe_allow_html=True)
             with ac2:
-                add_entry = st.number_input("Buy Entry Price (₹)", value=4850.0, min_value=1.0, key="add_h_entry")
+                default_entry_val = float(st.session_state.get("add_h_entry", 1000.0))
+                add_entry = st.number_input("Buy Entry Price (₹)", value=default_entry_val, min_value=1.0, key="add_h_entry")
             with ac3:
-                add_target = st.number_input("Target Price (₹)", value=round(4850.0 * 1.15, 2), min_value=1.0, key="add_h_tg")
+                default_tg_val = float(st.session_state.get("add_h_tg", round(default_entry_val * 1.15, 2)))
+                add_target = st.number_input("Target Price (₹)", value=default_tg_val, min_value=1.0, key="add_h_tg")
             with ac4:
-                add_sl = st.number_input("Stop Loss Price (₹)", value=round(4850.0 * 0.95, 2), min_value=1.0, key="add_h_sl")
+                default_sl_val = float(st.session_state.get("add_h_sl", round(default_entry_val * 0.95, 2)))
+                add_sl = st.number_input("Stop Loss Price (₹)", value=default_sl_val, min_value=1.0, key="add_h_sl")
 
             # Real-time Position Sizing suggestion for Manual Tracking
             safe_p1_shares = calculate_position_sizing(100000.0, 1.0, add_entry, add_sl)
