@@ -486,7 +486,7 @@ BASE_PRICE_MAP = {
     "INFY.NS": 1885.00,
     "HDFCBANK.NS": 1640.00,
     "ICICIBANK.NS": 1235.00,
-    "SBIN.NS": 815.00,
+    "SBIN.NS": 988.00,
     "POLYCAB.NS": 9125.50,
     "HAL.NS": 4850.00,
     "PAYTM.NS": 685.00,
@@ -1859,7 +1859,7 @@ with col_main_content:
                 if matched:
                     curr_p = float(matched.get("current", bp))
                 else:
-                    curr_p = BASE_PRICE_MAP.get(tk, bp * 1.02)
+                    curr_p = bp
                 current_active_val += curr_p * sh
                 unrealized_pnl += (curr_p - bp) * sh
 
@@ -1903,9 +1903,8 @@ with col_main_content:
                         curr_p = float(matched.get("current", bp))
                         gain_pct = float(matched.get("gain_pct", 0.0))
                     else:
-                        base_p = BASE_PRICE_MAP.get(tk, bp * 1.02)
-                        curr_p = base_p
-                        gain_pct = round(((curr_p - bp) / (bp + 1e-9)) * 100, 2)
+                        curr_p = bp
+                        gain_pct = 0.0
 
                     pnl_rupees = round((curr_p - bp) * sh, 2)
 
