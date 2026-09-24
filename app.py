@@ -1970,6 +1970,11 @@ with col_main_content:
                             if qty_to_reduce >= curr_holding_obj["Shares"]:
                                 st.session_state["paper_positions"].pop(selected_idx)
                                 st.success(f"✅ Closed all {max_sh} shares of {t_name}! Cash Credited: +₹{proceeds:,.2f} | Realized P&L: {pnl_made:+,.2f}.")
+                                try:
+                                    cur_h = [h for h in load_user_active_holdings() if h.get("symbol") != t_name]
+                                    save_user_active_holdings(cur_h)
+                                except Exception:
+                                    pass
                             else:
                                 curr_holding_obj["Shares"] -= qty_to_reduce
                                 st.success(f"✅ Sold {qty_to_reduce} shares of {t_name}! Cash Credited: +₹{proceeds:,.2f} | Remaining: {curr_holding_obj['Shares']} shares.")
@@ -2062,6 +2067,11 @@ with col_main_content:
                                 realized = curr_p["Shares"] * est_buy
                                 st.session_state["paper_cash"] += realized
                                 st.success(f"✅ Closed all {curr_p['Shares']} shares of {sym_r}! Realized ₹{realized:,.2f} credited to Cash.")
+                                try:
+                                    cur_h = [h for h in load_user_active_holdings() if h.get("symbol") != sym_r]
+                                    save_user_active_holdings(cur_h)
+                                except Exception:
+                                    pass
                             else:
                                 curr_p["Shares"] -= v_shares
                                 realized = v_shares * est_buy
