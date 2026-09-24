@@ -1901,20 +1901,26 @@ with col_main_content:
                     matched = live_price_cache.get(tk)
                     if matched:
                         curr_p = float(matched.get("current", bp))
-                        gain_pct = float(matched.get("gain_pct", 0.0))
                     else:
                         curr_p = bp
-                        gain_pct = 0.0
 
+                    # Calculate accurate holding gain percentage based on actual Buy Price
+                    gain_pct = round(((curr_p - bp) / bp) * 100, 2) if bp > 0 else 0.0
                     pnl_rupees = round((curr_p - bp) * sh, 2)
 
-                    if curr_p >= tg or gain_pct >= 2.5:
+                    # Dynamic thresholds based on Horizon (Intraday vs Delivery/Swing)
+                    is_delivery = "DELIVERY" in ptype or "LONG-TERM" in ptype
+                    tg_threshold = 15.0 if is_delivery else 2.5
+                    trailing_threshold = 5.0 if is_delivery else 1.2
+                    sl_threshold = -5.0 if is_delivery else -2.0
+
+                    if curr_p >= tg or gain_pct >= tg_threshold:
                         action_signal = "🎯 TARGET HIT • SELL & BOOK PROFIT!"
-                    elif gain_pct >= 1.2:
+                    elif gain_pct >= trailing_threshold:
                         action_signal = "🛡️ TRAILING SL ACTIVE (0% RISK)"
                     elif gain_pct > 0:
                         action_signal = "🟢 IN PROFIT"
-                    elif gain_pct < -2.0:
+                    elif gain_pct <= sl_threshold:
                         action_signal = "🛑 SL DANGER • EXIT"
                     else:
                         action_signal = "⚡ HOLD & MONITOR"
