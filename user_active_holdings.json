@@ -1,5 +1,45 @@
 [
   {
+    "symbol": "COCHINSHIP.NS",
+    "name": "COCHINSHIP",
+    "entry": 1382.6,
+    "target": 1589.99,
+    "sl": 1313.47,
+    "trade_type": "Delivery",
+    "buy_time": "2026-09-24 07:37",
+    "status": "ACTIVE"
+  },
+  {
+    "symbol": "SOLARINDS.NS",
+    "name": "SOLARINDS",
+    "entry": 19800.0,
+    "target": 22770.0,
+    "sl": 18810.0,
+    "trade_type": "Delivery",
+    "buy_time": "2026-09-24 07:37",
+    "status": "ACTIVE"
+  },
+  {
+    "symbol": "COFORGE.NS",
+    "name": "COFORGE",
+    "entry": 1796.4,
+    "target": 2065.86,
+    "sl": 1706.58,
+    "trade_type": "Delivery",
+    "buy_time": "2026-09-24 07:37",
+    "status": "ACTIVE"
+  },
+  {
+    "symbol": "ICICIBANK.NS",
+    "name": "ICICIBANK",
+    "entry": 1334.2,
+    "target": 1561.01,
+    "sl": 1267.49,
+    "trade_type": "Delivery",
+    "buy_time": "2026-09-24 07:38",
+    "status": "ACTIVE"
+  },
+  {
     "symbol": "KAYNES.NS",
     "name": "KAYNES",
     "entry": 3620.0,
