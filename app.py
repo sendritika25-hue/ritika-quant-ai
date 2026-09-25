@@ -1863,23 +1863,24 @@ with col_main_content:
                     st.warning("⚠️ Please enter a stock ticker (e.g. SBIN, DIXON, BDL) to track.")
                 else:
                     clean_s = resolve_ticker(add_sym)
-                cur_h = load_user_active_holdings()
-                if clean_s not in [h["symbol"] for h in cur_h]:
-                    cur_h.append({
-                        "symbol": clean_s,
-                        "name": clean_s.replace(".NS", ""),
-                        "entry": add_entry,
-                        "target": add_target,
-                        "sl": add_sl,
-                        "trade_type": "Delivery",
-                        "buy_time": datetime.now().strftime("%Y-%m-%d %H:%M"),
-                        "status": "ACTIVE"
-                    })
-                    save_user_active_holdings(cur_h)
-                    st.success(f"✅ Active tracking started for {clean_s}! Target: ₹{add_target}, SL: ₹{add_sl}.")
-                    st.rerun()
-                else:
-                    st.warning(f"⚠️ {clean_s} is already in your active holdings list.")
+                    cur_h = load_user_active_holdings()
+                    existing_symbols = [h.get("symbol") for h in cur_h if isinstance(h, dict)]
+                    if clean_s not in existing_symbols:
+                        cur_h.append({
+                            "symbol": clean_s,
+                            "name": clean_s.replace(".NS", ""),
+                            "entry": add_entry,
+                            "target": add_target,
+                            "sl": add_sl,
+                            "trade_type": "Delivery",
+                            "buy_time": datetime.now().strftime("%Y-%m-%d %H:%M"),
+                            "status": "ACTIVE"
+                        })
+                        save_user_active_holdings(cur_h)
+                        st.success(f"✅ Active tracking started for {clean_s}! Target: ₹{add_target}, SL: ₹{add_sl}.")
+                        st.rerun()
+                    else:
+                        st.warning(f"⚠️ {clean_s} is already in your active holdings list.")
 
         with tab_p2:
             paper_positions = st.session_state.get("paper_positions", [])
