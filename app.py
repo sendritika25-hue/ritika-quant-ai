@@ -32,11 +32,29 @@ LEARNING_LOG_PATH = "self_learning_history.csv"
 OFFLINE_DIR = "offline_database"
 USER_HOLDINGS_PATH = "user_active_holdings.json"
 
+BANNED_OLD_TICKERS = {
+    "HAL.NS", "RELIANCE.NS", "HDFCBANK.NS", "SBIN.NS", 
+    "COCHINSHIP.NS", "SOLARINDS.NS", "COFORGE.NS", "ICICIBANK.NS",
+    "MARUTI.NS", "LALPATHLAB.NS", "MOTHERSON.NS", "CIPLA.NS", 
+    "BDL.NS", "DIXON.NS", "PHOENIXLTD.NS", "SILVERBEES.NS", "PVRINOX.NS", "BHARTIARTL.NS"
+}
+
 def load_user_active_holdings():
     if os.path.exists(USER_HOLDINGS_PATH):
         try:
             with open(USER_HOLDINGS_PATH, "r") as f:
-                return json.load(f)
+                h_list = json.load(f)
+                filtered = []
+                for h in h_list:
+                    if not isinstance(h, dict):
+                        continue
+                    sym = h.get("symbol", "")
+                    b_time = str(h.get("buy_time", ""))
+                    # Reject all old demo/booked trades from yesterday or earlier
+                    if sym in BANNED_OLD_TICKERS and not b_time.startswith("2026-09-25"):
+                        continue
+                    filtered.append(h)
+                return filtered
         except Exception:
             return []
     return []
@@ -263,12 +281,23 @@ def load_paper_account_data():
     if os.path.exists(PAPER_STORE_FILE):
         try:
             with open(PAPER_STORE_FILE, "r") as f:
-                return json.load(f)
+                data = json.load(f)
+                filtered = []
+                for p in data.get("positions", []):
+                    if not isinstance(p, dict):
+                        continue
+                    tk = p.get("Ticker", "")
+                    b_time = str(p.get("BuyTime", ""))
+                    if tk in BANNED_OLD_TICKERS and not b_time.startswith("2026-09-25"):
+                        continue
+                    filtered.append(p)
+                data["positions"] = filtered
+                return data
         except Exception:
             pass
     return {
-        "cash": 100893.02,
-        "realized_profit": 893.02,
+        "cash": 45000.00,
+        "realized_profit": 1540.50,
         "positions": []
     }
 
@@ -285,21 +314,20 @@ def save_paper_account_data(cash, realized_profit, positions):
 
 _paper_data = load_paper_account_data()
 if "paper_cash" not in st.session_state:
-    st.session_state["paper_cash"] = _paper_data.get("cash", 59467.92)
+    st.session_state["paper_cash"] = _paper_data.get("cash", 45000.00)
 if "realized_profit" not in st.session_state:
-    st.session_state["realized_profit"] = _paper_data.get("realized_profit", 893.02)
+    st.session_state["realized_profit"] = _paper_data.get("realized_profit", 1540.50)
 if "paper_positions" not in st.session_state:
     st.session_state["paper_positions"] = _paper_data.get("positions", [])
 
-# Auto-purge any sold morning tickers or legacy demo holdings from session state
-sold_or_demo_tickers = ["MOTHERSON.NS", "DIXON.NS", "CIPLA.NS", "BDL.NS", "POLYCAB.NS", "BHARTIARTL.NS", "HAL.NS", "MARUTI.NS", "LALPATHLAB.NS"]
+# Auto-purge any banned old demo or booked tickers from session state
 if "paper_positions" in st.session_state:
-    has_stale = any(p.get("Ticker") in sold_or_demo_tickers for p in st.session_state["paper_positions"])
-    if has_stale:
+    st.session_state["paper_positions"] = [
+        p for p in st.session_state["paper_positions"]
+        if isinstance(p, dict) and not (p.get("Ticker") in BANNED_OLD_TICKERS and not str(p.get("BuyTime", "")).startswith("2026-09-25"))
+    ]
+    if not st.session_state["paper_positions"] and _paper_data.get("positions"):
         st.session_state["paper_positions"] = _paper_data.get("positions", [])
-        st.session_state["paper_cash"] = _paper_data.get("cash", 59467.92)
-        st.session_state["realized_profit"] = _paper_data.get("realized_profit", 893.02)
-        save_paper_account_data(st.session_state["paper_cash"], st.session_state["realized_profit"], st.session_state["paper_positions"])
 
 if "watchlist_items" not in st.session_state:
     st.session_state["watchlist_items"] = [

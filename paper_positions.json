@@ -1,60 +1,60 @@
 {
-  "cash": 59467.92,
-  "realized_profit": 893.02,
+  "cash": 45000.00,
+  "realized_profit": 1540.50,
   "positions": [
     {
-      "Ticker": "SBIN.NS",
+      "Ticker": "KAYNES.NS",
       "Type": "INTRADAY (MIS)",
-      "BuyPrice": 987.60,
-      "Shares": 16,
-      "AITarget": 1007.35,
-      "AIScore": "85% (PSU Surge)",
-      "BuyTime": "2026-09-24 10:58"
-    },
-    {
-      "Ticker": "SOLARINDS.NS",
-      "Type": "DELIVERY (CNC)",
-      "BuyPrice": 19765.00,
-      "Shares": 1,
-      "AITarget": 22729.75,
+      "BuyPrice": 3620.00,
+      "Shares": 5,
+      "AITarget": 3710.50,
       "AIScore": "88% (High Conviction)",
-      "BuyTime": "2026-09-24 13:20"
+      "BuyTime": "2026-09-25 09:30"
     },
     {
-      "Ticker": "COCHINSHIP.NS",
-      "Type": "DELIVERY (CNC)",
-      "BuyPrice": 1381.50,
-      "Shares": 4,
-      "AITarget": 1588.72,
-      "AIScore": "87% (Defence Momentum)",
-      "BuyTime": "2026-09-24 13:20"
+      "Ticker": "ZOMATO.NS",
+      "Type": "INTRADAY (MIS)",
+      "BuyPrice": 238.40,
+      "Shares": 80,
+      "AITarget": 244.36,
+      "AIScore": "86% (Tech Growth)",
+      "BuyTime": "2026-09-25 09:30"
     },
     {
-      "Ticker": "COFORGE.NS",
-      "Type": "DELIVERY (CNC)",
-      "BuyPrice": 1791.50,
-      "Shares": 3,
-      "AITarget": 2060.22,
-      "AIScore": "89% (High Conviction)",
-      "BuyTime": "2026-09-24 13:20"
+      "Ticker": "POLYCAB.NS",
+      "Type": "INTRADAY (MIS)",
+      "BuyPrice": 8400.00,
+      "Shares": 2,
+      "AITarget": 8610.00,
+      "AIScore": "89% (Breakout Surge)",
+      "BuyTime": "2026-09-25 09:30"
     },
     {
-      "Ticker": "ICICIBANK.NS",
-      "Type": "DELIVERY (CNC)",
-      "BuyPrice": 1337.90,
-      "Shares": 4,
-      "AITarget": 1538.59,
-      "AIScore": "86% (Banking Breakout)",
-      "BuyTime": "2026-09-24 13:20"
+      "Ticker": "IREDA.NS",
+      "Type": "INTRADAY (MIS)",
+      "BuyPrice": 112.15,
+      "Shares": 223,
+      "AITarget": 115.00,
+      "AIScore": "91% (Green Energy Surge)",
+      "BuyTime": "2026-09-25 11:00"
     },
     {
       "Ticker": "DLF.NS",
-      "Type": "DELIVERY (CNC)",
-      "BuyPrice": 676.00,
-      "Shares": 8,
-      "AITarget": 777.40,
-      "AIScore": "85% (Realty Momentum)",
-      "BuyTime": "2026-09-24 13:20"
+      "Type": "INTRADAY (MIS)",
+      "BuyPrice": 677.40,
+      "Shares": 36,
+      "AITarget": 694.50,
+      "AIScore": "90% (Realty Breakout)",
+      "BuyTime": "2026-09-25 11:00"
+    },
+    {
+      "Ticker": "GODREJPROP.NS",
+      "Type": "INTRADAY (MIS)",
+      "BuyPrice": 1683.30,
+      "Shares": 14,
+      "AITarget": 1725.40,
+      "AIScore": "89% (Realty High Momentum)",
+      "BuyTime": "2026-09-25 11:00"
     }
   ]
 }
