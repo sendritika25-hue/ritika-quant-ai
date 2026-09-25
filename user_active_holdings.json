@@ -40,16 +40,6 @@
     "status": "ACTIVE"
   },
   {
-    "symbol": "KAYNES.NS",
-    "name": "KAYNES",
-    "entry": 3620.0,
-    "target": 3710.5,
-    "sl": 3565.7,
-    "trade_type": "Intraday",
-    "buy_time": "2026-09-25 04:55",
-    "status": "ACTIVE"
-  },
-  {
     "symbol": "ZOMATO.NS",
     "name": "ZOMATO",
     "entry": 238.4,
