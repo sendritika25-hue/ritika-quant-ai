@@ -32,11 +32,71 @@ LEARNING_LOG_PATH = "self_learning_history.csv"
 OFFLINE_DIR = "offline_database"
 USER_HOLDINGS_PATH = "user_active_holdings.json"
 
+UNTRACKED_REGISTRY_PATH = "closed_and_untracked_registry.json"
+
 BANNED_OLD_TICKERS = {
     "HAL.NS", "RELIANCE.NS", "HDFCBANK.NS", "SBIN.NS", 
     "MARUTI.NS", "LALPATHLAB.NS", "MOTHERSON.NS", "CIPLA.NS", 
-    "BDL.NS", "DIXON.NS", "PHOENIXLTD.NS", "SILVERBEES.NS", "PVRINOX.NS", "BHARTIARTL.NS"
+    "BDL.NS", "DIXON.NS", "PHOENIXLTD.NS", "SILVERBEES.NS", "PVRINOX.NS", "BHARTIARTL.NS", "KAYNES.NS"
 }
+
+def load_untracked_registry():
+    if os.path.exists(UNTRACKED_REGISTRY_PATH):
+        try:
+            with open(UNTRACKED_REGISTRY_PATH, "r") as f:
+                return json.load(f)
+        except Exception:
+            return []
+    return []
+
+def register_untracked_trade(symbol, buy_time=""):
+    reg = load_untracked_registry()
+    sym_clean = str(symbol).strip().upper()
+    b_time_str = str(buy_time).strip()
+    if not any(r.get("symbol") == sym_clean and (not b_time_str or r.get("buy_time") == b_time_str) for r in reg):
+        reg.append({
+            "symbol": sym_clean,
+            "buy_time": b_time_str,
+            "untracked_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
+            "reason": "USER_UNTRACKED_OR_CLOSED"
+        })
+        try:
+            with open(UNTRACKED_REGISTRY_PATH, "w") as f:
+                json.dump(reg, f, indent=2)
+        except Exception:
+            pass
+    return reg
+
+def is_trade_untracked_or_expired(symbol, buy_time="", trade_type="Delivery"):
+    sym_clean = str(symbol).strip().upper()
+    b_time_str = str(buy_time).strip()
+    
+    # 1. Check against untracked/closed blacklist
+    reg = load_untracked_registry()
+    for r in reg:
+        if r.get("symbol", "").upper() == sym_clean:
+            r_bt = r.get("buy_time", "")
+            if not r_bt or r_bt == b_time_str:
+                return True
+
+    # 2. Universal Intraday Expiry: Intraday trades expire at market close on their buy date
+    is_intra = "intra" in str(trade_type).lower() or "mis" in str(trade_type).lower()
+    if is_intra and b_time_str:
+        try:
+            b_date = b_time_str[:10] # e.g. "2026-09-25"
+            today_date = datetime.now().strftime("%Y-%m-%d")
+            if b_date < today_date:
+                return True # Previous day's intraday trade must never carry forward!
+        except Exception:
+            pass
+
+    # 3. Check legacy banned demo tickers
+    if sym_clean in BANNED_OLD_TICKERS:
+        today_date = datetime.now().strftime("%Y-%m-%d")
+        if not b_time_str.startswith(today_date):
+            return True
+
+    return False
 
 def load_user_active_holdings():
     if os.path.exists(USER_HOLDINGS_PATH):
@@ -49,8 +109,8 @@ def load_user_active_holdings():
                         continue
                     sym = h.get("symbol", "")
                     b_time = str(h.get("buy_time", ""))
-                    # Reject all old demo/booked trades from yesterday or earlier
-                    if sym in BANNED_OLD_TICKERS and not b_time.startswith("2026-09-25"):
+                    ttype = h.get("trade_type", "Delivery")
+                    if is_trade_untracked_or_expired(sym, b_time, ttype):
                         continue
                     filtered.append(h)
                 return filtered
@@ -287,7 +347,8 @@ def load_paper_account_data():
                         continue
                     tk = p.get("Ticker", "")
                     b_time = str(p.get("BuyTime", ""))
-                    if tk in BANNED_OLD_TICKERS and not b_time.startswith("2026-09-25"):
+                    ttype = p.get("Type", "Delivery")
+                    if is_trade_untracked_or_expired(tk, b_time, ttype):
                         continue
                     filtered.append(p)
                 data["positions"] = filtered
@@ -295,8 +356,8 @@ def load_paper_account_data():
         except Exception:
             pass
     return {
-        "cash": 45000.00,
-        "realized_profit": 1540.50,
+        "cash": 63982.90,
+        "realized_profit": 2216.91,
         "positions": []
     }
 
@@ -313,20 +374,18 @@ def save_paper_account_data(cash, realized_profit, positions):
 
 _paper_data = load_paper_account_data()
 if "paper_cash" not in st.session_state:
-    st.session_state["paper_cash"] = _paper_data.get("cash", 45000.00)
+    st.session_state["paper_cash"] = _paper_data.get("cash", 63982.90)
 if "realized_profit" not in st.session_state:
-    st.session_state["realized_profit"] = _paper_data.get("realized_profit", 1540.50)
+    st.session_state["realized_profit"] = _paper_data.get("realized_profit", 2216.91)
 if "paper_positions" not in st.session_state:
     st.session_state["paper_positions"] = _paper_data.get("positions", [])
 
-# Auto-purge any banned old demo or booked tickers from session state
+# Auto-purge any untracked or expired trades from session state
 if "paper_positions" in st.session_state:
     st.session_state["paper_positions"] = [
         p for p in st.session_state["paper_positions"]
-        if isinstance(p, dict) and not (p.get("Ticker") in BANNED_OLD_TICKERS and not str(p.get("BuyTime", "")).startswith("2026-09-25"))
+        if isinstance(p, dict) and not is_trade_untracked_or_expired(p.get("Ticker"), p.get("BuyTime"), p.get("Type", "Delivery"))
     ]
-    if not st.session_state["paper_positions"] and _paper_data.get("positions"):
-        st.session_state["paper_positions"] = _paper_data.get("positions", [])
 
 if "watchlist_items" not in st.session_state:
     st.session_state["watchlist_items"] = [
@@ -1828,9 +1887,15 @@ with col_main_content:
                 with c_del2:
                     st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True)
                     if st.button("🔴 Stop Tracking Position", key="rm_pos_btn", use_container_width=True):
-                        updated_h = [h for h in current_h if h["symbol"] != sel_rm]
+                        matched_h = next((h for h in current_h if h.get("symbol") == sel_rm), None)
+                        b_time = matched_h.get("buy_time", "") if matched_h else ""
+                        register_untracked_trade(sel_rm, b_time)
+                        updated_h = [h for h in current_h if h.get("symbol") != sel_rm]
                         save_user_active_holdings(updated_h)
-                        st.success(f"✅ Stopped tracking {sel_rm}.")
+                        if "paper_positions" in st.session_state:
+                            st.session_state["paper_positions"] = [p for p in st.session_state["paper_positions"] if p.get("Ticker") != sel_rm]
+                            save_paper_account_data(st.session_state.get("paper_cash", 63982.90), st.session_state.get("realized_profit", 2216.91), st.session_state["paper_positions"])
+                        st.success(f"✅ Permanently stopped tracking {sel_rm}. Position removed from all views!")
                         st.rerun()
                 with c_del3:
                     st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True)
@@ -2050,7 +2115,8 @@ with col_main_content:
                             st.session_state["realized_profit"] = round(st.session_state.get("realized_profit", 0.0) + pnl_made, 2)
                             
                             if qty_to_reduce >= curr_holding_obj["Shares"]:
-                                st.session_state["paper_positions"].pop(selected_idx)
+                                removed_pos = st.session_state["paper_positions"].pop(selected_idx)
+                                register_untracked_trade(t_name, removed_pos.get("BuyTime", ""))
                                 st.success(f"✅ Closed all {max_sh} shares of {t_name}! Cash Credited: +₹{proceeds:,.2f} | Realized P&L: {pnl_made:+,.2f}.")
                                 try:
                                     cur_h = [h for h in load_user_active_holdings() if h.get("symbol") != t_name]

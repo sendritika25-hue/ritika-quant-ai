@@ -1,0 +1,50 @@
+[
+  {
+    "symbol": "ZOMATO.NS",
+    "buy_time": "2026-09-25 04:55",
+    "untracked_at": "2026-09-25 15:30",
+    "reason": "INTRADAY_CLOSED"
+  },
+  {
+    "symbol": "POLYCAB.NS",
+    "buy_time": "2026-09-25 04:56",
+    "untracked_at": "2026-09-25 15:30",
+    "reason": "INTRADAY_CLOSED"
+  },
+  {
+    "symbol": "IREDA.NS",
+    "buy_time": "2026-09-25 11:00",
+    "untracked_at": "2026-09-25 15:30",
+    "reason": "INTRADAY_CLOSED"
+  },
+  {
+    "symbol": "DLF.NS",
+    "buy_time": "2026-09-25 11:00",
+    "untracked_at": "2026-09-25 15:30",
+    "reason": "INTRADAY_CLOSED"
+  },
+  {
+    "symbol": "GODREJPROP.NS",
+    "buy_time": "2026-09-25 11:00",
+    "untracked_at": "2026-09-25 15:30",
+    "reason": "INTRADAY_CLOSED"
+  },
+  {
+    "symbol": "KAYNES.NS",
+    "buy_time": "",
+    "untracked_at": "2026-09-25 12:00",
+    "reason": "USER_EXITED"
+  },
+  {
+    "symbol": "PVRINOX.NS",
+    "buy_time": "",
+    "untracked_at": "2026-09-25 12:00",
+    "reason": "USER_EXITED"
+  },
+  {
+    "symbol": "SILVERBEES.NS",
+    "buy_time": "",
+    "untracked_at": "2026-09-25 12:00",
+    "reason": "USER_EXITED"
+  }
+]

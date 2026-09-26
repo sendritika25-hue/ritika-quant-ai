@@ -38,55 +38,5 @@
     "trade_type": "Delivery",
     "buy_time": "2026-09-24 07:38",
     "status": "ACTIVE"
-  },
-  {
-    "symbol": "ZOMATO.NS",
-    "name": "ZOMATO",
-    "entry": 238.4,
-    "target": 244.36,
-    "sl": 234.82,
-    "trade_type": "Intraday",
-    "buy_time": "2026-09-25 04:55",
-    "status": "ACTIVE"
-  },
-  {
-    "symbol": "POLYCAB.NS",
-    "name": "POLYCAB",
-    "entry": 8400.0,
-    "target": 8610.0,
-    "sl": 8274.0,
-    "trade_type": "Intraday",
-    "buy_time": "2026-09-25 04:56",
-    "status": "ACTIVE"
-  },
-  {
-    "symbol": "IREDA.NS",
-    "name": "IREDA",
-    "entry": 112.15,
-    "target": 115.0,
-    "sl": 109.9,
-    "trade_type": "Intraday",
-    "buy_time": "2026-09-25 11:00",
-    "status": "ACTIVE"
-  },
-  {
-    "symbol": "DLF.NS",
-    "name": "DLF",
-    "entry": 677.4,
-    "target": 694.5,
-    "sl": 663.85,
-    "trade_type": "Intraday",
-    "buy_time": "2026-09-25 11:00",
-    "status": "ACTIVE"
-  },
-  {
-    "symbol": "GODREJPROP.NS",
-    "name": "GODREJPROP",
-    "entry": 1683.3,
-    "target": 1725.4,
-    "sl": 1649.6,
-    "trade_type": "Intraday",
-    "buy_time": "2026-09-25 11:00",
-    "status": "ACTIVE"
   }
 ]

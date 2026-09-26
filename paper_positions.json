@@ -1,6 +1,6 @@
 {
-  "cash": 63100.00,
-  "realized_profit": 1540.50,
+  "cash": 63982.90,
+  "realized_profit": 2216.91,
   "positions": [
     {
       "Ticker": "COCHINSHIP.NS",
@@ -37,51 +37,6 @@
       "AITarget": 1538.59,
       "AIScore": "86% (Banking Breakout)",
       "BuyTime": "2026-09-24 13:20"
-    },
-    {
-      "Ticker": "ZOMATO.NS",
-      "Type": "INTRADAY (MIS)",
-      "BuyPrice": 238.40,
-      "Shares": 80,
-      "AITarget": 244.36,
-      "AIScore": "86% (Tech Growth)",
-      "BuyTime": "2026-09-25 09:30"
-    },
-    {
-      "Ticker": "POLYCAB.NS",
-      "Type": "INTRADAY (MIS)",
-      "BuyPrice": 8400.00,
-      "Shares": 2,
-      "AITarget": 8610.00,
-      "AIScore": "89% (Breakout Surge)",
-      "BuyTime": "2026-09-25 09:30"
-    },
-    {
-      "Ticker": "IREDA.NS",
-      "Type": "INTRADAY (MIS)",
-      "BuyPrice": 112.15,
-      "Shares": 223,
-      "AITarget": 115.00,
-      "AIScore": "91% (Green Energy Surge)",
-      "BuyTime": "2026-09-25 11:00"
-    },
-    {
-      "Ticker": "DLF.NS",
-      "Type": "INTRADAY (MIS)",
-      "BuyPrice": 677.40,
-      "Shares": 36,
-      "AITarget": 694.50,
-      "AIScore": "90% (Realty Breakout)",
-      "BuyTime": "2026-09-25 11:00"
-    },
-    {
-      "Ticker": "GODREJPROP.NS",
-      "Type": "INTRADAY (MIS)",
-      "BuyPrice": 1683.30,
-      "Shares": 14,
-      "AITarget": 1725.40,
-      "AIScore": "89% (Realty High Momentum)",
-      "BuyTime": "2026-09-25 11:00"
     }
   ]
 }
