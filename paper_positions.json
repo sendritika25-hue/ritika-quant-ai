@@ -1,5 +1,5 @@
 {
-  "cash": 63982.90,
+  "cash": 45000.00,
   "realized_profit": 2216.91,
   "positions": [
     {
@@ -37,6 +37,60 @@
       "AITarget": 1538.59,
       "AIScore": "86% (Banking Breakout)",
       "BuyTime": "2026-09-24 13:20"
+    },
+    {
+      "Ticker": "VBL.NS",
+      "Type": "DELIVERY (CNC)",
+      "BuyPrice": 434.80,
+      "Shares": 57,
+      "AITarget": 499.90,
+      "AIScore": "89% (FMCG Growth Leader)",
+      "BuyTime": "2026-09-26 11:00"
+    },
+    {
+      "Ticker": "DIXON.NS",
+      "Type": "DELIVERY (CNC)",
+      "BuyPrice": 13390.00,
+      "Shares": 1,
+      "AITarget": 15398.50,
+      "AIScore": "91% (Electronics Mega Trend)",
+      "BuyTime": "2026-09-26 11:00"
+    },
+    {
+      "Ticker": "PHOENIXLTD.NS",
+      "Type": "DELIVERY (CNC)",
+      "BuyPrice": 1978.40,
+      "Shares": 12,
+      "AITarget": 2275.15,
+      "AIScore": "88% (Realty Breakout)",
+      "BuyTime": "2026-09-26 11:00"
+    },
+    {
+      "Ticker": "RELAXO.NS",
+      "Type": "DELIVERY (CNC)",
+      "BuyPrice": 297.00,
+      "Shares": 20,
+      "AITarget": 341.55,
+      "AIScore": "86% (Consumer Value Buy)",
+      "BuyTime": "2026-09-26 11:00"
+    },
+    {
+      "Ticker": "HDFCBANK.NS",
+      "Type": "DELIVERY (CNC)",
+      "BuyPrice": 735.60,
+      "Shares": 33,
+      "AITarget": 845.90,
+      "AIScore": "88% (Banking Value Reversal)",
+      "BuyTime": "2026-09-26 11:00"
+    },
+    {
+      "Ticker": "PERSISTENT.NS",
+      "Type": "DELIVERY (CNC)",
+      "BuyPrice": 5372.00,
+      "Shares": 20,
+      "AITarget": 6177.80,
+      "AIScore": "90% (Tech Growth Momentum)",
+      "BuyTime": "2026-09-26 11:00"
     }
   ]
 }

@@ -34,11 +34,7 @@ USER_HOLDINGS_PATH = "user_active_holdings.json"
 
 UNTRACKED_REGISTRY_PATH = "closed_and_untracked_registry.json"
 
-BANNED_OLD_TICKERS = {
-    "HAL.NS", "RELIANCE.NS", "HDFCBANK.NS", "SBIN.NS", 
-    "MARUTI.NS", "LALPATHLAB.NS", "MOTHERSON.NS", "CIPLA.NS", 
-    "BDL.NS", "DIXON.NS", "PHOENIXLTD.NS", "SILVERBEES.NS", "PVRINOX.NS", "BHARTIARTL.NS", "KAYNES.NS"
-}
+BANNED_OLD_TICKERS = set()
 
 def load_untracked_registry():
     if os.path.exists(UNTRACKED_REGISTRY_PATH):
