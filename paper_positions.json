@@ -40,56 +40,56 @@
     },
     {
       "Ticker": "VBL.NS",
-      "Type": "DELIVERY (CNC)",
+      "Type": "INTRADAY (MIS)",
       "BuyPrice": 434.80,
       "Shares": 57,
-      "AITarget": 499.90,
-      "AIScore": "89% (FMCG Growth Leader)",
+      "AITarget": 443.50,
+      "AIScore": "89% (FMCG Intraday Momentum)",
       "BuyTime": "2026-09-26 11:00"
     },
     {
       "Ticker": "DIXON.NS",
-      "Type": "DELIVERY (CNC)",
+      "Type": "INTRADAY (MIS)",
       "BuyPrice": 13390.00,
       "Shares": 1,
-      "AITarget": 15398.50,
-      "AIScore": "91% (Electronics Mega Trend)",
+      "AITarget": 13657.80,
+      "AIScore": "91% (Electronics Surge)",
       "BuyTime": "2026-09-26 11:00"
     },
     {
       "Ticker": "PHOENIXLTD.NS",
-      "Type": "DELIVERY (CNC)",
+      "Type": "INTRADAY (MIS)",
       "BuyPrice": 1978.40,
       "Shares": 12,
-      "AITarget": 2275.15,
-      "AIScore": "88% (Realty Breakout)",
+      "AITarget": 2017.95,
+      "AIScore": "88% (Realty Intraday)",
       "BuyTime": "2026-09-26 11:00"
     },
     {
       "Ticker": "RELAXO.NS",
-      "Type": "DELIVERY (CNC)",
+      "Type": "INTRADAY (MIS)",
       "BuyPrice": 297.00,
       "Shares": 20,
-      "AITarget": 341.55,
-      "AIScore": "86% (Consumer Value Buy)",
+      "AITarget": 302.95,
+      "AIScore": "86% (Consumer Intraday)",
       "BuyTime": "2026-09-26 11:00"
     },
     {
       "Ticker": "HDFCBANK.NS",
-      "Type": "DELIVERY (CNC)",
+      "Type": "INTRADAY (MIS)",
       "BuyPrice": 735.60,
       "Shares": 33,
-      "AITarget": 845.90,
-      "AIScore": "88% (Banking Value Reversal)",
+      "AITarget": 750.30,
+      "AIScore": "88% (Banking Intraday Breakout)",
       "BuyTime": "2026-09-26 11:00"
     },
     {
       "Ticker": "PERSISTENT.NS",
-      "Type": "DELIVERY (CNC)",
+      "Type": "INTRADAY (MIS)",
       "BuyPrice": 5372.00,
       "Shares": 20,
-      "AITarget": 6177.80,
-      "AIScore": "90% (Tech Growth Momentum)",
+      "AITarget": 5479.40,
+      "AIScore": "90% (Tech Intraday Breakout)",
       "BuyTime": "2026-09-26 11:00"
     }
   ]
