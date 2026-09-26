@@ -469,7 +469,11 @@ TICKER_ALIASES = {
     'DIVISLAB': 'DIVISLAB.NS', 'TIMKEN': 'TIMKEN.NS', 'IDFCFIRSTB': 'IDFCFIRSTB.NS', 'IDFC': 'IDFCFIRSTB.NS',
     'BANKBARODA': 'BANKBARODA.NS', 'BOB': 'BANKBARODA.NS', 'JSWSTEEL': 'JSWSTEEL.NS', 'JSW': 'JSWSTEEL.NS',
     'UNIONBANK': 'UNIONBANK.NS', 'PNB': 'PNB.NS', 'CANBK': 'CANBK.NS', 'CANARA BANK': 'CANBK.NS',
-    'PIDILITIND': 'PIDILITIND.NS', 'FEVICOL': 'PIDILITIND.NS'
+    'PIDILITIND': 'PIDILITIND.NS', 'FEVICOL': 'PIDILITIND.NS',
+    'RELAXO': 'RELAXO.NS', 'RELAXO FOOTWEAR': 'RELAXO.NS', 'RELAXO FOOTWEARS': 'RELAXO.NS',
+    'BATA': 'BATAINDIA.NS', 'BATAINDIA': 'BATAINDIA.NS',
+    'HAVELLS': 'HAVELLS.NS', 'DABUR': 'DABUR.NS', 'MARICO': 'MARICO.NS',
+    'JIOFIN': 'JIOFIN.NS', 'RVNL': 'RVNL.NS', 'IRFC': 'IRFC.NS'
 }
 
 SECTOR_MAP = {
@@ -589,6 +593,7 @@ def resolve_ticker_with_details(user_input):
     if not user_input:
         return "^NSEI", False
     raw_str = str(user_input).strip().upper()
+    has_explicit_suffix = raw_str.endswith(".NS") or raw_str.endswith(".BO")
     clean = raw_str.replace(".NS", "").replace(".BO", "").strip()
     
     # 1. Exact alias match
@@ -601,22 +606,21 @@ def resolve_ticker_with_details(user_input):
     if clean in canonical_vals:
         return canonical_vals[clean], False
 
-    # 2. Substring & prefix containment
-    for k, sym in TICKER_ALIASES.items():
-        if len(clean) >= 3 and (clean == k or clean in k or k in clean):
-            return sym, True
+    # If user explicitly entered .NS or .BO, respect their ticker directly!
+    if has_explicit_suffix:
+        return raw_str, False
 
-    # 3. Multi-word first token
+    # 2. Multi-word first token (e.g. "TATA MOTORS")
     parts = clean.split()
     if len(parts) > 1 and parts[0] in TICKER_ALIASES:
         return TICKER_ALIASES[parts[0]], True
 
-    # 4. Fuzzy Spell-Correction (handles typos like 'mothrson', 'dxon', 'cpla', 'phonix', 'relince')
-    matches = difflib.get_close_matches(clean, list(TICKER_ALIASES.keys()), n=1, cutoff=0.55)
+    # 3. Conservative Fuzzy Spell-Correction (cutoff=0.82 to avoid false matches like RELAXO -> RELIANCE)
+    matches = difflib.get_close_matches(clean, list(TICKER_ALIASES.keys()), n=1, cutoff=0.82)
     if matches:
         return TICKER_ALIASES[matches[0]], True
 
-    # Default fallback
+    # 4. Default fallback: Clean valid NSE ticker
     if clean.startswith("^"):
         return clean, False
     return f"{clean}.NS", False
