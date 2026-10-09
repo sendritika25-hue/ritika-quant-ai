@@ -335,40 +335,55 @@ def generate_copilot_response(user_query: str, history: list = None, *args, **kw
             sl = snap["sl"]
             chg_sign = "+" if chg >= 0 else ""
             
-            sig_en = "STRONG BUY / ACCUMULATE" if rsi > 55 and cp >= snap["sma20"] else "HOLD & MONITOR"
-            sig_hi = "STRONG BUY / ACCUMULATE" if rsi > 55 and cp >= snap["sma20"] else "HOLD & MONITOR"
+            # Determine crystal clear simple verdict
+            is_bullish = cp >= snap["sma20"] and rsi >= 50
+            if is_bullish:
+                verdict_hi = "🟢 **BUY KAREIN (Khareed Sakte Hain - Strong Uptrend)**"
+                verdict_en = "🟢 **BUY (Good Opportunity - Strong Uptrend)**"
+                reason_hi = f"{st_name} me buyers actively khareedari kar rahe hain. Stock apne 20 dino ke average price (₹{snap['sma20']:,.2f}) se upar trade ho raha hai aur tezi ki taraf badh raha hai."
+                reason_en = f"{st_name} has strong buyer momentum. The stock is trading well above its 20-day average price (₹{snap['sma20']:,.2f}), confirming positive upward momentum."
+                risk_rating_hi = "🟡 **Moderate (Normal Risk - Safe with Stop-Loss)**"
+                risk_rating_en = "🟡 **Moderate (Safe when using Stop-Loss)**"
+            else:
+                verdict_hi = "🟡 **ABHI RUKIYE (Wait Karein / Hold Karein)**"
+                verdict_en = "🟡 **WAIT & WATCH (Hold / Do Not Rush to Buy)**"
+                reason_hi = f"{st_name} abhi ek jagah par sideways ghoom raha hai. Nayi entry lene se pehle stock ko thoda aur upar nikalne de."
+                reason_en = f"{st_name} is currently moving in a sideways range. It is safer to wait for a confirmed breakout before initiating fresh entries."
+                risk_rating_hi = "🔴 **High Risk (Abhi fresh buy na karein)**"
+                risk_rating_en = "🔴 **High Risk (Avoid fresh buying right now)**"
+
+            profit_amt = round(t1 - cp, 2)
+            loss_amt = round(cp - sl, 2)
 
             if in_english:
                 return (
-                    f"📈 **Institutional Technical Dossier: {st_name}**\n\n"
-                    f"• **Current Market Price (LTP):** ₹{cp:,.2f} ({chg_sign}{chg}%)\n"
-                    f"• **Intraday Price Range:** Low: ₹{dl:,.2f} ── High: ₹{dh:,.2f}\n"
-                    f"• **Trend Structure:** {tr_en}\n"
-                    f"• **RSI (14-period Momentum):** **{rsi}** {'(Strong Bullish Bias)' if rsi > 55 else '(Neutral)'}\n"
-                    f"• **20-Day Moving Average (EMA):** ₹{snap['sma20']:,.2f}\n"
-                    f"• **Volume Liquidity:** {vol} shares\n\n"
-                    f"🎯 **Actionable Target & Stop-Loss Levels:**\n"
-                    f"• 🎯 **Target 1 (Intraday Breakout):** **₹{t1:,.2f} (+2.5%)**\n"
-                    f"• 🎯 **Target 2 (Swing Target):** **₹{t2:,.2f} (+5.0%)**\n"
-                    f"• 🛑 **Risk Guard Stop-Loss:** **₹{sl:,.2f} (-1.5%)**\n"
-                    f"• ⚖️ **Risk-to-Reward Ratio:** 1 : 1.67 (Favorable Setup)\n"
-                    f"• 🚦 **AI Quantitative Signal:** **{sig_en}**\n\n"
-                    f"💡 *Capital Protection Rule:* Never risk more than 1% to 2% of total trading account equity on this counter."
+                    f"📊 **Stock Analysis: {st_name}**\n\n"
+                    f"### 🚦 1. Final Recommendation (AI Verdict)\n"
+                    f"{verdict_en}\n\n"
+                    f"### 💰 2. Exact Levels (Action Plan)\n"
+                    f"• 💵 **Current Market Price:** **₹{cp:,.2f}** ({chg_sign}{chg}%)\n"
+                    f"• 🎯 **Target (Where to Book Profit):** **₹{t1:,.2f}** *(Expected Profit: +₹{profit_amt:,.2f} per share / +2.5%)*\n"
+                    f"• 🛑 **Stop-Loss (Risk Protection):** **₹{sl:,.2f}** *(Max Loss Limit: -₹{loss_amt:,.2f} per share / -1.5%)*\n\n"
+                    f"### 🔍 3. Why? (Simple Reason)\n"
+                    f"{reason_en}\n\n"
+                    f"### 🛡️ 4. Risk Level\n"
+                    f"{risk_rating_en}\n\n"
+                    f"💡 **Golden Tip:** Always put your Stop-Loss at ₹{sl:,.2f} right after entering so your capital stays 100% protected!"
                 )
             else:
                 return (
-                    f"📈 **Institutional Technical Dossier: {st_name}**\n\n"
-                    f"• **Current Market Price (LTP):** ₹{cp:,.2f} ({chg_sign}{chg}%)\n"
-                    f"• **Aaj Ka Range:** Low: ₹{dl:,.2f} ── High: ₹{dh:,.2f}\n"
-                    f"• **Trend Structure:** {tr_hi}\n"
-                    f"• **RSI (Momentum):** **{rsi}** {'(Bullish Tezi)' if rsi > 55 else '(Neutral)'}\n"
-                    f"• **20-Day Moving Average (EMA):** ₹{snap['sma20']:,.2f}\n\n"
-                    f"🎯 **Actionable Target & Stop-Loss Levels:**\n"
-                    f"• 🎯 **Target 1 (Breakout):** **₹{t1:,.2f} (+2.5%)**\n"
-                    f"• 🎯 **Target 2 (Delivery Swing):** **₹{t2:,.2f} (+5.0%)**\n"
-                    f"• 🛑 **Stop-Loss (Protection):** **₹{sl:,.2f} (-1.5%)**\n"
-                    f"• 🚦 **AI Quantitative Signal:** **{sig_hi}**\n\n"
-                    f"💡 *Risk Advice:* Entry lene par Stop-Loss lagana na bhoolein aur capital ka 1-2% se zyada risk na lein!"
+                    f"📊 **Stock Analysis: {st_name}**\n\n"
+                    f"### 🚦 1. AI Ka Saaf Faisla (Recommendation)\n"
+                    f"{verdict_hi}\n\n"
+                    f"### 💰 2. Kitne Me Lena Hai Aur Kab Bechna Hai?\n"
+                    f"• 💵 **Abhi Ka Rate (LTP):** **₹{cp:,.2f}** ({chg_sign}{chg}%)\n"
+                    f"• 🎯 **Target (Kahan Profit Book Karein):** **₹{t1:,.2f}** *(Umeed: +₹{profit_amt:,.2f} per share ka fayeda / +2.5%)*\n"
+                    f"• 🛑 **Stop-Loss (Nuksan Kahan Rokna Hai):** **₹{sl:,.2f}** *(Maximum Risk: ₹{loss_amt:,.2f} per share / -1.5%)*\n\n"
+                    f"### 🔍 3. Aasan Bhasha Me Wajah (Kyun?)\n"
+                    f"{reason_hi}\n\n"
+                    f"### 🛡️ 4. Risk Kitna Hai?\n"
+                    f"{risk_rating_hi}\n\n"
+                    f"💡 **AI Ki Salah:** Agar aap buy karte hain toh Stop-Loss (₹{sl:,.2f}) lagana mat bhooliyega taaki aapka paisa hamesha safe rahe!"
                 )
 
     # 5. Concept Questions
