@@ -386,7 +386,83 @@ def generate_copilot_response(user_query: str, history: list = None, *args, **kw
                     f"💡 **AI Ki Salah:** Agar aap buy karte hain toh Stop-Loss (₹{sl:,.2f}) lagana mat bhooliyega taaki aapka paisa hamesha safe rahe!"
                 )
 
-    # 5. Concept Questions
+    # 5. Concept Questions & Trading Knowledge
+    # Stop-Loss kaise lagate hain / What is Stop-Loss
+    if any(k in q_lower for k in ["stop loss", "stoploss", "sl kaise", "sl lagaye", "sl kya hai", "stop loss kya", "loss kaise roke"]):
+        if "trail" in q_lower or "trailing" in q_lower:
+            if in_english:
+                return (
+                    "🛡️ **Complete Guide: What is a Trailing Stop-Loss?**\n\n"
+                    "A Trailing Stop-Loss is an automated risk-management technique that **locks in your profits while eliminating downside risk**:\n\n"
+                    "1. **Trigger (+1.2% Gain):** As soon as your stock gains +1.2%, the AI automatically moves your Stop-Loss up to your original Buy Entry price.\n"
+                    "2. **Zero-Risk Guarantee:** Even if the market crashes suddenly, you exit at break-even (0% loss).\n"
+                    "3. **Profit Trail:** As the stock climbs higher (+2.5%, +5%), the Stop-Loss follows behind it to lock in maximum gains!"
+                )
+            else:
+                return (
+                    "🛡️ **Trailing Stop-Loss Kaise Kaam Karta Hai?**\n\n"
+                    "Trailing Stop-Loss ek smart technique hai jo **aapke bane-banaye munafey (profit) ko lock karti hai**:\n\n"
+                    "1. **Zero-Loss Trigger (+1.2% par):** Jaise hi stock +1.2% upar jata hai, AI Stop-Loss ko aapke khareed rate (Buy Price) par le aata hai.\n"
+                    "2. **Nuksan Ka Khatra Zero:** Iske baad market achanak kitna bhi gir jaye, aapko ₹1 ka bhi loss nahi hoga!\n"
+                    "3. **Profit Trailing:** Jaise-jaise stock aur upar bhagega, Stop-Loss bhi peeche-peeche upar badhta rahega taaki maximum profit book ho sake!"
+                )
+        else:
+            if in_english:
+                return (
+                    "🛡️ **How to Set a Stop-Loss (Step-by-Step Guide)**\n\n"
+                    "A **Stop-Loss** is an automatic safety order that protects your capital from heavy losses if the market moves against you.\n\n"
+                    "### 📱 How to place it in your Broker App (Zerodha / Angel One / Groww / Dhan):\n"
+                    "1. **Go to Open Positions / Portfolio:** Click on the stock you bought.\n"
+                    "2. **Select Exit / Sell:** Choose **SL-Limit** or **SL-Market** order type.\n"
+                    "3. **Enter Trigger Price:** Set the Stop-Loss rate calculated by the AI (e.g. ₹2,123 for TCS).\n"
+                    "4. **Swipe to Place:** If the stock falls to that price, the system will automatically sell your shares and save 98% of your capital!\n\n"
+                    "💡 **Golden Rule of Pro Traders:**\n"
+                    "Never enter any trade without setting a Stop-Loss. Taking a tiny 1-1.5% loss is always better than losing 10-20% of your hard-earned money!"
+                )
+            else:
+                return (
+                    "🛡️ **Stop-Loss Kaise Lagate Hain? (Aasan Step-by-Step Guide)**\n\n"
+                    "**Stop-Loss** ek aisi automatic suraksha (safety guard) hai jo aapko bade nuksan se bachati hai. Agar stock girne lage, toh yeh khud-b-khud bik jata hai taaki aapka paisa safe rahe.\n\n"
+                    "### 📱 Broker App (Zerodha, Angel One, Groww, Upstox) Me Kaise Lagayein:\n"
+                    "1. **Positions / Portfolio Me Jayein:** Jo stock aapne khareeda hai uspe click karein.\n"
+                    "2. **Exit / Sell Option Chunein:** Order type me **'SL-Limit'** ya **'SL'** select karein.\n"
+                    "3. **Trigger Price Dalein:** AI ne jo Stop-Loss level bataya hai (jaise TCS ke liye ₹2,123), wahi daalein.\n"
+                    "4. **Confirm / Swipe to Sell Karein:** Ab aap befikr ho sakte hain! Agar market achanak niche gira, toh broker isi rate par stock bechkar aapka 98% se zyada paisa bacha lega.\n\n"
+                    "💡 **Pro Trader Ka Niyam:**\n"
+                    "Bina Stop-Loss ke kabhi trade na karein. Chhota sa 1-1.5% nuksan jhelna aasan hai, par 10-20% ka bada loss jhelna bahut mushkil hota hai!"
+                )
+
+    # Target kya hai / Target kaise set karein
+    if any(k in q_lower for k in ["target kaise", "target kya", "profit kab book", "target kya hota"]):
+        if in_english:
+            return (
+                "🎯 **What is Target Price & How to Book Profit?**\n\n"
+                "• **Target Price:** The expected higher price where smart investors and AI algorithm plan to exit and lock in profit.\n"
+                "• **How to use it:** When the stock reaches Target 1 (+2.5%), sell 50% to 75% of your shares to pocket real money, and hold the rest with a Trailing Stop-Loss for bigger gains (Target 2)!"
+            )
+        else:
+            return (
+                "🎯 **Target Price Kya Hota Hai Aur Profit Kaise Book Karein?**\n\n"
+                "• **Target Price:** Yeh wo uncha rate hota hai jahan pahunchkar humein apna munafa (profit) nikaal lena chahiye.\n"
+                "• **Munafa Book Karne Ka Smart Tareeka:** Jaise hi stock Target 1 (+2.5%) par pahuche, apne aade (50%) shares bech kar profit wallet me daal lein, aur baaki shares ka Stop-Loss khareed rate par set karke Target 2 ka wait karein!"
+            )
+
+    # Intraday vs Delivery
+    if any(k in q_lower for k in ["intraday kya", "delivery kya", "intraday vs delivery", "fark kya hai"]):
+        if in_english:
+            return (
+                "📊 **Difference between Intraday and Delivery:**\n\n"
+                "• **Intraday (MIS):** Buy and sell on the **same day** before 3:20 PM. Zero overnight risk. Leverage (up to 5x) is provided by brokers.\n"
+                "• **Delivery (CNC):** Buy and **hold for days, weeks, or months**. No broker hurry to sell. You own the actual shares until you decide to exit at high targets."
+            )
+        else:
+            return (
+                "📊 **Intraday Aur Delivery Me Kya Antar (Difference) Hai?**\n\n"
+                "• **Intraday (Same Day):** Stock ko **usi din** khareedkar 3:20 PM se pehle bechna hota hai. Raat ka koi tension nahi hota.\n"
+                "• **Delivery (Hold):** Stock ko aap kitne bhi din, hafte ya mahino ke liye apne paas **rakh sakte hain**. Jab acha profit mile tabhi bechein, koi zabardasti nahi hoti."
+            )
+
+    # Trailing SL fallback
     if "trailing" in q_lower or "trail" in q_lower:
         if in_english:
             return (
@@ -427,28 +503,64 @@ def generate_copilot_response(user_query: str, history: list = None, *args, **kw
                 "   • Subah 9:20 AM par exact Buy Entry, Target aur SL Telegram VIP channel me deliver ho jayega!"
             )
 
+    # Market Timings / Trading kab karein
+    if any(k in q_lower for k in ["timing", "market time", "kab khulta", "kab band", "trading time"]):
+        if in_english:
+            return (
+                "⏰ **Indian Stock Market (NSE/BSE) Trading Hours:**\n\n"
+                "• **Pre-Open Session:** 9:00 AM – 9:08 AM IST (Price discovery & order matching)\n"
+                "• **Normal Market Hours:** **9:15 AM – 3:30 PM IST** (Active trading session)\n"
+                "• **AI Intraday Auto-Square-off:** 3:20 PM IST (All intraday positions safely closed)\n"
+                "• **Best Time for Breakout Trades:** **9:20 AM – 10:30 AM** (Highest liquidity & volume) and **1:45 PM – 2:45 PM** (Closing momentum)!"
+            )
+        else:
+            return (
+                "⏰ **Indian Stock Market (NSE) Ka Samay Aur Trading Hours:**\n\n"
+                "• **Pre-Open Session:** Subah 9:00 AM se 9:08 AM tak\n"
+                "• **Normal Market Timing:** **Subah 9:15 AM se Dopahar 3:30 PM tak**\n"
+                "• **AI Intraday Auto-Exit:** Dopahar 3:20 PM (Saare intraday trades safely band)\n"
+                "• **Trading Ka Best Time:** **Subah 9:20 AM se 10:30 AM** (Is time par sabse tez tezi aur profit banta hai) aur **Dopahar 1:45 PM se 2:45 PM**!"
+            )
+
+    # Profit kaise banaye / Trading Tips / Safe Trading
+    if any(k in q_lower for k in ["profit kaise", "paise kaise", "fayeda kaise", "safe trading", "tips", "trader kaise bane"]):
+        if in_english:
+            return (
+                "💡 **Top 3 Golden Rules for Consistent Profit:**\n\n"
+                "1. **Never Trade Without Stop-Loss:** Always protect your capital. Your risk per trade should never exceed 1%–2% of total equity.\n"
+                "2. **Follow the Trend (Don't fight it):** Only buy stocks trading above their 20-day average price where institutions are active.\n"
+                "3. **Book Profits in Steps:** When Target 1 (+2.5%) hits, book 50% profit into your account, and let the rest ride with a Trailing SL!"
+            )
+        else:
+            return (
+                "💡 **Share Market Me Lagatar Profit Banane Ke 3 Golden Niyam:**\n\n"
+                "1. **Bina Stop-Loss Ke Kabhi Trade Na Karein:** Har trade me chhota nuksan (1-1.5%) tay karein taaki bada loss kabhi na ho.\n"
+                "2. **Trend Ke Saath Chalein:** Hamesha unhi stocks me paisa lagayein jo 20-day average se upar chal rahe hain aur jinme buyers active hain.\n"
+                "3. **Thoda Thoda Profit Lock Karein:** Jaise hi Target 1 (+2.5%) par pahuche, 50% shares bech kar profit account me daal lein, aur baaki par Trailing SL laga dein!"
+            )
+
     # 6. Fallback with context
     if in_english:
         return (
             f"🤖 **Ritika Quant AI Copilot:**\n\n"
-            f"Regarding your query: *\"{user_query}\"*\n\n"
-            f"I provide real-time institutional analysis for any NSE equity, live portfolio tracking, and quantitative risk management.\n\n"
-            f"💡 **Suggested queries to explore:**\n"
+            f"I am actively tracking Indian market equities, your portfolio, and risk management strategies.\n\n"
+            f"💡 **You can ask me about:**\n"
+            f"• *\"Analyze TCS / Reliance / Dixon live trend & levels\"*\n"
+            f"• *\"How to place a Stop-Loss in broker app?\"*\n"
             f"• *\"What was the result of today's trades?\"*\n"
-            f"• *\"Analyze Reliance live technical levels\"*\n"
             f"• *\"Show my current active delivery holdings\"*\n"
-            f"• *\"Explain Trailing Stop-Loss risk management\"*"
+            f"• *\"Difference between Intraday and Delivery\"*"
         )
     else:
         return (
             f"🤖 **Ritika Quant AI Copilot:**\n\n"
-            f"Aapne poocha: *\"{user_query}\"*\n\n"
-            f"Main aapko real-time NSE stocks, technical indicators, aur aapke portfolio ke baare me complete detail de sakta hoon.\n\n"
-            f"💡 **Aap pooch sakte hain:**\n"
+            f"Main real-time Indian stock market, aapke portfolio aur trading strategies me aapki madad ke liye taiyar hoon.\n\n"
+            f"💡 **Aap mujhse pooch sakte hain:**\n"
+            f"• *\"Analyze TCS / Reliance / Dixon live trend\"*\n"
+            f"• *\"Stop loss kaise lagate hai?\"*\n"
             f"• *\"Aaj ke trades ka kya result raha?\"*\n"
-            f"• *\"Analyze Reliance live levels\"*\n"
             f"• *\"Mera active portfolio check karo\"*\n"
-            f"• *\"Trailing Stop-Loss kaise kaam karta hai?\"*"
+            f"• *\"Intraday aur delivery me kya antar hai?\"*"
         )
 
 if __name__ == "__main__":
