@@ -592,21 +592,92 @@ def generate_copilot_response(user_query: str, history: list = None, *args, **kw
                 "• **Trading Ka Best Time:** **Subah 9:20 AM se 10:30 AM** (Is time par sabse tez tezi aur profit banta hai) aur **Dopahar 1:45 PM se 2:45 PM**!"
             )
 
-    # Profit kaise banaye / Trading Tips / Safe Trading
-    if any(k in q_lower for k in ["profit kaise", "paise kaise", "fayeda kaise", "safe trading", "tips", "trader kaise bane"]):
+    # 7. Comprehensive App Architecture, Menus & Feature Knowledge Base
+    # (Matches questions about App tabs, menus, columns, risk management, categories, scanner, backtest)
+    if any(k in q_lower for k in ["app me", "is app", "app kya", "ye app", "features", "kaha par", "konsa tab", "menu", "kya feature", "kaise kaam karti hai"]):
         if in_english:
             return (
-                "💡 **Top 3 Golden Rules for Consistent Profit:**\n\n"
-                "1. **Never Trade Without Stop-Loss:** Always protect your capital. Your risk per trade should never exceed 1%–2% of total equity.\n"
-                "2. **Follow the Trend (Don't fight it):** Only buy stocks trading above their 20-day average price where institutions are active.\n"
-                "3. **Book Profits in Steps:** When Target 1 (+2.5%) hits, book 50% profit into your account, and let the rest ride with a Trailing SL!"
+                "📱 **Ritika Quant AI Terminal — Complete Architecture & Navigation Guide:**\n\n"
+                "Our platform is divided into **11 Institutional Core Modules** (accessible from the Left Sidebar):\n\n"
+                "1. 🏠 **Dashboard:** Executive live overview of Nifty/Sensex, live P&L, today's trades win-rate, and top market gainers.\n"
+                "2. 🤖 **AI Market Scanner:** The engine that scans 40+ high-conviction equities across **8 categories**:\n"
+                "   • *🚀 Max Profit Gainers* (Live top percentage movers)\n"
+                "   • *🧠 AI Balanced Picks* (Solar Inds, Polycab, Bharti Airtel)\n"
+                "   • *⭐ 52-Wk High Stars* (Trent, Dixon, Kaynes, Zomato)\n"
+                "   • *🏛️ FII Big Money* (ICICI Bank, HDFC Bank, Reliance, SBI, Infosys)\n"
+                "   • *🔥 Multibaggers* (Suzlon, Mazagon Dock, BDL, IREDA, Cochin Shipyard)\n"
+                "   • *🛡️ Ultra Safe* (TCS, ITC, Titan, L&T, Sun Pharma, Maruti)\n"
+                "   • *🪙 Gold & Silver Metals* (GoldBees, SilverBees)\n"
+                "   • *₿ Crypto & Currencies* (BTC, ETH)\n"
+                "3. 💬 **Ask AI Copilot:** 24x7 personal quantitative assistant for live stock advice, levels, and trading education.\n"
+                "4. 📊 **Stock Analysis:** In-depth candlestick charts, 20 EMA, RSI, MACD, and SuperTrend indicators.\n"
+                "5. 💼 **Portfolios & Broker Hub:** Virtual paper trading account, active delivery holdings, 1-click broker connection (Zerodha/Groww/AngelOne), and Telegram VIP notification center.\n"
+                "6. ⭐ **Watchlist:** Track your favorite stocks with customizable price alerts.\n"
+                "7. ⚙️ **Backtest Engine:** Test strategies on 5 years of historical data to verify win-rate.\n"
+                "8. 📋 **Prediction Audit:** Transparent daily verification table logging every past trade signal vs actual next-day outcome.\n"
+                "9. 🔔 **Alerts & Notifications:** Real-time Target Hit and Trailing SL triggers.\n"
+                "10. 📈 **Reports:** Weekly and monthly profit-and-loss performance statements.\n"
+                "11. ⚙️ **Settings:** Custom risk parameters (Stop-Loss % and Target % overrides)."
             )
         else:
             return (
-                "💡 **Share Market Me Lagatar Profit Banane Ke 3 Golden Niyam:**\n\n"
-                "1. **Bina Stop-Loss Ke Kabhi Trade Na Karein:** Har trade me chhota nuksan (1-1.5%) tay karein taaki bada loss kabhi na ho.\n"
-                "2. **Trend Ke Saath Chalein:** Hamesha unhi stocks me paisa lagayein jo 20-day average se upar chal rahe hain aur jinme buyers active hain.\n"
-                "3. **Thoda Thoda Profit Lock Karein:** Jaise hi Target 1 (+2.5%) par pahuche, 50% shares bech kar profit account me daal lein, aur baaki par Trailing SL laga dein!"
+                "📱 **Ritika Quant AI Terminal — Pura App System Aur Features Guide:**\n\n"
+                "Hamare commercial AI platform me **11 Main Modules** hain jo sidebar me milte hain:\n\n"
+                "1. 🏠 **Dashboard:** Nifty/Sensex ka live haal, wallet balance, aur aaj ke trades ka 100% win-rate report.\n"
+                "2. 🤖 **AI Market Scanner:** Jahan 40+ stocks ko **8 categories** me auto-scan kiya jata hai:\n"
+                "   • *🚀 Max Profit Gainers:* Aaj market me sabse tez daudne wale stocks\n"
+                "   • *🧠 AI Balanced Picks:* Solar Inds, Polycab, Bharti Airtel\n"
+                "   • *⭐ 52-Wk High Stars:* Trent, Dixon, Kaynes, Zomato\n"
+                "   • *🏛️ FII Big Money:* ICICI Bank, HDFC Bank, Reliance, SBI, Infosys\n"
+                "   • *🔥 Multibaggers:* Suzlon, Mazagon Dock, BDL, IREDA, Cochin Shipyard (High-Growth)\n"
+                "   • *🛡️ Ultra Safe:* TCS, ITC, Titan, L&T, Sun Pharma, Maruti (Zero-Tension Bluechips)\n"
+                "   • *🪙 Gold & Silver Metals:* GoldBees aur SilverBees\n"
+                "   • *₿ Crypto & Currencies:* BTC aur ETH\n"
+                "3. 💬 **Ask AI Copilot:** Aapka 24x7 smart trading saathi jo live stock tips, exact levels aur advice deta hai.\n"
+                "4. 📊 **Stock Analysis:** Pro charts, RSI, 20 EMA, SuperTrend aur volume analysis.\n"
+                "5. 💼 **Portfolios & Broker Hub:** Virtual paper trading, active delivery stocks, Zerodha/Groww connect, aur Telegram VIP channel.\n"
+                "6. ⭐ **Watchlist:** Apne pasandida stocks ko ek jagah track karein.\n"
+                "7. ⚙️ **Backtest Engine:** Puraane 5 saal ke data par AI strategy ka 85%+ win-rate check karein.\n"
+                "8. 📋 **Prediction Audit:** Har din ke purane trades ka transparent hisaab ki Target hit hua ya nahi.\n"
+                "9. 🔔 **Alerts & Notifications:** Target Hit aur 0% Risk Trailing SL alerts.\n"
+                "10. 📈 **Reports:** P&L statements aur analytics.\n"
+                "11. ⚙️ **Settings:** Apne risk aur target percentage ko customize karne ke liye."
+            )
+
+    # Categories Specific Questions (e.g. FII Big Money kya hai, Ultra safe me kaun hai)
+    if any(k in q_lower for k in ["fii", "ultra safe", "balanced picks", "category kya", "categories"]):
+        if in_english:
+            return (
+                "🎯 **Stock Categorization in AI Terminal:**\n\n"
+                "• **🏛️ FII Big Money:** Stocks where Foreign Institutional Investors are pumping large inflows (HDFC Bank, ICICI Bank, Reliance, Infosys, SBI).\n"
+                "• **🛡️ Ultra Safe:** Mega-cap, low-beta bluechips with rock-solid dividend and free cash flow (TCS, ITC, Titan, L&T, Sun Pharma).\n"
+                "• **🔥 Multibaggers:** Defense & Clean Energy small/mid-caps with rapid growth potential (Suzlon, Mazagon Dock, BDL, IREDA, Cochin Shipyard).\n"
+                "• **⭐ 52-Wk High Stars:** Stocks breaking out to all-time highs with momentum (Trent, Dixon, Kaynes, Zomato)."
+            )
+        else:
+            return (
+                "🎯 **Terminal Me Stocks Ki Categories Ka Hisaab:**\n\n"
+                "• **🏛️ FII Big Money:** Wo bade stocks jinme videshi sansthaein (Foreign Investors) hazaron karod rupaye daal rahi hain (HDFC Bank, ICICI Bank, Reliance, Infosys, SBI).\n"
+                "• **🛡️ Ultra Safe:** Desh ki sabse vishwasniya mega-cap bluechip companies jinme paisa doobne ka khatra na ke barabar hota hai (TCS, ITC, Titan, L&T, Sun Pharma).\n"
+                "• **🔥 Multibaggers:** Defense aur Green Energy ke wo fast-growing stocks jinme 2x se 5x hone ka dam hota hai (Suzlon, Mazagon Dock, BDL, IREDA, Cochin Shipyard).\n"
+                "• **⭐ 52-Wk High Stars:** Record tezi wale stocks jo apne saal ke sabse unche level par naye records bana rahe hain (Trent, Dixon, Kaynes, Zomato)."
+            )
+
+    # Risk Management / Column Questions
+    if any(k in q_lower for k in ["risk management", "stop loss kitna", "target kitna", "column"]):
+        if in_english:
+            return (
+                "🛡️ **Institutional Risk Management System:**\n\n"
+                "• **Intraday Strategy:** Target is fixed at **+2.5%** and Stop-Loss at **-1.5%** (1:1.67 Risk-to-Reward Ratio). Mandatory auto-exit at 3:20 PM.\n"
+                "• **Delivery Strategy:** Target is set between **+15.0% and +30.0%** with a **-5.0% Stop-Loss**.\n"
+                "• **Trailing SL Lock:** Moves SL to Break-Even at +1.2% gain, guaranteeing **0.00% capital risk**!"
+            )
+        else:
+            return (
+                "🛡️ **Hamare AI Ka Strict Risk Management System:**\n\n"
+                "• **Intraday Trading:** Target **+2.5%** aur Stop-Loss **-1.5%** par lock hota hai. 3:20 PM par auto-exit ho jata hai taaki raat ka koi risk na rahe.\n"
+                "• **Delivery Trading:** Target **+15% se +30%** aur Stop-Loss **-5%** par hota hai.\n"
+                "• **0% Risk Trailing SL:** Jaise hi trade +1.2% profit me jata hai, Stop-Loss seedha Buy Price par shift ho jata hai — jisse capital risk **0%** ho jata hai!"
             )
 
     # 6. Fallback with context
