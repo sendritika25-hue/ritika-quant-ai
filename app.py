@@ -1936,6 +1936,11 @@ with col_main_content:
         st.markdown("---")
 
         import ai_copilot_engine
+        import importlib
+        try:
+            importlib.reload(ai_copilot_engine)
+        except Exception:
+            pass
 
         # Initialize session chat history if not present
         if "copilot_chat_history" not in st.session_state or not st.session_state["copilot_chat_history"]:
@@ -1997,7 +2002,10 @@ with col_main_content:
         if user_prompt_to_process:
             st.session_state["copilot_chat_history"].append({"role": "user", "content": user_prompt_to_process})
             with st.spinner("AI analyzing live market & portfolio data..."):
-                reply = ai_copilot_engine.generate_copilot_response(user_prompt_to_process, history=st.session_state["copilot_chat_history"])
+                try:
+                    reply = ai_copilot_engine.generate_copilot_response(user_prompt_to_process, history=st.session_state["copilot_chat_history"])
+                except Exception:
+                    reply = ai_copilot_engine.generate_copilot_response(user_prompt_to_process)
             st.session_state["copilot_chat_history"].append({"role": "assistant", "content": reply})
             st.rerun()
 

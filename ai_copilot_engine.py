@@ -181,7 +181,7 @@ def detect_stock_in_query(user_text: str, history: list = None) -> str:
                     return sym
     return ""
 
-def generate_copilot_response(user_query: str, history: list = None) -> str:
+def generate_copilot_response(user_query: str, history: list = None, *args, **kwargs) -> str:
     """Deep, comprehensive financial reasoning engine."""
     q_lower = user_query.strip().lower()
     in_english = is_english_query(user_query)
