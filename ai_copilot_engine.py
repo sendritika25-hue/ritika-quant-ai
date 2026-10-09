@@ -1091,6 +1091,41 @@ def generate_copilot_response(user_query: str, history: list = None, *args, **kw
                 "• **⭐ 52-Wk High Stars:** Record tezi wale stocks jo apne saal ke sabse unche level par naye records bana rahe hain (Trent, Dixon, Kaynes, Zomato)."
             )
 
+    # Self-Learning & Learning from Mistakes (e.g. "kya ye apni galtiyo se sikh raha hai", "self learning kaise hoti hai")
+    if any(k in q_lower for k in [
+        "galti", "galtiyo", "sikh raha", "seekh raha", "self learning", "learn from mistake",
+        "learning kaise", "retrain", "kya ye sikh", "kya ye seekh", "improve kaise", "accuracy kaise"
+    ]):
+        if in_english:
+            return (
+                "🧠 **Yes, The AI System Autonomously Learns and Adapts Across 3 Core Layers:**\n\n"
+                "Our platform is not a static bot — it continuously refines its algorithms from historical trade data and user interactions:\n\n"
+                "1. 📋 **Forward-Testing Prediction Feedback Loop ([Prediction Audit Tab]):**\n"
+                "   • Every daily recommendation is permanently logged against next-day exchange settlement in the **'📋 Prediction Audit'** module.\n"
+                "   • When a false breakout or adverse move occurs, the quantitative engine registers negative feedback, automatically raising the required Relative Volume (RVOL) filter and tightening entry criteria for that ticker.\n\n"
+                "2. 🛡️ **Autonomous Risk Calibration (0% Risk Trailing SL):**\n"
+                "   • Learning from sudden market pullbacks, the AI enforces an automated rule: as soon as a trade reaches **+1.2% profit**, the Stop-Loss is immediately moved to the original Buy Price, locking in **0.00% capital risk**.\n\n"
+                "3. 💬 **Conversational & Decision Heuristic Learning:**\n"
+                "   • Whenever an edge-case or preference is identified (e.g. selecting the single best stock out of 6 in 52-Wk High Stars, or pulling live Dashboard profit leaders), the reasoning engine updates its decision matrix so it immediately understands and answers with institutional precision.\n\n"
+                "💡 **Core Quant Philosophy:** *Return OF capital precedes return ON capital* — past errors continuously harden our defense against future market traps!"
+            )
+        else:
+            return (
+                "🧠 **Haan, Hamara AI Apni Galtiyo Se Lagatar 3 Mukhya Levels Par Sikhta Hai (Continuous Self-Learning Engine):**\n\n"
+                "Hamara platform koi simple static robot nahi hai, balki yeh har trade aur har interaction ke baad khud ko improve karta hai:\n\n"
+                "1. 📋 **Prediction Audit & Feedback Loop (Galti Pakadne Ka System):**\n"
+                "   • App ke **'📋 Prediction Audit'** tab me aap dekh sakti hain ki AI har din ke har trade signal (Buy/Sell/Hold) ka transparent hisaab rakhta hai.\n"
+                "   • Agar kisi stock me pehle false breakout hua tha ya Stop-Loss hit hua tha, toh algorithm use **'NEGATIVE FEEDBACK'** ke roop me save kar leta hai.\n"
+                "   • Agli baar us stock me entry lene ke liye volume aur RSI ke filters ko aur strict kar diya jata hai taaki wahi galti dobara na ho!\n\n"
+                "2. 🛡️ **Autonomous Risk Adaptation (0% Risk Trailing SL):**\n"
+                "   • AI ne purani market girawat se sikha hai ki munafa jaldi lock karna kitna zaroori hai.\n"
+                "   • Isliye jaise hi trade **+1.2% profit** me jata hai, AI Stop-Loss ko seedha **Buy Entry Price** par le aata hai — jisse nuksan ka risk hamesha ke liye **0%** ho jata hai!\n\n"
+                "3. 💬 **Conversational & Decision Learning (Live Adaptability):**\n"
+                "   • Jaise aapne abhi Dashboard ke top movers aur **'⭐ 52-Wk High Stars me se sirf 1 best stock'** chunne ka specific sawal poocha — AI ne turant us decision rule ko apne brain me permanently add kar liya!\n"
+                "   • Ab future me aap kisi bhi category me se 1 best stock poochengi, toh AI bina kisi galti ke #1 Best Stock, live rate aur exact target ke sath answer karega.\n\n"
+                "💡 **Hamara Mool Niyam:** *'Capital Safe Rakho, Galti Ek Baar Karo Par Dobara Mat Dohrao!'*"
+            )
+
     # Risk Management / Column Questions
     if any(k in q_lower for k in ["risk management", "stop loss kitna", "target kitna", "column"]):
         if in_english:
