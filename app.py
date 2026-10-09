@@ -2098,7 +2098,38 @@ with col_main_content:
                         st.warning(f"⚠️ {clean_s} is already in your active holdings list.")
 
         with tab_p2:
+            # Auto-sync active holdings into paper positions so paper trading always reflects user positions
+            active_h_sync = load_user_active_holdings()
             paper_positions = st.session_state.get("paper_positions", [])
+            
+            # 1. Remove untracked or closed trades
+            paper_positions = [
+                p for p in paper_positions
+                if isinstance(p, dict) and not is_trade_untracked_or_expired(p.get("Ticker"), p.get("BuyTime"), p.get("Type", "Delivery"))
+            ]
+            
+            # 2. Add any active holdings not yet in paper trading
+            existing_paper_syms = {p.get("Ticker") for p in paper_positions if isinstance(p, dict)}
+            sync_changed = False
+            for ah in active_h_sync:
+                sym_to_add = ah.get("symbol", "")
+                if sym_to_add and sym_to_add not in existing_paper_syms:
+                    ah_type = ah.get("trade_type", "Delivery")
+                    paper_positions.append({
+                        "Ticker": sym_to_add,
+                        "Type": f"{ah_type.upper()} (MIS)" if "intra" in ah_type.lower() else "DELIVERY (CNC)",
+                        "BuyPrice": float(ah.get("entry", 1000.0)),
+                        "Shares": 2 if "intra" in ah_type.lower() else 1,
+                        "AITarget": float(ah.get("target", 0.0)),
+                        "AIScore": "90% (AI Recommended)",
+                        "BuyTime": ah.get("buy_time", datetime.now().strftime("%Y-%m-%d %H:%M"))
+                    })
+                    sync_changed = True
+                    existing_paper_syms.add(sym_to_add)
+
+            if sync_changed:
+                st.session_state["paper_positions"] = paper_positions
+                save_paper_account_data(st.session_state.get("paper_cash", 58925.30), st.session_state.get("realized_profit", 1622.51), paper_positions)
 
             # Load recent alerts and prices for live P&L calculation
             live_price_cache = {}
