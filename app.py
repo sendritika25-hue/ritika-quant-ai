@@ -1990,7 +1990,7 @@ with col_main_content:
                         st.markdown(msg["content"])
 
         # Chat Input
-        typed_input = st.chat_input("Poochiye koi bhi sawaal (e.g. Kya TCS buy karein? / Mera profit kitna hai?)...")
+        typed_input = st.chat_input("Ask any trading query (e.g. Analyze TCS / Check portfolio / What is Trailing SL?)...")
         if typed_input:
             user_prompt_to_process = typed_input
 
