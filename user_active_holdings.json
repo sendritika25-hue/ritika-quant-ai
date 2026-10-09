@@ -38,5 +38,45 @@
     "trade_type": "Delivery",
     "buy_time": "2026-09-24 07:38",
     "status": "ACTIVE"
+  },
+  {
+    "symbol": "TCS.NS",
+    "name": "TCS",
+    "entry": 2154.7,
+    "target": 2208.57,
+    "sl": 2122.38,
+    "trade_type": "Intraday",
+    "buy_time": "2026-10-09 12:01",
+    "status": "ACTIVE"
+  },
+  {
+    "symbol": "BHARTIARTL.NS",
+    "name": "BHARTIARTL",
+    "entry": 1807.2,
+    "target": 1852.38,
+    "sl": 1780.09,
+    "trade_type": "Intraday",
+    "buy_time": "2026-10-09 12:01",
+    "status": "ACTIVE"
+  },
+  {
+    "symbol": "CDSL.NS",
+    "name": "CDSL",
+    "entry": 1256.2,
+    "target": 1287.61,
+    "sl": 1237.36,
+    "trade_type": "Intraday",
+    "buy_time": "2026-10-09 12:01",
+    "status": "ACTIVE"
+  },
+  {
+    "symbol": "BDL.NS",
+    "name": "BDL",
+    "entry": 1072.5,
+    "target": 1099.31,
+    "sl": 1056.41,
+    "trade_type": "Intraday",
+    "buy_time": "2026-10-09 12:01",
+    "status": "ACTIVE"
   }
 ]
