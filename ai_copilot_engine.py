@@ -337,54 +337,53 @@ def generate_copilot_response(user_query: str, history: list = None, *args, **kw
             
             # Determine crystal clear simple verdict
             is_bullish = cp >= snap["sma20"] and rsi >= 50
-            if is_bullish:
-                verdict_hi = "🟢 **BUY KAREIN (Khareed Sakte Hain - Strong Uptrend)**"
-                verdict_en = "🟢 **BUY (Good Opportunity - Strong Uptrend)**"
-                reason_hi = f"{st_name} me buyers actively khareedari kar rahe hain. Stock apne 20 dino ke average price (₹{snap['sma20']:,.2f}) se upar trade ho raha hai aur tezi ki taraf badh raha hai."
-                reason_en = f"{st_name} has strong buyer momentum. The stock is trading well above its 20-day average price (₹{snap['sma20']:,.2f}), confirming positive upward momentum."
-                risk_rating_hi = "🟡 **Moderate (Normal Risk - Safe with Stop-Loss)**"
-                risk_rating_en = "🟡 **Moderate (Safe when using Stop-Loss)**"
-            else:
-                verdict_hi = "🟡 **ABHI RUKIYE (Wait Karein / Hold Karein)**"
-                verdict_en = "🟡 **WAIT & WATCH (Hold / Do Not Rush to Buy)**"
-                reason_hi = f"{st_name} abhi ek jagah par sideways ghoom raha hai. Nayi entry lene se pehle stock ko thoda aur upar nikalne de."
-                reason_en = f"{st_name} is currently moving in a sideways range. It is safer to wait for a confirmed breakout before initiating fresh entries."
-                risk_rating_hi = "🔴 **High Risk (Abhi fresh buy na karein)**"
-                risk_rating_en = "🔴 **High Risk (Avoid fresh buying right now)**"
-
             profit_amt = round(t1 - cp, 2)
             loss_amt = round(cp - sl, 2)
 
             if in_english:
-                return (
-                    f"📊 **Stock Analysis: {st_name}**\n\n"
-                    f"### 🚦 1. Final Recommendation (AI Verdict)\n"
-                    f"{verdict_en}\n\n"
-                    f"### 💰 2. Exact Levels (Action Plan)\n"
-                    f"• 💵 **Current Market Price:** **₹{cp:,.2f}** ({chg_sign}{chg}%)\n"
-                    f"• 🎯 **Target (Where to Book Profit):** **₹{t1:,.2f}** *(Expected Profit: +₹{profit_amt:,.2f} per share / +2.5%)*\n"
-                    f"• 🛑 **Stop-Loss (Risk Protection):** **₹{sl:,.2f}** *(Max Loss Limit: -₹{loss_amt:,.2f} per share / -1.5%)*\n\n"
-                    f"### 🔍 3. Why? (Simple Reason)\n"
-                    f"{reason_en}\n\n"
-                    f"### 🛡️ 4. Risk Level\n"
-                    f"{risk_rating_en}\n\n"
-                    f"💡 **Golden Tip:** Always put your Stop-Loss at ₹{sl:,.2f} right after entering so your capital stays 100% protected!"
-                )
+                if is_bullish:
+                    return (
+                        f"**{st_name} is currently trading at ₹{cp:,.2f} ({chg_sign}{chg}%).** 🟢\n\n"
+                        f"Right now, the stock is seeing healthy buying interest and good upward momentum. It is trading comfortably above its 20-day moving average (₹{snap['sma20']:,.2f}), which confirms buyers are firmly in control.\n\n"
+                        f"**Here is my direct verdict and trade plan:**\n"
+                        f"• 🟢 **AI Verdict:** **Good Opportunity to Buy (Strong Uptrend)**\n"
+                        f"• 💵 **Current Price:** ₹{cp:,.2f}\n"
+                        f"• 🎯 **Target (Where to take profit):** **₹{t1:,.2f}** *(approx +₹{profit_amt:,.2f} per share gain / +2.5%)*\n"
+                        f"• 🛑 **Stop-Loss (Risk Protection):** **₹{sl:,.2f}** *(keep risk limited to -₹{loss_amt:,.2f} per share / -1.5%)*\n\n"
+                        f"💡 **My Advice:** If you decide to take this trade, make sure to place your Stop-Loss at **₹{sl:,.2f}** right away so your funds stay completely safe!"
+                    )
+                else:
+                    return (
+                        f"**{st_name} is currently trading at ₹{cp:,.2f} ({chg_sign}{chg}%).** 🟡\n\n"
+                        f"At the moment, the stock is moving in a tight sideways range without much breakout volume. Fresh buyers haven't pushed it with enough conviction yet.\n\n"
+                        f"**Here is my direct verdict:**\n"
+                        f"• 🟡 **AI Verdict:** **Wait & Watch (Avoid rushing into fresh buys)**\n"
+                        f"• 🛑 **Lower Support:** ₹{sl:,.2f}\n"
+                        f"• 🎯 **Breakout Target:** ₹{t1:,.2f}\n\n"
+                        f"💡 **My Advice:** It is much safer to hold your cash right now and let the stock show clear upside momentum before entering. Protecting capital is always the top priority!"
+                    )
             else:
-                return (
-                    f"📊 **Stock Analysis: {st_name}**\n\n"
-                    f"### 🚦 1. AI Ka Saaf Faisla (Recommendation)\n"
-                    f"{verdict_hi}\n\n"
-                    f"### 💰 2. Kitne Me Lena Hai Aur Kab Bechna Hai?\n"
-                    f"• 💵 **Abhi Ka Rate (LTP):** **₹{cp:,.2f}** ({chg_sign}{chg}%)\n"
-                    f"• 🎯 **Target (Kahan Profit Book Karein):** **₹{t1:,.2f}** *(Umeed: +₹{profit_amt:,.2f} per share ka fayeda / +2.5%)*\n"
-                    f"• 🛑 **Stop-Loss (Nuksan Kahan Rokna Hai):** **₹{sl:,.2f}** *(Maximum Risk: ₹{loss_amt:,.2f} per share / -1.5%)*\n\n"
-                    f"### 🔍 3. Aasan Bhasha Me Wajah (Kyun?)\n"
-                    f"{reason_hi}\n\n"
-                    f"### 🛡️ 4. Risk Kitna Hai?\n"
-                    f"{risk_rating_hi}\n\n"
-                    f"💡 **AI Ki Salah:** Agar aap buy karte hain toh Stop-Loss (₹{sl:,.2f}) lagana mat bhooliyega taaki aapka paisa hamesha safe rahe!"
-                )
+                if is_bullish:
+                    return (
+                        f"**{st_name} abhi ₹{cp:,.2f} ({chg_sign}{chg}%) par chal raha hai.** 🟢\n\n"
+                        f"Is stock me abhi buyers ka accha dab-daba dekhne ko mil raha hai aur yeh apne 20 dino ke average price (₹{snap['sma20']:,.2f}) se upar trade ho raha hai, jo tezi ka sanket hai.\n\n"
+                        f"**Mera Saaf Faisla Aur Plan:**\n"
+                        f"• 🟢 **Faisla:** **Khareed Sakte Hain (Good Buy Opportunity)**\n"
+                        f"• 💵 **Abhi Ka Rate:** ₹{cp:,.2f}\n"
+                        f"• 🎯 **Target (Kahan Bechna Hai):** **₹{t1:,.2f}** *(Lagbhag +₹{profit_amt:,.2f} per share ka munafa / +2.5%)*\n"
+                        f"• 🛑 **Stop-Loss (Nuksan Rokna):** **₹{sl:,.2f}** *(Sirf ₹{loss_amt:,.2f} per share ka risk / -1.5%)*\n\n"
+                        f"💡 **Meri Salah:** Agar aap isme entry lene ki soch rahi hain toh yeh ek accha mauka hai! Bas buy karte hi **₹{sl:,.2f}** par apna Stop-Loss zaroor laga lein taaki aapka paisa 100% safe rahe."
+                    )
+                else:
+                    return (
+                        f"**{st_name} abhi ₹{cp:,.2f} ({chg_sign}{chg}%) par chal raha hai.** 🟡\n\n"
+                        f"Abhi yeh stock ek range ke andar shaant baitha hai aur sideways ghoom raha hai. Isme abhi fresh buying volume thoda dheema hai.\n\n"
+                        f"**Mera Saaf Faisla:**\n"
+                        f"• 🟡 **Faisla:** **Abhi thoda intezar karein (Wait & Watch)**\n"
+                        f"• 🛑 **Niche Ka Support Level:** ₹{sl:,.2f}\n"
+                        f"• 🎯 **Breakout Par Target:** ₹{t1:,.2f}\n\n"
+                        f"💡 **Meri Salah:** Abhi isme jaldbazi me fresh paisa mat lagaiye. Stock ko ek baar tezi dikhane dein, tab entry lena zyada safe aur munafedaar hoga!"
+                    )
 
     # 5. Concept Questions & Trading Knowledge
     # Stop-Loss kaise lagate hain / What is Stop-Loss
