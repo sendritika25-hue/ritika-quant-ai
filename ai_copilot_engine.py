@@ -106,8 +106,16 @@ def get_today_trades_summary() -> dict:
             pass
     return {}
 
+_STOCK_CACHE = {}
+
 def get_stock_deep_snapshot(symbol: str) -> dict:
-    """Fetch rich institutional snapshot with technicals, levels, and volume."""
+    """Fetch rich institutional snapshot with technicals, levels, and volume (with 60s in-memory cache)."""
+    now_ts = datetime.now().timestamp()
+    if symbol in _STOCK_CACHE:
+        cached_ts, cached_snap = _STOCK_CACHE[symbol]
+        if now_ts - cached_ts < 60:
+            return cached_snap
+
     try:
         t = yf.Ticker(symbol)
         fi = t.fast_info
@@ -140,7 +148,7 @@ def get_stock_deep_snapshot(symbol: str) -> dict:
         t2 = round(cp * 1.050, 2)
         sl = round(cp * 0.985, 2)
         
-        return {
+        snap = {
             "symbol": symbol,
             "name": symbol.replace(".NS", "").replace("^", ""),
             "price": round(cp, 2),
@@ -158,6 +166,8 @@ def get_stock_deep_snapshot(symbol: str) -> dict:
             "sl": sl,
             "success": True
         }
+        _STOCK_CACHE[symbol] = (now_ts, snap)
+        return snap
     except Exception as e:
         return {"symbol": symbol, "success": False, "error": str(e)}
 
@@ -397,6 +407,25 @@ def generate_copilot_response(user_query: str, history: list = None, *args, **kw
                     "• **IREDA.NS** (Green financing loan surge)\n\n"
                     "💡 In sabhi stocks ko aap Scanner page ke **'🚀 Multibaggers'** tab me dekh sakti hain!"
                 )
+
+    # Nifty 50 & Sensex Conceptual / Educational Questions
+    if any(k in q_lower for k in ["nifty kya", "what is nifty", "sensex kya", "what is sensex", "nifty 50 kya", "index kya hota", "nifty aur sensex"]):
+        if in_english:
+            return (
+                "🇮🇳 **Comprehensive Guide to Nifty 50 & Sensex:**\n\n"
+                "• **Nifty 50:** The flagship benchmark index of the National Stock Exchange (NSE). It tracks the weighted performance of 50 of India's largest and most liquid mega-cap bluechip corporations (including Reliance, TCS, HDFC Bank, Infosys, and ICICI Bank) across 13 economic sectors.\n"
+                "• **Sensex:** The benchmark 30-stock index of the Bombay Stock Exchange (BSE), the oldest stock exchange in Asia.\n"
+                "• **Market Barometer:** When Nifty is green and advancing, institutional sentiment across broader markets is bullish. When Nifty breaks below key moving averages, broader mid-caps and small-caps generally see intensified volatility.\n\n"
+                "💡 **AI Tip:** In our Terminal's Dashboard, you can track live real-time index levels and daily percentage changes for both Nifty 50 and Sensex 24x7!"
+            )
+        else:
+            return (
+                "🇮🇳 **Nifty 50 Aur Sensex Ka Pura Parichay:**\n\n"
+                "• **Nifty 50:** National Stock Exchange (NSE) ka mukhya index hai jisme Bharat ki 50 sabse badi aur vishwasniya bluechip companies aati hain (jaise Reliance, TCS, HDFC Bank, Infosys, SBI). Yeh poori Bharatiya economy ka barometer hai.\n"
+                "• **Sensex:** Bombay Stock Exchange (BSE) ka 30 sabse badi companies ka benchmark index hai (S&P BSE SENSEX).\n"
+                "• **Market Ka Mood:** Agar Nifty 50 green me tezi dikha raha hai, toh poore market me tezi (bullish sentiment) rehti hai. Agar Nifty gira hua ho, toh zyadatar stocks me thandak ya girawat rehti hai.\n\n"
+                "💡 **Terminal Tip:** Hamare app ke **'🏠 Dashboard'** par aap Nifty 50 aur Sensex ka live rate aur aaj ka change sabse upar dekh sakti hain!"
+            )
 
     # 4. Stock Specific In-Depth Analysis
     found_stock = detect_stock_in_query(user_query, history)
@@ -725,28 +754,273 @@ def generate_copilot_response(user_query: str, history: list = None, *args, **kw
                 "• **0% Risk Trailing SL:** Jaise hi trade +1.2% profit me jata hai, Stop-Loss seedha Buy Price par shift ho jata hai — jisse capital risk **0%** ho jata hai!"
             )
 
-    # 6. Fallback with context
+    # 8. Comprehensive Indian Stock Market Knowledge Base
+
+    # A. RSI (Relative Strength Index)
+    if any(k in q_lower for k in ["rsi kya", "what is rsi", "rsi indicator", "rsi kaise", "overbought", "oversold"]):
+        if in_english:
+            return (
+                "📈 **Complete Guide to RSI (Relative Strength Index):**\n\n"
+                "The Relative Strength Index (RSI) is an institutional momentum oscillator measuring the speed and change of price moves on a 0 to 100 scale:\n\n"
+                "• **RSI > 70 (Overbought ⚠️):** Signals that the stock has surged rapidly and is trading at stretched valuations. High probability of profit-taking or pullback. Avoid aggressive fresh buys at these levels.\n"
+                "• **RSI < 30 (Oversold 🟢):** Signals that selling exhaustion has occurred. FIIs and value funds look for bullish reversal divergences here to accumulate quality stocks at a bargain.\n"
+                "• **RSI 50 - 65 (Bullish Continuation):** Confirms sustained institutional buying momentum. Healthy uptrend zone.\n"
+                "• **RSI Divergence (Pro Secret):** When the price makes a higher high but the RSI makes a lower high, a bearish trend reversal is imminent!\n\n"
+                "💡 **AI Rule:** In our Terminal, we never trade RSI in isolation. We cross-verify RSI with 20 EMA and Volume expansion before issuing Buy/Sell alerts!"
+            )
+        else:
+            return (
+                "📈 **RSI (Relative Strength Index) Ka Complete Guide:**\n\n"
+                "RSI ek sabse popular momentum indicator hai jo 0 se 100 ke beech chalta hai aur batata hai ki stock me kitni taaqat (strength) hai:\n\n"
+                "• **RSI 70 se Upar (Overbought Zone ⚠️):** Iska matlab stock bohot tezi se bhaag chuka hai aur mehnga ho gaya hai. Yahan fresh buy karne se bachein kyunki kisi bhi waqt profit booking (girawat) aa sakti hai.\n"
+                "• **RSI 30 se Niche (Oversold Zone 🟢):** Iska matlab stock bohot zyada pit chuka hai aur saste daam par mil raha hai. Yahan smart investors reversal par saste me khareedte hain.\n"
+                "• **RSI 50-60 (Healthy Bullish Range):** Agar stock 50 se upar bana hua hai, toh yeh steady upward trend ka pakka sanket hai.\n"
+                "• **RSI Divergence (Pro Secret):** Agar stock ka price naya high banaye par RSI naya high na banaye, toh yeh aane wali girawat ka advance alert hota hai!\n\n"
+                "💡 **AI Tip:** Hamari app RSI + 20 EMA dono ko milakar confirm signal deti hai taaki aapka trade 100% safe rahe!"
+            )
+
+    # B. Moving Averages & Golden / Death Cross
+    if any(k in q_lower for k in ["moving average", "ema kya", "sma kya", "20 ema", "200 dma", "golden cross", "death cross", "what is ema", "what is sma"]):
+        if in_english:
+            return (
+                "📊 **Complete Guide to Moving Averages (EMA / DMA) & Golden Cross:**\n\n"
+                "Moving averages smooth out erratic price fluctuations to reveal the true underlying institutional trend:\n\n"
+                "• **20 EMA (Short-Term Momentum):** The gold standard for intraday and swing traders. As long as price trades above 20 EMA, buyers are in aggressive control.\n"
+                "• **50 DMA (Medium-Term Support):** Watched closely by mutual funds for 1-3 month trend stability.\n"
+                "• **200 DMA (The Institutional Fortress):** The definitive boundary between secular bull and bear markets. Bluechips trading above 200 DMA are in strong accumulation.\n"
+                "• **Golden Cross ⭐:** When the 50 DMA crosses above the 200 DMA from below. Historically triggers powerful multi-month bull rallies!\n"
+                "• **Death Cross ⚠️:** When the 50 DMA falls below the 200 DMA, signaling a prolonged macro bear market or downtrend."
+            )
+        else:
+            return (
+                "📊 **Moving Averages (EMA / DMA) Aur Golden Cross Ka Gyan:**\n\n"
+                "Moving Average pichle dino ke closing price ka average hota hai jo trend ki asli disha batata hai:\n\n"
+                "• **20 EMA (Short-Term Guide):** Intraday aur swing traders ka sabse pasandida indicator. Jab tak price 20 EMA ke upar hai, tab tak market me tezi (buyers) ka raaj hai.\n"
+                "• **50 DMA (Medium-Term Trend):** 2-3 mahino ke trend ko samajhne ke liye institutional support level.\n"
+                "• **200 DMA (Laxman Rekha):** Long-term trend ka sabse bada filter. Agar stock 200 DMA ke upar hai toh 'Bull Market' me hai, aur niche hai toh 'Bear Market' me.\n"
+                "• **Golden Cross ⭐:** Jab 50 DMA line niche se 200 DMA ko cross karke upar nikal jati hai, toh ise 'Golden Cross' kehte hain — iske baad stock me kai mahino tak bhari tezi aati hai!\n"
+                "• **Death Cross ⚠️:** Jab 50 DMA line 200 DMA ke niche chali jaye, toh yeh lambi mandi ka warning signal hota hai."
+            )
+
+    # C. MACD Indicator
+    if any(k in q_lower for k in ["macd kya", "what is macd", "macd indicator", "macd crossover"]):
+        if in_english:
+            return (
+                "📉 **Complete Guide to MACD (Moving Average Convergence Divergence):**\n\n"
+                "MACD is a trend-following momentum indicator that shows the relationship between two moving averages of a security's price:\n\n"
+                "• **MACD Line & Signal Line:** Calculated using the 12-period EMA minus 26-period EMA, paired with a 9-period Signal EMA.\n"
+                "• **Bullish Crossover 🟢:** When the MACD line crosses above the Signal Line from below, generating a strong momentum BUY signal.\n"
+                "• **Bearish Crossover 🔴:** When the MACD line crosses below the Signal Line, signaling downside acceleration and an EXIT prompt.\n"
+                "• **Zero Line Confirmation:** Crossovers occurring above the Zero Line carry much higher probability of explosive follow-through."
+            )
+        else:
+            return (
+                "📉 **MACD Indicator Kya Hai Aur Kaise Use Karein?**\n\n"
+                "MACD ek momentum aur trend indicator hai jo do moving averages ke aapas ke faasle ko measure karta hai:\n\n"
+                "• **Bullish Crossover (Tezi Ka Signal 🟢):** Jab MACD line (blue) Signal line (orange) ko niche se upar ki taraf kaat de, toh yeh zabardast BUY signal hota hai.\n"
+                "• **Bearish Crossover (Girawat Ka Signal 🔴):** Jab MACD line Signal line ke niche chali jaye, toh iska matlab sellers haavi ho rahe hain aur exit kar lena chahiye.\n"
+                "• **Histogram:** Jab histogram green bars upar banana shuru kare, toh momentum tezi se badh raha hota hai!"
+            )
+
+    # D. SuperTrend Indicator
+    if any(k in q_lower for k in ["supertrend kya", "super trend kya", "what is supertrend", "supertrend indicator"]):
+        if in_english:
+            return (
+                "🟢 **SuperTrend Indicator Guide:**\n\n"
+                "SuperTrend is an ATR-based trend-following indicator designed to give unmistakable visual entry and exit signals:\n\n"
+                "• **Green SuperTrend (Long / Buy 🟢):** Plots below price candles, confirming a bullish regime. Pro traders use the green band as an automated trailing stop-loss.\n"
+                "• **Red SuperTrend (Short / Sell 🔴):** Plots above price candles, signaling a bearish regime. Long trades should be exited or avoided.\n"
+                "• **Standard Settings:** Period 10, Multiplier 3 (or 7, 3 for faster scalping). Highly effective when matched with 15-minute timeframe breakouts!"
+            )
+        else:
+            return (
+                "🟢 **SuperTrend Indicator Kya Hai Aur Kaise Kaam Karta Hai?**\n\n"
+                "SuperTrend ek aasan aur sabse vishwasniya indicator hai jo chart par saaf rangon se buy aur sell batata hai:\n\n"
+                "• **Green Line (Buy Signal 🟢):** Jab indicator candle ke niche green line banata hai, iska matlab stock me tezi shuru ho chuki hai. Is green line ko aap apna Trailing Stop-Loss bana sakte hain.\n"
+                "• **Red Line (Sell / Exit Signal 🔴):** Jab indicator candle ke upar red line banata hai, iska matlab downtrend chal raha hai aur khareedari se door rehna chahiye.\n"
+                "• **Setting:** (10, 3) setting sabse best rehti hai. Hamara AI iska use fakeout rokne ke liye karta hai!"
+            )
+
+    # E. Support, Resistance & Breakouts
+    if any(k in q_lower for k in ["support kya", "resistance kya", "support and resistance", "support level", "resistance level", "demand zone", "supply zone", "breakout kya", "fakeout kya", "breakdown kya", "breakout trading", "what is breakout"]):
+        if in_english:
+            return (
+                "🧱 **Support, Resistance & Breakouts Explained:**\n\n"
+                "• **Support (Demand Floor 🟢):** The price level where buying interest is strong enough to overcome selling pressure. Prices repeatedly bounce upward from key support.\n"
+                "• **Resistance (Supply Ceiling 🔴):** The upper price boundary where sellers dominate and take profit, halting the advance.\n"
+                "• **True Breakout 🚀:** Occurs when price breaks above resistance with substantial volume expansion (>1.5x 20-day average volume). This triggers explosive follow-through rallies.\n"
+                "• **False Breakout (Bull Trap ⚠️):** A brief push above resistance without volume that immediately reverses. Pro traders wait for a 15-min candle close or retest before entering to avoid traps."
+            )
+        else:
+            return (
+                "🧱 **Support, Resistance Aur Breakout Ka Aasan Formula:**\n\n"
+                "• **Support (Demand Zone 🟢):** Yeh wo zameen (floor) hoti hai jahan girta hua stock ruk jata hai aur buyers sasta samajhkar wapas khareedte hain. Yahan se stock aksar bounce karta hai.\n"
+                "• **Resistance (Supply Zone 🔴):** Yeh wo chhat (ceiling) hoti hai jahan stock ko baar-baar rukawat milti hai kyunki log wahan profit book karne lagte hain.\n"
+                "• **Breakout (Dhamaka 🚀):** Jab stock bhari volume ke saath apne Resistance (chhat) ko todkar upar nikal jaye, toh use Breakout kehte hain. Yahan se tezi bahut fast hoti hai!\n"
+                "• **False Breakout (Trap ⚠️):** Agar price upar jaye par volume na ho aur agle hi pal wapas niche gir jaye, toh yeh trap hota hai. Hamara AI hamesha volume confirm karke hi breakout batata hai!"
+            )
+
+    # F. Candlestick Patterns
+    if any(k in q_lower for k in ["candlestick", "candle pattern", "hammer candle", "doji kya", "shooting star", "engulfing", "candle chart", "what is hammer"]):
+        if in_english:
+            return (
+                "🕯️ **High-Probability Candlestick Cheat Sheet:**\n\n"
+                "• **Hammer (Bullish Reversal 🔨):** Long lower shadow with a small upper body occurring at the bottom of a downtrend. Confirms aggressive buyer rejection of lower prices.\n"
+                "• **Shooting Star (Bearish Reversal 🌠):** Long upper shadow occurring at the peak of an uptrend. Confirms exhaustion of buyers and impending profit booking.\n"
+                "• **Bullish Engulfing 🟢:** A large green candle whose body completely covers the previous red candle's body. Signals institutional buyers taking charge.\n"
+                "• **Doji (Indecision ➕):** Open and close are virtually identical. Signifies market equilibrium between buyers and sellers before a sharp breakout."
+            )
+        else:
+            return (
+                "🕯️ **Important Candlestick Patterns Ka Cheat Sheet:**\n\n"
+                "• **Hammer (Hathoda 🔨):** Lambi niche ki wick aur chhota upar ka body. Girawat ke baad bane toh pakka sanket hai ki buyers aa chuke hain aur ab tezi aane wali hai!\n"
+                "• **Shooting Star (Ulta Hathoda 🌠):** Lambi upar ki wick aur chhota niche ka body. Tezi ke top par banta hai, jo aane wali girawat ka alert hota hai.\n"
+                "• **Bullish Engulfing 🟢:** Jab ek badi green candle pichli poori red candle ko nigal (engulf) leti hai. Yeh bhari tezi ka prateek hai.\n"
+                "• **Doji (Cross ➕):** Jahan khula wahi band hua. Iska matlab buyers aur sellers dono barabar hain aur market me agla bada move aane wala hai."
+            )
+
+    # G. Bull Market vs Bear Market
+    if any(k in q_lower for k in ["bull market", "bear market", "tezi kya", "mandi kya", "bull vs bear", "tezi aur mandi"]):
+        if in_english:
+            return (
+                "🐂 **Bull Market vs 🐻 Bear Market Guide:**\n\n"
+                "• **Bull Market (Secular Uptrend 🐂):** Period of sustained economic expansion, rising corporate earnings, high optimism, and index higher-highs. Winning Strategy: 'Buy on Dips' in high relative strength sectors.\n"
+                "• **Bear Market (Secular Downtrend 🐻):** Defined technically as a decline of 20% or more from 52-week peak. Driven by monetary tightening, inflation, or geopolitical shocks. Winning Strategy: High cash reserves, Gold allocation (GoldBees), and disciplined capital preservation.\n"
+                "• **Sideways Market 🟡:** Prolonged periods of directionless rangebound moves where strict target booking (+2.5%) is mandatory."
+            )
+        else:
+            return (
+                "🐂 **Bull Market (Tezi) vs 🐻 Bear Market (Mandi):**\n\n"
+                "• **Bull Market (Tezi 🐂):** Aisa daur jab economy strong hoti hai, corporate profits badhte hain, aur Nifty/Sensex lagatar naye records banata hai. Strategy: 'Buy on Dips' (girawat me acche stocks khareedo).\n"
+                "• **Bear Market (Mandi 🐻):** Jab market apne peak se 20% ya usse zyada gir jaye. Geopolitical war, inflation ya crisis iske kaaran hote hain. Strategy: Capital safe rakhein, safe bluechip ya Gold me invest karein.\n"
+                "• **Sideways Market 🟡:** Jab market na upar jaye na niche, balki ek range me phasa rahe. Aise me Intraday me strict target (+2.5%) book karna sabse behtar hota hai!"
+            )
+
+    # H. Futures & Options (F&O) & SEBI Risk Warning
+    if any(k in q_lower for k in ["f&o", "fno", "futures and options", "call option", "put option", "option trading", "call put", "ce pe"]):
+        if in_english:
+            return (
+                "⚡ **Futures & Options (F&O) Breakdown & Official Risk Warning:**\n\n"
+                "• **F&O Fundamentals:** Derivative contracts derived from underlying equities and indices:\n"
+                "   - **Call Option (CE):** Bullish contract granting the right to buy.\n"
+                "   - **Put Option (PE):** Bearish contract granting the right to sell.\n"
+                "• **⚠️ SEBI Official Statistic & Warning:**\n"
+                "   - SEBI's nationwide study revealed that **93% of individual retail F&O traders incur net losses**, with average losses exceeding ₹1.25 Lakh per trader!\n"
+                "   - The primary culprit is **Time Decay (Theta)** rapidly destroying option premiums even when directional calls are right.\n"
+                "• **💡 Institutional Recommendation:**\n"
+                "   - Build steady compounding wealth in **Equity Cash Intraday & Delivery** using disciplined Stop-Losses, rather than gambling on weekly expiring options!"
+            )
+        else:
+            return (
+                "⚡ **Futures & Options (F&O) Kya Hai Aur Iska Asli Sach:**\n\n"
+                "• **F&O (Derivatives):** Yeh stocks aur indices (Nifty/BankNifty) ke bhav par lagne wale high-leverage contracts hote hain:\n"
+                "   - **Call Option (CE):** Jab lagta hai market upar bhagega.\n"
+                "   - **Put Option (PE):** Jab lagta hai market niche girega.\n"
+                "• **⚠️ SEBI Ka Official Truth (Danger Alert):**\n"
+                "   - SEBI ke study ke mutabik **93% retail traders F&O me apna pura paisa ganwa dete hain!**\n"
+                "   - Option Buyers ka paisa 'Time Decay (Theta)' ki wajah se ghanta-dar-ghanta khatam ho jata hai.\n"
+                "• **💡 Hamari AI Terminal Ki Salah:**\n"
+                "   - Hamesha **Equity Cash Intraday aur Delivery Stocks** me kaam karein jahan 100% control aapke hath me hota hai aur time decay ka koi khatra nahi hota!"
+            )
+
+    # I. Short Selling
+    if any(k in q_lower for k in ["short sell", "short selling", "shorting kya", "girte market me", "mandi me kamai"]):
+        if in_english:
+            return (
+                "📉 **How Short Selling Works (Profiting from Declines):**\n\n"
+                "Short selling allows traders to profit when a stock price falls by **selling high first and buying low later**:\n\n"
+                "• **Mechanism:** If stock X trades at ₹1,000 and breaks down, you execute a 'Sell' order at ₹1,000. When it drops to ₹950, you 'Buy to Cover' — locking in a ₹50 per share gain!\n"
+                "• **Regulatory Rules in India (NSE):** In the cash segment, retail short selling is strictly restricted to **Intraday (MIS)** with mandatory auto square-off before 3:20 PM. Overnight short positions require Futures or Options."
+            )
+        else:
+            return (
+                "📉 **Short Selling Kya Hoti Hai? (Girte Market Me Paise Kaise Banayein):**\n\n"
+                "Short Selling ka matlab hai **pehle unche daam par bechna (Sell), aur baad me saste daam par wapas khareedna (Buy)**:\n\n"
+                "• **Kaise Kaam Karta Hai:** Agar TCS ₹4,500 par hai aur lagta hai ki yeh girega, toh aap pehle 'Sell' order lagate hain. Jab bhav ₹4,400 par gir jaye, tab aap 'Buy' karke position close kar dete hain — aur beech ka ₹100 per share aapka munafa ban jata hai!\n"
+                "• **NSE Ka Niyam:** Cash market me Short Selling sirf **Intraday (Same Day 3:20 PM tak)** hi allowed hoti hai. Delivery me bina shares ke short sell nahi kar sakte."
+            )
+
+    # J. IPO & GMP
+    if any(k in q_lower for k in ["ipo kya", "what is ipo", "gmp kya", "grey market", "ipo me apply", "listing gain"]):
+        if in_english:
+            return (
+                "🔔 **Comprehensive Guide to IPOs & GMP:**\n\n"
+                "• **IPO (Initial Public Offering):** The process by which an unlisted private company offers shares to the public on the NSE/BSE for the first time to raise capital.\n"
+                "• **GMP (Grey Market Premium):** The unofficial over-the-counter premium at which IPO shares trade before formal listing. An IPO priced at ₹200 with a ₹60 GMP suggests an expected listing price of ₹260 (+30% listing gain).\n"
+                "• **How to Apply:** Easily applied through UPI 2.0 block mandate on broker apps (Groww, Zerodha, Angel One) during the 3-day bidding window."
+            )
+        else:
+            return (
+                "🔔 **IPO Aur GMP (Grey Market Premium) Kya Hota Hai?**\n\n"
+                "• **IPO (Initial Public Offering):** Jab koi private company pehli baar share market (NSE/BSE) me aakar aam janta se paise raise karti hai aur apne shares bechti hai.\n"
+                "• **GMP (Grey Market Premium):** IPO list hone se pehle unofficial market me log kitna extra premium dene ko taiyar hain. Agar issue price ₹100 hai aur GMP ₹50 hai, toh expect kiya jata hai ki stock ₹150 par list hoga (50% Listing Gain).\n"
+                "• **Kaise Apply Karein:** Apne broker app (Zerodha, Groww, Angel One) me IPO section me jakar UPI ID daalkar mandate approve karein!"
+            )
+
+    # K. Fundamentals & Valuation (PE Ratio, EPS, Dividend, Debt)
+    if any(k in q_lower for k in ["pe ratio", "p/e ratio", "pe kya", "market cap kya", "dividend kya", "fundamental analysis", "eps kya", "what is pe"]):
+        if in_english:
+            return (
+                "💎 **Core Fundamental Valuation Metrics Explained:**\n\n"
+                "• **P/E Ratio (Price-to-Earnings):** Valuation multiple reflecting how much investors pay per rupee of current earnings. A P/E lower than industry peers often highlights an undervalued bargain.\n"
+                "• **EPS (Earnings Per Share):** The net profit generated per outstanding share. Sustained YoY EPS growth of >15% is the primary engine of long-term wealth creation.\n"
+                "• **Dividend Yield:** Annual dividend payout divided by market price. Bluechips like TCS and ITC provide strong passive dividend cashflows.\n"
+                "• **Debt-to-Equity (< 0.5):** Measures financial leverage. Ratios under 0.5 denote conservative, resilient balance sheets insulated against high interest rates."
+            )
+        else:
+            return (
+                "💎 **Fundamental Analysis & Valuation Ratios Ka Pura Gyan:**\n\n"
+                "• **P/E (Price-to-Earnings) Ratio:** Yeh batata hai ki company ke ₹1 kamane ke badle aap kitna rupaya dene ko taiyar hain. Agar kisi industry ka average PE 25 hai aur stock 15 par mil raha hai, toh wo sasta (Undervalued) mana jata hai.\n"
+                "• **EPS (Earnings Per Share):** Company ka total net profit divided by kul shares. Jitna tezi se EPS badhega, stock utna hi upar bhagega.\n"
+                "• **Dividend Yield:** Company apne munafey ka jo hissa direct share holders ke bank account me transfer karti hai use dividend kehte hain (e.g. TCS aur ITC).\n"
+                "• **Debt-to-Equity (< 1.0):** Company par kitna karza hai. Zero Debt (karz-mukt) companies sabse safe hoti hain."
+            )
+
+    # L. Trading Psychology & Golden Rules
+    if any(k in q_lower for k in ["psychology", "loss se kaise bache", "rules of trading", "trading ke niyam", "risk reward", "revenge trading"]):
+        if in_english:
+            return (
+                "🧠 **Institutional Trading Psychology & The 5 Golden Rules:**\n\n"
+                "1. **Capital Preservation First:** Return *of* capital always precedes return *on* capital. Never trade without a Stop-Loss.\n"
+                "2. **The 1-2% Risk Rule:** Never risk more than 1-2% of total trading account equity on any individual trade.\n"
+                "3. **Eliminate Revenge Trading:** After an adverse trade, step away from the terminal. Emotional trades taken to 'win back' money invariably compound losses.\n"
+                "4. **Systematic Profit Taking:** At Target 1 (+2.5%), lock in partial profits and trail the remainder. Greed destroys consistency.\n"
+                "5. **Process Over Outcome:** Follow high-probability quantitative setups consistently without emotional interference."
+            )
+        else:
+            return (
+                "🧠 **Successful Trader Ki Psychology Aur 5 Golden Niyam:**\n\n"
+                "1. **Paisa Bachana (Capital Protection) Pehla Niyam Hai:** Hamesha Stop-Loss lagayein!\n"
+                "2. **1-2% Risk Rule:** Ek trade me kabhi bhi apne kul capital ka 1-2% se zyada risk na lein.\n"
+                "3. **Revenge Trading Se Bachein:** Agar kisi din loss ho jaye, toh gusse me aakar double trade mat kijiye. Agle din fresh mind se aayiye.\n"
+                "4. **Lalach (Greed) Par Control:** Target 1 (+2.5%) aate hi 50% profit book karke Trailing SL lagayein. Aakhri paise tak nichodne ki koshish na karein!\n"
+                "5. **System Par Bharosa:** Emotional hokar trade na lein, balki AI ke data aur levels par bharosa karein."
+            )
+
+    # 9. Fallback with context
     if in_english:
         return (
             f"🤖 **Ritika Quant AI Copilot:**\n\n"
-            f"I am actively tracking Indian market equities, your portfolio, and risk management strategies.\n\n"
+            f"I am actively tracking Indian market equities, technical indicators, and your portfolio.\n\n"
             f"💡 **You can ask me about:**\n"
             f"• *\"Analyze TCS / Reliance / Dixon live trend & levels\"*\n"
+            f"• *\"What is RSI and 20 EMA?\"*\n"
             f"• *\"How to place a Stop-Loss in broker app?\"*\n"
-            f"• *\"What was the result of today's trades?\"*\n"
-            f"• *\"Show my current active delivery holdings\"*\n"
-            f"• *\"Difference between Intraday and Delivery\"*"
+            f"• *\"What is a Golden Cross & Breakout?\"*\n"
+            f"• *\"Difference between Intraday and Delivery\"*\n"
+            f"• *\"What is F&O and why does SEBI warn against it?\"*"
         )
     else:
         return (
             f"🤖 **Ritika Quant AI Copilot:**\n\n"
-            f"Main real-time Indian stock market, aapke portfolio aur trading strategies me aapki madad ke liye taiyar hoon.\n\n"
+            f"Main real-time Indian stock market, technical indicators aur aapke portfolio me aapki madad ke liye taiyar hoon.\n\n"
             f"💡 **Aap mujhse pooch sakte hain:**\n"
             f"• *\"Analyze TCS / Reliance / Dixon live trend\"*\n"
+            f"• *\"RSI aur 20 EMA kya hota hai?\"*\n"
             f"• *\"Stop loss kaise lagate hai?\"*\n"
-            f"• *\"Aaj ke trades ka kya result raha?\"*\n"
-            f"• *\"Mera active portfolio check karo\"*\n"
-            f"• *\"Intraday aur delivery me kya antar hai?\"*"
+            f"• *\"Golden Cross aur Breakout kya hota hai?\"*\n"
+            f"• *\"Intraday aur delivery me kya antar hai?\"*\n"
+            f"• *\"F&O me risk kyun hota hai?\"*"
         )
 
 if __name__ == "__main__":

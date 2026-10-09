@@ -13,8 +13,8 @@ import joblib
 import difflib
 from datetime import datetime
 import yfinance as yf
-import requests
 import json
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # =========================================================
 # STEP 0: PAGE CONFIGURATION
@@ -1402,9 +1402,7 @@ with col_main_content:
                 'COCHINSHIP.NS': 1485.00, 'BDL.NS': 1120.00, 'IREDA.NS': 168.50, 'TATAELXSI.NS': 6850.00,
                 'VBL.NS': 1240.00, 'MOTHERSON.NS': 148.20
             }
-            results = {}
-            for sym, meta in universe_map.items():
-                got_live = False
+            def _fetch_single_ticker(sym, meta):
                 # Priority 1: Real-time high precision NSE fast_info tick (zero delay, exact paisa)
                 try:
                     t_inst = yf.Ticker(sym)
@@ -1413,26 +1411,33 @@ with col_main_content:
                         cp = float(fi.last_price)
                         prev_p = float(fi.previous_close) if fi.previous_close else cp
                         chg_pct = round(((cp - prev_p) / (prev_p + 1e-9)) * 100, 2)
-                        results[sym] = {"price": round(cp, 2), "change": chg_pct, "meta": meta}
-                        got_live = True
+                        return sym, {"price": round(cp, 2), "change": chg_pct, "meta": meta}
                 except Exception:
                     pass
 
                 # Priority 2: History tick if fast_info has temporary blip
-                if not got_live:
+                try:
+                    t_live = yf.Ticker(sym).history(period="1d", interval="5m")
+                    if not t_live.empty:
+                        cp = float(t_live['Close'].iloc[-1])
+                        prev_p = float(t_live['Open'].iloc[0]) if len(t_live) > 0 else cp
+                        chg_pct = round(((cp - prev_p) / (prev_p + 1e-9)) * 100, 2)
+                        return sym, {"price": round(cp, 2), "change": chg_pct, "meta": meta}
+                except Exception:
+                    pass
+
+                fb = fallback_prices.get(sym, 1000.0)
+                return sym, {"price": fb, "change": 0.5, "meta": meta}
+
+            results = {}
+            with ThreadPoolExecutor(max_workers=16) as executor:
+                futures = [executor.submit(_fetch_single_ticker, sym, meta) for sym, meta in universe_map.items()]
+                for fut in as_completed(futures):
                     try:
-                        t_live = yf.Ticker(sym).history(period="1d", interval="5m")
-                        if not t_live.empty:
-                            cp = float(t_live['Close'].iloc[-1])
-                            prev_p = float(t_live['Open'].iloc[0]) if len(t_live) > 0 else cp
-                            chg_pct = round(((cp - prev_p) / (prev_p + 1e-9)) * 100, 2)
-                            results[sym] = {"price": round(cp, 2), "change": chg_pct, "meta": meta}
-                            got_live = True
+                        s_key, s_data = fut.result()
+                        results[s_key] = s_data
                     except Exception:
                         pass
-
-                if not got_live:
-                    results[sym] = {"price": fallback_prices.get(sym, 1000.0), "change": 0.5, "meta": meta}
             return results
 
         live_res = fetch_live_scanner_prices()
