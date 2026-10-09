@@ -1982,12 +1982,19 @@ with col_main_content:
                     else:
                         ai_status = "🟢 ACTIVE MONITORING"
 
+                    shares_cnt = int(h.get("shares", 1))
+                    tot_invested = round(entry_p * shares_cnt, 2)
+                    tot_curr_val = round(curr_p * shares_cnt, 2)
+                    net_pnl_rs = round(tot_curr_val - tot_invested, 2)
+
                     display_rows.append({
                         "Stock": name,
                         "Type": ttype,
+                        "Shares (Qty)": shares_cnt,
                         "Buy Entry": f"₹{entry_p:,.2f}",
                         "Current Price": f"₹{curr_p:,.2f}",
-                        "Live P&L %": f"{gain_p:+.2f}%",
+                        "Total Invested": f"₹{tot_invested:,.2f}",
+                        "Live P&L": f"₹{net_pnl_rs:+,.2f} ({gain_p:+.2f}%)",
                         "Target Price": f"₹{tg_p:,.2f}",
                         "Stop Loss": f"₹{sl_p:,.2f}",
                         "AI 24x7 Status": ai_status,
@@ -2050,7 +2057,7 @@ with col_main_content:
                         st.session_state["add_h_tg"] = round(p_fetch * 1.15, 2)
                         st.session_state["add_h_sl"] = round(p_fetch * 0.95, 2)
 
-            ac1, ac2, ac3, ac4 = st.columns(4)
+            ac1, ac2, ac3, ac4, ac5 = st.columns([1.4, 0.8, 1.0, 1.0, 1.0])
             with ac1:
                 add_sym = st.text_input("Stock Ticker", value="", placeholder="e.g. SBIN, BDL, DIXON", key="add_h_sym", help="Type any stock name or typo e.g. mothrson, sbi, dixon. Auto-corrects automatically!")
                 if add_sym.strip():
@@ -2060,12 +2067,14 @@ with col_main_content:
                     else:
                         st.markdown(f"<div style='font-size:11px; color:#94a3b8; margin-top:2px;'>🎯 Target Stock: <b style='color:#38bdf8;'>{add_r_disp}</b></div>", unsafe_allow_html=True)
             with ac2:
+                add_shares = st.number_input("Shares (Qty)", value=1, min_value=1, step=1, key="add_h_shares")
+            with ac3:
                 default_entry_val = float(st.session_state.get("add_h_entry", 1000.0))
                 add_entry = st.number_input("Buy Entry Price (₹)", value=default_entry_val, min_value=1.0, key="add_h_entry")
-            with ac3:
+            with ac4:
                 default_tg_val = float(st.session_state.get("add_h_tg", round(default_entry_val * 1.15, 2)))
                 add_target = st.number_input("Target Price (₹)", value=default_tg_val, min_value=1.0, key="add_h_tg")
-            with ac4:
+            with ac5:
                 default_sl_val = float(st.session_state.get("add_h_sl", round(default_entry_val * 0.95, 2)))
                 add_sl = st.number_input("Stop Loss Price (₹)", value=default_sl_val, min_value=1.0, key="add_h_sl")
 
@@ -2084,6 +2093,7 @@ with col_main_content:
                         cur_h.append({
                             "symbol": clean_s,
                             "name": clean_s.replace(".NS", ""),
+                            "shares": int(add_shares),
                             "entry": add_entry,
                             "target": add_target,
                             "sl": add_sl,
@@ -2092,7 +2102,7 @@ with col_main_content:
                             "status": "ACTIVE"
                         })
                         save_user_active_holdings(cur_h)
-                        st.success(f"✅ Active tracking started for {clean_s}! Target: ₹{add_target}, SL: ₹{add_sl}.")
+                        st.success(f"✅ Active tracking started for {clean_s} ({add_shares} shares)! Target: ₹{add_target}, SL: ₹{add_sl}.")
                         st.rerun()
                     else:
                         st.warning(f"⚠️ {clean_s} is already in your active holdings list.")
@@ -2108,24 +2118,32 @@ with col_main_content:
                 if isinstance(p, dict) and not is_trade_untracked_or_expired(p.get("Ticker"), p.get("BuyTime"), p.get("Type", "Delivery"))
             ]
             
-            # 2. Add any active holdings not yet in paper trading
+            # 2. Add or update active holdings in paper trading
             existing_paper_syms = {p.get("Ticker") for p in paper_positions if isinstance(p, dict)}
             sync_changed = False
             for ah in active_h_sync:
                 sym_to_add = ah.get("symbol", "")
-                if sym_to_add and sym_to_add not in existing_paper_syms:
+                if not sym_to_add:
+                    continue
+                expected_shares = int(ah.get("shares", 1))
+                if sym_to_add not in existing_paper_syms:
                     ah_type = ah.get("trade_type", "Delivery")
                     paper_positions.append({
                         "Ticker": sym_to_add,
                         "Type": f"{ah_type.upper()} (MIS)" if "intra" in ah_type.lower() else "DELIVERY (CNC)",
                         "BuyPrice": float(ah.get("entry", 1000.0)),
-                        "Shares": 2 if "intra" in ah_type.lower() else 1,
+                        "Shares": expected_shares,
                         "AITarget": float(ah.get("target", 0.0)),
                         "AIScore": "90% (AI Recommended)",
                         "BuyTime": ah.get("buy_time", datetime.now().strftime("%Y-%m-%d %H:%M"))
                     })
                     sync_changed = True
                     existing_paper_syms.add(sym_to_add)
+                else:
+                    for pp in paper_positions:
+                        if pp.get("Ticker") == sym_to_add and pp.get("Shares") != expected_shares:
+                            pp["Shares"] = expected_shares
+                            sync_changed = True
 
             if sync_changed:
                 st.session_state["paper_positions"] = paper_positions

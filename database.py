@@ -53,12 +53,17 @@ def init_db():
             entry REAL NOT NULL,
             target REAL NOT NULL,
             sl REAL NOT NULL,
+            shares INTEGER DEFAULT 1,
             trade_type TEXT DEFAULT 'Delivery',
             buy_time TEXT,
             status TEXT DEFAULT 'ACTIVE',
             FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
         )
     """)
+    try:
+        cursor.execute("ALTER TABLE user_holdings ADD COLUMN shares INTEGER DEFAULT 1")
+    except Exception:
+        pass
 
     # 3. User Paper Accounts table
     cursor.execute("""
@@ -196,7 +201,7 @@ def get_user_holdings(user_id: int) -> list:
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT symbol, name, entry, target, sl, trade_type, buy_time, status
+        SELECT symbol, name, entry, target, sl, shares, trade_type, buy_time, status
         FROM user_holdings
         WHERE user_id = ? AND status = 'ACTIVE'
     """, (user_id,))
@@ -209,26 +214,28 @@ def save_user_holding(user_id: int, holding: dict):
     conn = get_db_connection()
     cursor = conn.cursor()
     sym = holding.get("symbol", "").strip()
+    shares_cnt = int(holding.get("shares", 1))
     cursor.execute("SELECT id FROM user_holdings WHERE user_id = ? AND symbol = ?", (user_id, sym))
     existing = cursor.fetchone()
     if existing:
         cursor.execute("""
             UPDATE user_holdings
-            SET name = ?, entry = ?, target = ?, sl = ?, trade_type = ?, buy_time = ?, status = 'ACTIVE'
+            SET name = ?, entry = ?, target = ?, sl = ?, shares = ?, trade_type = ?, buy_time = ?, status = 'ACTIVE'
             WHERE id = ?
         """, (
             holding.get("name", sym.replace(".NS", "")),
             float(holding.get("entry", 0.0)),
             float(holding.get("target", 0.0)),
             float(holding.get("sl", 0.0)),
+            shares_cnt,
             holding.get("trade_type", "Delivery"),
             holding.get("buy_time", datetime.now().strftime("%Y-%m-%d %H:%M")),
             existing['id']
         ))
     else:
         cursor.execute("""
-            INSERT INTO user_holdings (user_id, symbol, name, entry, target, sl, trade_type, buy_time, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVE')
+            INSERT INTO user_holdings (user_id, symbol, name, entry, target, sl, shares, trade_type, buy_time, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVE')
         """, (
             user_id,
             sym,
@@ -236,6 +243,7 @@ def save_user_holding(user_id: int, holding: dict):
             float(holding.get("entry", 0.0)),
             float(holding.get("target", 0.0)),
             float(holding.get("sl", 0.0)),
+            shares_cnt,
             holding.get("trade_type", "Delivery"),
             holding.get("buy_time", datetime.now().strftime("%Y-%m-%d %H:%M"))
         ))
@@ -257,7 +265,7 @@ def _sync_all_active_holdings_to_json():
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT symbol, name, entry, target, sl, trade_type, buy_time, status FROM user_holdings WHERE status = 'ACTIVE'")
+        cursor.execute("SELECT symbol, name, entry, target, sl, shares, trade_type, buy_time, status FROM user_holdings WHERE status = 'ACTIVE'")
         rows = cursor.fetchall()
         conn.close()
         holdings = [dict(r) for r in rows]
