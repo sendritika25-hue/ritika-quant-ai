@@ -244,14 +244,14 @@ def generate_copilot_response(user_query: str) -> str:
     # 4. Friendly General Quant Fallback
     return (
         f"🤖 **Ritika Quant AI Copilot:**\n\n"
-        f"Aapne poocha: *\"{user_query}\"*\n\n"
-        f"Main aapko real-time NSE market, stocks ke technical indicators, ya aapke portfolio ke baare me bata sakta hoon.\n\n"
-        f"💡 **Aap mujhse pooch sakte hain:**\n"
-        f"• *\"Analyze TCS live trend\"*\n"
-        f"• *\"Mera portfolio status check karo\"*\n"
-        f"• *\"Reliance ka target aur stop loss kahan hai?\"*\n"
-        f"• *\"Trailing Stop-Loss kaise kaam karta hai?\"*\n"
-        f"• *\"Kal subah ke liye best intraday pick kya hai?\"*"
+        f"You asked: *\"{user_query}\"*\n\n"
+        f"I can provide real-time NSE market insights, technical indicator readings, and active portfolio updates.\n\n"
+        f"💡 **Suggested questions you can ask:**\n"
+        f"• *\"Analyze TCS live trend and target\"*\n"
+        f"• *\"How is my portfolio performing?\"*\n"
+        f"• *\"What are Reliance target and stop-loss levels?\"*\n"
+        f"• *\"Explain Trailing Stop-Loss risk management\"*\n"
+        f"• *\"What is the best breakout pick for tomorrow?\"*"
     )
 
 if __name__ == "__main__":

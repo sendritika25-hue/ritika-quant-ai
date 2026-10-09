@@ -1943,14 +1943,14 @@ with col_main_content:
                 {
                     "role": "assistant",
                     "content": (
-                        "👋 **Namaste! Main aapka Ritika Quant AI Copilot hoon.**\n\n"
-                        "Main real-time NSE market data, aapke portfolio aur quantitative indicators ko analyze karke aapke har sawaal ka jawaab de sakta hoon.\n\n"
-                        "💡 *Kuch ideas jinke baare me aap mujhse pooch sakte hain:*\n"
-                        "• *\"Analyze TCS live trend\"*\n"
-                        "• *\"Mera portfolio kaisa chal raha hai?\"*\n"
-                        "• *\"Reliance ka target aur stop-loss kahan hai?\"*\n"
-                        "• *\"Trailing Stop-Loss kya hota hai?\"*\n"
-                        "• *\"Kal subah ke liye best pick kya hai?\"*"
+                        "👋 **Welcome! I am your Ritika Quant AI Copilot.**\n\n"
+                        "I analyze real-time NSE market data, your portfolio positions, and institutional quantitative indicators to answer any of your trading queries.\n\n"
+                        "💡 *Here are a few questions you can ask me:*\n"
+                        "• *\"Analyze TCS live trend and target\"*\n"
+                        "• *\"How is my portfolio performing?\"*\n"
+                        "• *\"What are Reliance target and stop-loss levels?\"*\n"
+                        "• *\"Explain Trailing Stop-Loss risk management\"*\n"
+                        "• *\"What is the best breakout pick for tomorrow?\"*"
                     )
                 }
             ]
