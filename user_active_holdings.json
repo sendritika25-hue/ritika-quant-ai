@@ -1,15 +1,5 @@
 [
   {
-    "symbol": "COCHINSHIP.NS",
-    "name": "COCHINSHIP",
-    "entry": 1382.6,
-    "target": 1589.99,
-    "sl": 1313.47,
-    "trade_type": "Delivery",
-    "buy_time": "2026-09-24 07:37",
-    "status": "ACTIVE"
-  },
-  {
     "symbol": "SOLARINDS.NS",
     "name": "SOLARINDS",
     "entry": 19800.0,

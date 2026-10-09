@@ -46,5 +46,11 @@
     "buy_time": "",
     "untracked_at": "2026-09-25 12:00",
     "reason": "USER_EXITED"
+  },
+  {
+    "symbol": "COCHINSHIP.NS",
+    "buy_time": "2026-09-24 07:37",
+    "untracked_at": "2026-10-09 12:26",
+    "reason": "STOP_LOSS_EXITED_BY_USER"
   }
 ]
