@@ -95,6 +95,27 @@ def is_trade_untracked_or_expired(symbol, buy_time="", trade_type="Delivery"):
     return False
 
 def load_user_active_holdings():
+    curr_user = st.session_state.get("current_user_obj")
+    if curr_user and curr_user.get("id") and curr_user.get("role") != "guest":
+        try:
+            import database
+            db_holdings = database.get_user_holdings(curr_user["id"])
+            filtered = []
+            for h in db_holdings:
+                sym = h.get("symbol", "")
+                b_time = str(h.get("buy_time", ""))
+                ttype = h.get("trade_type", "Delivery")
+                if is_trade_untracked_or_expired(sym, b_time, ttype):
+                    continue
+                filtered.append(h)
+            return filtered
+        except Exception:
+            pass
+    elif curr_user and curr_user.get("role") == "guest":
+        if "guest_holdings" not in st.session_state:
+            st.session_state["guest_holdings"] = []
+        return st.session_state["guest_holdings"]
+
     if os.path.exists(USER_HOLDINGS_PATH):
         try:
             with open(USER_HOLDINGS_PATH, "r") as f:
@@ -115,6 +136,18 @@ def load_user_active_holdings():
     return []
 
 def save_user_active_holdings(holdings_list):
+    curr_user = st.session_state.get("current_user_obj")
+    if curr_user and curr_user.get("id") and curr_user.get("role") != "guest":
+        try:
+            import database
+            for h in holdings_list:
+                database.save_user_holding(curr_user["id"], h)
+        except Exception:
+            pass
+    elif curr_user and curr_user.get("role") == "guest":
+        st.session_state["guest_holdings"] = holdings_list
+        return
+
     try:
         with open(USER_HOLDINGS_PATH, "w") as f:
             json.dump(holdings_list, f, indent=2)
@@ -399,19 +432,59 @@ if "connected_broker_name" not in st.session_state:
     st.session_state["connected_broker_name"] = ""
 
 if not st.session_state["logged_in"]:
-    col_l1, col_l2, col_l3 = st.columns([1, 1.2, 1])
+    col_l1, col_l2, col_l3 = st.columns([1, 1.4, 1])
     with col_l2:
-        st.markdown("<h2 style='text-align:center; color:#38bdf8; font-size:28px;'>👑 Ritika Quant AI Terminal</h2>", unsafe_allow_html=True)
-        user_input_id = st.text_input("👤 User ID", value="ritika", key="login_id_input")
-        user_input_pw = st.text_input("🔑 Password", type="password", value="ritika7220", key="login_pw_input")
-        if st.button("🔓 Login to Institutional Terminal", use_container_width=True):
-            clean_id = user_input_id.strip().lower()
-            if clean_id in VALID_CREDENTIALS and VALID_CREDENTIALS[clean_id] == user_input_pw.strip():
-                st.session_state["logged_in"] = True
-                st.session_state["current_user"] = clean_id
-                st.rerun()
-            else:
-                st.error("❌ Invalid Credentials!")
+        st.markdown("""
+        <div style='text-align:center; padding:15px 0 10px 0;'>
+            <div style="background:linear-gradient(135deg, #2563eb, #1d4ed8); width:54px; height:54px; border-radius:14px; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 20px rgba(37,99,235,0.5); margin-bottom:10px;">
+                <span style="font-size:28px; line-height:1;">👑</span>
+            </div>
+            <h2 style='text-align:center; color:#38bdf8; font-size:26px; margin:0 0 6px 0; font-weight:800;'>Ritika Quant AI Terminal</h2>
+            <p style='color:#94a3b8; font-size:12px; margin:0 0 16px 0;'>
+                Institutional Grade AI-Powered Stock Analysis • 100% Free Public Access
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        tab_login, tab_register = st.tabs(["🔑 Member Login", "✨ Create Free Account"])
+
+        with tab_login:
+            st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
+            user_input_id = st.text_input("👤 Username or Email", value="ritika", key="login_id_input")
+            user_input_pw = st.text_input("🔑 Password", type="password", value="ritika7220", key="login_pw_input")
+            if st.button("🔓 Login to Terminal", use_container_width=True, key="btn_login_submit"):
+                import database
+                user_record = database.authenticate_user(user_input_id, user_input_pw)
+                if user_record:
+                    st.session_state["logged_in"] = True
+                    st.session_state["current_user"] = user_record["username"]
+                    st.session_state["current_user_obj"] = user_record
+                    st.success(f"✅ Welcome back, {user_record['username'].capitalize()}!")
+                    st.rerun()
+                else:
+                    st.error("❌ Invalid Username/Email or Password!")
+
+        with tab_register:
+            st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
+            st.caption("🎉 100% Free Access • Zero charges, instant activation!")
+            new_user_name = st.text_input("👤 Pick a Username", key="reg_user_name_input", placeholder="e.g. rahul_trader")
+            new_user_email = st.text_input("📧 Email Address", key="reg_user_email_input", placeholder="e.g. rahul@gmail.com")
+            new_user_pw = st.text_input("🔑 Choose Password", type="password", key="reg_user_pw_input")
+            if st.button("🚀 Register Free Account Now", use_container_width=True, key="btn_register_submit"):
+                import database
+                ok, msg = database.register_user(new_user_name, new_user_email, new_user_pw)
+                if ok:
+                    st.success(f"🎉 {msg} Please go to the 'Member Login' tab and sign in.")
+                else:
+                    st.error(f"⚠️ {msg}")
+
+        st.markdown("<div style='text-align:center; margin:16px 0 12px 0; color:#64748b; font-size:11px;'>───────── OR ─────────</div>", unsafe_allow_html=True)
+        if st.button("⚡ Continue as Guest (Instant Free Demo Access)", use_container_width=True, key="btn_guest_access"):
+            st.session_state["logged_in"] = True
+            st.session_state["current_user"] = "guest"
+            st.session_state["current_user_obj"] = {"id": 999999, "username": "guest", "role": "guest", "plan": "FREE_DEMO"}
+            st.rerun()
+
     st.stop()
 
 # Comprehensive Ticker Resolver Supporting All Indian Stocks, Nifty 50 Index, Sensex, Gold, Silver & Crypto
@@ -1022,6 +1095,49 @@ with col_left_panel:
         </div>
     </div>
     """, unsafe_allow_html=True)
+
+    # USER PROFILE & LOGOUT WIDGET
+    curr_u_obj = st.session_state.get("current_user_obj") or {}
+    curr_role = curr_u_obj.get("role", "user")
+    u_display = st.session_state.get("current_user", "Trader").capitalize()
+
+    st.markdown("<div class='sidebar-divider'></div>", unsafe_allow_html=True)
+    if curr_role == "admin":
+        role_badge = "<span style='background:rgba(56,189,248,0.2); border:1px solid #38bdf8; color:#38bdf8; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700;'>👑 ADMIN</span>"
+    elif curr_role == "guest":
+        role_badge = "<span style='background:rgba(148,163,184,0.2); border:1px solid #94a3b8; color:#94a3b8; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700;'>⚡ GUEST</span>"
+    else:
+        role_badge = "<span style='background:rgba(34,197,94,0.2); border:1px solid #22c55e; color:#4ade80; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700;'>✨ FREE PRO</span>"
+
+    st.markdown(f"""
+    <div class="status-card-box-dark" style="margin-bottom:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:12px; color:#ffffff; font-weight:700;">👤 {u_display}</span>
+            {role_badge}
+        </div>
+        <div style="font-size:10px; color:#94a3b8; margin-top:4px;">
+            Plan: <b style="color:#4ade80;">100% Free Access</b>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    if st.button("🚪 Logout", key="btn_sidebar_logout", use_container_width=True):
+        st.session_state["logged_in"] = False
+        st.session_state["current_user"] = ""
+        st.session_state["current_user_obj"] = None
+        st.rerun()
+
+    if curr_role == "admin":
+        with st.expander("👥 Registered Members (Admin)", expanded=False):
+            try:
+                import database
+                all_u = database.get_all_users()
+                st.caption(f"Total Registered: **{len(all_u)} members**")
+                for u in all_u:
+                    created_date = str(u['created_at'])[:10] if u['created_at'] else 'Recent'
+                    st.markdown(f"<div style='font-size:11px; padding:3px 0; border-bottom:1px solid #1e293b; color:#cbd5e1;'>• <b>{u['username']}</b> <span style='color:#38bdf8;'>({u['role']})</span><br><span style='font-size:9px; color:#64748b;'>Joined: {created_date}</span></div>", unsafe_allow_html=True)
+            except Exception:
+                pass
 
 # ---------------------------------------------------------
 # 2. MAIN DASHBOARD CONTENT AREA
@@ -1890,6 +2006,13 @@ with col_main_content:
                         matched_h = next((h for h in current_h if h.get("symbol") == sel_rm), None)
                         b_time = matched_h.get("buy_time", "") if matched_h else ""
                         register_untracked_trade(sel_rm, b_time)
+                        curr_u = st.session_state.get("current_user_obj")
+                        if curr_u and curr_u.get("id") and curr_u.get("role") != "guest":
+                            try:
+                                import database
+                                database.remove_user_holding(curr_u["id"], sel_rm)
+                            except Exception:
+                                pass
                         updated_h = [h for h in current_h if h.get("symbol") != sel_rm]
                         save_user_active_holdings(updated_h)
                         if "paper_positions" in st.session_state:
