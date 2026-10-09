@@ -2,10 +2,10 @@
   {
     "symbol": "SOLARINDS.NS",
     "name": "SOLARINDS",
-    "shares": 1,
     "entry": 19800.0,
     "target": 22770.0,
     "sl": 18810.0,
+    "shares": 1,
     "trade_type": "Delivery",
     "buy_time": "2026-09-24 07:37",
     "status": "ACTIVE"
@@ -13,10 +13,10 @@
   {
     "symbol": "COFORGE.NS",
     "name": "COFORGE",
-    "shares": 3,
     "entry": 1796.4,
     "target": 2065.86,
     "sl": 1706.58,
+    "shares": 3,
     "trade_type": "Delivery",
     "buy_time": "2026-09-24 07:37",
     "status": "ACTIVE"
@@ -24,56 +24,12 @@
   {
     "symbol": "ICICIBANK.NS",
     "name": "ICICIBANK",
-    "shares": 4,
     "entry": 1334.2,
     "target": 1561.01,
     "sl": 1267.49,
+    "shares": 4,
     "trade_type": "Delivery",
     "buy_time": "2026-09-24 07:38",
-    "status": "ACTIVE"
-  },
-  {
-    "symbol": "TCS.NS",
-    "name": "TCS",
-    "shares": 4,
-    "entry": 2154.7,
-    "target": 2208.57,
-    "sl": 2122.38,
-    "trade_type": "Intraday",
-    "buy_time": "2026-10-09 12:01",
-    "status": "ACTIVE"
-  },
-  {
-    "symbol": "BHARTIARTL.NS",
-    "name": "BHARTIARTL",
-    "shares": 11,
-    "entry": 1807.2,
-    "target": 1852.38,
-    "sl": 1780.09,
-    "trade_type": "Intraday",
-    "buy_time": "2026-10-09 12:01",
-    "status": "ACTIVE"
-  },
-  {
-    "symbol": "CDSL.NS",
-    "name": "CDSL",
-    "shares": 15,
-    "entry": 1256.2,
-    "target": 1287.61,
-    "sl": 1237.36,
-    "trade_type": "Intraday",
-    "buy_time": "2026-10-09 12:01",
-    "status": "ACTIVE"
-  },
-  {
-    "symbol": "BDL.NS",
-    "name": "BDL",
-    "shares": 18,
-    "entry": 1072.5,
-    "target": 1099.31,
-    "sl": 1056.41,
-    "trade_type": "Intraday",
-    "buy_time": "2026-10-09 12:01",
     "status": "ACTIVE"
   }
 ]
