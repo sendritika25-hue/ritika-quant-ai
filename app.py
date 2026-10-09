@@ -1997,7 +1997,7 @@ with col_main_content:
         if user_prompt_to_process:
             st.session_state["copilot_chat_history"].append({"role": "user", "content": user_prompt_to_process})
             with st.spinner("AI analyzing live market & portfolio data..."):
-                reply = ai_copilot_engine.generate_copilot_response(user_prompt_to_process)
+                reply = ai_copilot_engine.generate_copilot_response(user_prompt_to_process, history=st.session_state["copilot_chat_history"])
             st.session_state["copilot_chat_history"].append({"role": "assistant", "content": reply})
             st.rerun()
 
