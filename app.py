@@ -1960,8 +1960,8 @@ with col_main_content:
         q_c1, q_c2, q_c3, q_c4, q_c5 = st.columns(5)
         user_prompt_to_process = None
         with q_c1:
-            if st.button("🎯 Analyze TCS", use_container_width=True, key="qp_tcs"):
-                user_prompt_to_process = "Analyze TCS live trend and target"
+            if st.button("📊 Market Trend (Nifty)", use_container_width=True, key="qp_mkt"):
+                user_prompt_to_process = "Aaj market ka overview aur Nifty trend kaisa hai?"
         with q_c2:
             if st.button("💼 My Portfolio", use_container_width=True, key="qp_port"):
                 user_prompt_to_process = "Mera portfolio check karo"
