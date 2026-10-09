@@ -42,6 +42,33 @@ COMMON_TICKERS = {
     "suzlon": "SUZLON.NS",
     "mazdock": "MAZDOCK.NS",
     "bel": "BEL.NS",
+    "bhel": "BHEL.NS",
+    "cochinship": "COCHINSHIP.NS",
+    "ireda": "IREDA.NS",
+    "rpower": "RPOWER.NS",
+    "yesbank": "YESBANK.NS",
+    "bandhanbnk": "BANDHANBNK.NS",
+    "irctc": "IRCTC.NS",
+    "upl": "UPL.NS",
+    "sobha": "SOBHA.NS",
+    "dlf": "DLF.NS",
+    "itc": "ITC.NS",
+    "titan": "TITAN.NS",
+    "lt": "LT.NS",
+    "sunpharma": "SUNPHARMA.NS",
+    "maruti": "MARUTI.NS",
+    "cipla": "CIPLA.NS",
+    "bataindia": "BATAINDIA.NS",
+    "prestige": "PRESTIGE.NS",
+    "pvrinox": "PVRINOX.NS",
+    "godrejprop": "GODREJPROP.NS",
+    "sonacoms": "SONACOMS.NS",
+    "relaxo": "RELAXO.NS",
+    "lalpathlab": "LALPATHLAB.NS",
+    "tatamotors": "TATAMOTORS.NS",
+    "tata steel": "TATASTEEL.NS",
+    "tatasteel": "TATASTEEL.NS",
+    "wipro": "WIPRO.NS",
     "gold": "GOLDBEES.NS",
     "silver": "SILVERBEES.NS",
     "nifty": "^NSEI",
@@ -314,6 +341,50 @@ def generate_copilot_response(user_query: str, history: list = None, *args, **kw
                 f"💡 *Advice:* Delivery stocks ko hold karein, AI lagatar inka Target aur Trailing SL monitor kar raha hai!"
             )
             return reply
+
+    # Multibagger Category / Classification Queries
+    # E.g. "multibagger me tcs to show hi nahi kar raha", "multibagger stocks kaun se hain", "tcs multibagger hai kya"
+    if "multibagger" in q_lower:
+        if "tcs" in q_lower:
+            if in_english:
+                return (
+                    "**Why TCS is not in the 'Multibaggers' category:**\n\n"
+                    "TCS is India's 2nd largest mega-cap company with a massive valuation of over ₹11 Lakh Crore. "
+                    "In our AI Terminal, TCS is categorized under **'🛡️ Ultra Safe'** because it is a low-volatility dividend giant with high stability, rather than an aggressive 10x-seeking small-cap.\n\n"
+                    "**Where does TCS appear in the Terminal?**\n"
+                    "• Under the **'🛡️ Ultra Safe'** category tab in AI Scanner!\n"
+                    "• **Multibaggers tab** is specifically reserved for high-growth, high-momentum counters like **Suzlon, Mazagon Dock, Cochin Shipyard, BDL, IREDA**, which have smaller market caps and rapid explosive growth potential."
+                )
+            else:
+                return (
+                    "**TCS 'Multibagger' list me kyun show nahi ho raha hai?**\n\n"
+                    "Kyunki TCS ek bahut badi **Mega-Cap Company** hai (lagbhag ₹11 Lakh Crore ki market cap). "
+                    "Hamare AI Terminal me TCS ko **'🛡️ Ultra Safe'** category me rakha gaya hai kyunki yeh bohot stable, safe aur dividend dene wala bluechip stock hai, na ki koi high-risk small-cap.\n\n"
+                    "**TCS aapko kahan milega?**\n"
+                    "• AI Scanner ke **'🛡️ Ultra Safe'** tab ke andar!\n"
+                    "• Jabki **'🚀 Multibaggers'** tab me wo stocks hote hain jo chhote hote hain aur 2x ya 5x hone ka dam rakhte hain — jaise **Suzlon, Mazdock, BDL, Cochin Shipyard, IREDA**."
+                )
+        else:
+            if in_english:
+                return (
+                    "**Top High-Growth Multibagger Radar Stocks:**\n\n"
+                    "The Multibaggers category tracks high-order backlog, fast-growing defense and green energy leaders:\n"
+                    "• **SUZLON.NS** (Order book: 3.8 GW & Clean Energy mandate)\n"
+                    "• **MAZDOCK.NS** (Naval submarine replacement pipeline)\n"
+                    "• **BDL.NS** (Missile exports & indigenization)\n"
+                    "• **IREDA.NS** (Green energy loan book growth)\n\n"
+                    "💡 You can view all of them under the **'🚀 Multibaggers'** tab on the Scanner page!"
+                )
+            else:
+                return (
+                    "**Top High-Growth Multibagger Stocks:**\n\n"
+                    "Hamare AI ke Multibagger radar par abhi ye high-growth defense aur clean-energy stocks hain:\n"
+                    "• **SUZLON.NS** (Clean Energy mandate aur 3.8 GW orderbook)\n"
+                    "• **MAZDOCK.NS** (Naval submarine aur defense export orders)\n"
+                    "• **BDL.NS** (Missile technology aur export backlog)\n"
+                    "• **IREDA.NS** (Green financing loan surge)\n\n"
+                    "💡 In sabhi stocks ko aap Scanner page ke **'🚀 Multibaggers'** tab me dekh sakti hain!"
+                )
 
     # 4. Stock Specific In-Depth Analysis
     found_stock = detect_stock_in_query(user_query, history)
