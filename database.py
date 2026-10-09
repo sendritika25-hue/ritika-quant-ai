@@ -107,18 +107,18 @@ def init_db():
             """, (u_name, u_email, hash_password(u_pw), u_role, 'FREE_UNLIMITED'))
     conn.commit()
 
-    # Migrate existing holdings from user_active_holdings.json into Ritika's admin holdings
-    cursor.execute("SELECT COUNT(*) as cnt FROM user_holdings WHERE user_id = ?", (admin_id,))
-    if cursor.fetchone()['cnt'] == 0 and os.path.exists(USER_HOLDINGS_JSON):
+    # Always ensure Ritika's admin holdings are 100% synced with user_active_holdings.json including exact shares
+    if os.path.exists(USER_HOLDINGS_JSON):
         try:
             with open(USER_HOLDINGS_JSON, "r", encoding="utf-8") as f:
                 h_list = json.load(f)
-                if isinstance(h_list, list):
+                if isinstance(h_list, list) and len(h_list) > 0:
+                    cursor.execute("DELETE FROM user_holdings WHERE user_id = ?", (admin_id,))
                     for h in h_list:
                         if isinstance(h, dict) and h.get("symbol"):
                             cursor.execute("""
-                                INSERT INTO user_holdings (user_id, symbol, name, entry, target, sl, trade_type, buy_time, status)
-                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                INSERT INTO user_holdings (user_id, symbol, name, entry, target, sl, shares, trade_type, buy_time, status)
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                             """, (
                                 admin_id,
                                 h.get("symbol"),
@@ -126,6 +126,7 @@ def init_db():
                                 float(h.get("entry", 0.0)),
                                 float(h.get("target", 0.0)),
                                 float(h.get("sl", 0.0)),
+                                int(h.get("shares", 1)),
                                 h.get("trade_type", "Delivery"),
                                 h.get("buy_time", datetime.now().strftime("%Y-%m-%d %H:%M")),
                                 h.get("status", "ACTIVE")

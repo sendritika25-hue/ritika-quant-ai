@@ -112,8 +112,15 @@ def load_user_active_holdings():
         except Exception:
             pass
     elif curr_user and curr_user.get("role") == "guest":
-        if "guest_holdings" not in st.session_state:
-            st.session_state["guest_holdings"] = []
+        if "guest_holdings" not in st.session_state or not st.session_state["guest_holdings"]:
+            base_h = []
+            if os.path.exists(USER_HOLDINGS_PATH):
+                try:
+                    with open(USER_HOLDINGS_PATH, "r") as f:
+                        base_h = json.load(f)
+                except Exception:
+                    base_h = []
+            st.session_state["guest_holdings"] = [h for h in base_h if isinstance(h, dict) and not is_trade_untracked_or_expired(h.get("symbol"), h.get("buy_time"), h.get("trade_type", "Delivery"))]
         return st.session_state["guest_holdings"]
 
     if os.path.exists(USER_HOLDINGS_PATH):
@@ -402,12 +409,10 @@ def save_paper_account_data(cash, realized_profit, positions):
         pass
 
 _paper_data = load_paper_account_data()
-if "paper_cash" not in st.session_state:
-    st.session_state["paper_cash"] = _paper_data.get("cash", 63982.90)
-if "realized_profit" not in st.session_state:
-    st.session_state["realized_profit"] = _paper_data.get("realized_profit", 2216.91)
-if "paper_positions" not in st.session_state:
-    st.session_state["paper_positions"] = _paper_data.get("positions", [])
+st.session_state["paper_cash"] = _paper_data.get("cash", 45000.00)
+st.session_state["realized_profit"] = _paper_data.get("realized_profit", 1622.51)
+if "paper_positions" not in st.session_state or len(st.session_state.get("paper_positions", [])) != len(_paper_data.get("positions", [])):
+    st.session_state["paper_positions"] = list(_paper_data.get("positions", []))
 
 # Auto-purge any untracked or expired trades from session state
 if "paper_positions" in st.session_state:
