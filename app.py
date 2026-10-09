@@ -976,6 +976,7 @@ col_left_panel, col_main_content = st.columns([1.05, 4])
 MENU_OPTIONS = [
     "🏠 Dashboard",
     "🤖 AI Market Scanner",
+    "💬 Ask AI Copilot",
     "📊 Stock Analysis",
     "💼 Portfolios",
     "⭐ Watchlist",
@@ -1928,6 +1929,77 @@ with col_main_content:
                                 st.toast(f"✅ {sym} added to active positions! AI 24x7 Target ({upside:+.1f}%) / SL alert enabled.", icon="🔔")
                             else:
                                 st.toast(f"ℹ️ {sym} is already being tracked in your positions.", icon="📌")
+
+    elif active_selected_menu == "💬 Ask AI Copilot":
+        st.markdown("## 💬 Ritika Quant AI • 24x7 Conversational Copilot")
+        st.markdown("Your private Institutional Financial AI Assistant. Ask about any Indian stock, check your live portfolio, get Target/SL levels, or learn trading strategies in Hindi or English!")
+        st.markdown("---")
+
+        import ai_copilot_engine
+
+        # Initialize session chat history if not present
+        if "copilot_chat_history" not in st.session_state or not st.session_state["copilot_chat_history"]:
+            st.session_state["copilot_chat_history"] = [
+                {
+                    "role": "assistant",
+                    "content": (
+                        "👋 **Namaste! Main aapka Ritika Quant AI Copilot hoon.**\n\n"
+                        "Main real-time NSE market data, aapke portfolio aur quantitative indicators ko analyze karke aapke har sawaal ka jawaab de sakta hoon.\n\n"
+                        "💡 *Kuch ideas jinke baare me aap mujhse pooch sakte hain:*\n"
+                        "• *\"Analyze TCS live trend\"*\n"
+                        "• *\"Mera portfolio kaisa chal raha hai?\"*\n"
+                        "• *\"Reliance ka target aur stop-loss kahan hai?\"*\n"
+                        "• *\"Trailing Stop-Loss kya hota hai?\"*\n"
+                        "• *\"Kal subah ke liye best pick kya hai?\"*"
+                    )
+                }
+            ]
+
+        # Top Quick Starter Prompts
+        st.markdown("<span style='font-size:12px; color:#94a3b8; font-weight:600;'>⚡ QUICK 1-CLICK PROMPTS:</span>", unsafe_allow_html=True)
+        q_c1, q_c2, q_c3, q_c4, q_c5 = st.columns(5)
+        user_prompt_to_process = None
+        with q_c1:
+            if st.button("🎯 Analyze TCS", use_container_width=True, key="qp_tcs"):
+                user_prompt_to_process = "Analyze TCS live trend and target"
+        with q_c2:
+            if st.button("💼 My Portfolio", use_container_width=True, key="qp_port"):
+                user_prompt_to_process = "Mera portfolio check karo"
+        with q_c3:
+            if st.button("🚀 Tomorrow's Pick", use_container_width=True, key="qp_pick"):
+                user_prompt_to_process = "Kal ke liye best stock pick kya hai?"
+        with q_c4:
+            if st.button("🛡️ Trailing SL?", use_container_width=True, key="qp_tsl"):
+                user_prompt_to_process = "Trailing Stop-Loss kya hota hai?"
+        with q_c5:
+            if st.button("🗑️ Clear Chat", use_container_width=True, key="qp_clear"):
+                st.session_state["copilot_chat_history"] = []
+                st.rerun()
+
+        st.markdown("<div style='height:12px;'></div>", unsafe_allow_html=True)
+
+        # Render Chat Container
+        chat_container = st.container()
+        with chat_container:
+            for msg in st.session_state["copilot_chat_history"]:
+                if msg["role"] == "user":
+                    with st.chat_message("user", avatar="👤"):
+                        st.markdown(msg["content"])
+                else:
+                    with st.chat_message("assistant", avatar="👑"):
+                        st.markdown(msg["content"])
+
+        # Chat Input
+        typed_input = st.chat_input("Poochiye koi bhi sawaal (e.g. Kya TCS buy karein? / Mera profit kitna hai?)...")
+        if typed_input:
+            user_prompt_to_process = typed_input
+
+        if user_prompt_to_process:
+            st.session_state["copilot_chat_history"].append({"role": "user", "content": user_prompt_to_process})
+            with st.spinner("AI analyzing live market & portfolio data..."):
+                reply = ai_copilot_engine.generate_copilot_response(user_prompt_to_process)
+            st.session_state["copilot_chat_history"].append({"role": "assistant", "content": reply})
+            st.rerun()
 
     elif active_selected_menu == "💼 Portfolios":
         st.markdown("## 💼 Institutional Portfolio & Broker Integration Hub")
