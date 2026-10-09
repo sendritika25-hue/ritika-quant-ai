@@ -139,6 +139,13 @@ def send_push_alert(title_clean, message, priority="high", tags="warning", broke
             headers=headers,
             timeout=10
         )
+        # 4. Telegram Bot & Channel Instant Push Notification
+        try:
+            import telegram_notifier
+            telegram_notifier.send_telegram_alert(title_clean, message, broker_stock=broker_stock)
+        except Exception as te:
+            pass
+
         if resp.status_code == 200:
             print(f"✓ Push Alert Sent to Phone & PC: {clean_header_title}")
             return True
