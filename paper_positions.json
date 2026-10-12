@@ -1,6 +1,6 @@
 {
-  "cash": 114971.74,
-  "realized_profit": 2793.55,
+  "cash": 118931.74,
+  "realized_profit": 2847.55,
   "positions": [
     {
       "Ticker": "SOLARINDS.NS",
@@ -28,15 +28,6 @@
       "AITarget": 1561.01,
       "AIScore": "86% (Banking Breakout)",
       "BuyTime": "2026-09-24 07:38"
-    },
-    {
-      "Ticker": "SUZLON.NS",
-      "Type": "INTRADAY (MIS)",
-      "BuyPrice": 39.06,
-      "Shares": 100,
-      "AITarget": 40.04,
-      "AIScore": "92% (Intraday Momentum)",
-      "BuyTime": "2026-10-12 11:23"
     }
   ]
 }

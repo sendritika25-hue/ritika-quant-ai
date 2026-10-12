@@ -52,5 +52,11 @@
     "buy_time": "2026-09-24 07:37",
     "untracked_at": "2026-10-09 12:26",
     "reason": "STOP_LOSS_EXITED_BY_USER"
+  },
+  {
+    "symbol": "SUZLON.NS",
+    "buy_time": "",
+    "untracked_at": "2026-10-12 13:25",
+    "reason": "USER_DELETED_CLOSED"
   }
 ]
