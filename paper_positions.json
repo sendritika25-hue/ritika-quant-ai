@@ -28,6 +28,15 @@
       "AITarget": 1561.01,
       "AIScore": "86% (Banking Breakout)",
       "BuyTime": "2026-09-24 07:38"
+    },
+    {
+      "Ticker": "SUZLON.NS",
+      "Type": "DELIVERY (CNC)",
+      "BuyPrice": 39.06,
+      "Shares": 100,
+      "AITarget": 44.92,
+      "AIScore": "90% (AI Recommended)",
+      "BuyTime": "2026-10-12 11:23"
     }
   ]
 }

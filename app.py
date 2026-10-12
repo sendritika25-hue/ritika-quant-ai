@@ -147,6 +147,11 @@ def save_user_active_holdings(holdings_list):
     if curr_user and curr_user.get("id") and curr_user.get("role") != "guest":
         try:
             import database
+            current_syms = {h.get("symbol") for h in holdings_list if isinstance(h, dict)}
+            existing_db = database.get_user_holdings(curr_user["id"])
+            for ed in existing_db:
+                if ed.get("symbol") not in current_syms:
+                    database.remove_user_holding(curr_user["id"], ed.get("symbol"))
             for h in holdings_list:
                 database.save_user_holding(curr_user["id"], h)
         except Exception:
@@ -2193,10 +2198,45 @@ with col_main_content:
                             "status": "ACTIVE"
                         })
                         save_user_active_holdings(cur_h)
+                        # Immediately sync to paper trading positions
+                        p_list = st.session_state.get("paper_positions", [])
+                        p_match = next((p for p in p_list if isinstance(p, dict) and p.get("Ticker") == clean_s), None)
+                        if p_match:
+                            p_match["Shares"] = int(add_shares)
+                            p_match["BuyPrice"] = float(add_entry)
+                        else:
+                            p_list.append({
+                                "Ticker": clean_s,
+                                "Type": "DELIVERY (CNC)",
+                                "BuyPrice": float(add_entry),
+                                "Shares": int(add_shares),
+                                "AITarget": float(add_target),
+                                "AIScore": "92% (High Conviction)",
+                                "BuyTime": datetime.now().strftime("%Y-%m-%d %H:%M")
+                            })
+                        st.session_state["paper_positions"] = p_list
+                        save_paper_account_data(st.session_state.get("paper_cash", 100000.0), st.session_state.get("realized_profit", 0.0), p_list)
                         st.success(f"✅ Active tracking started for {clean_s} ({add_shares} shares)! Target: ₹{add_target}, SL: ₹{add_sl}.")
                         st.rerun()
                     else:
-                        st.warning(f"⚠️ {clean_s} is already in your active holdings list.")
+                        for h in cur_h:
+                            if h.get("symbol") == clean_s:
+                                h["shares"] = int(add_shares)
+                                h["entry"] = float(add_entry)
+                                h["target"] = float(add_target)
+                                h["sl"] = float(add_sl)
+                                break
+                        save_user_active_holdings(cur_h)
+                        p_list = st.session_state.get("paper_positions", [])
+                        for p in p_list:
+                            if isinstance(p, dict) and p.get("Ticker") == clean_s:
+                                p["Shares"] = int(add_shares)
+                                p["BuyPrice"] = float(add_entry)
+                                p["AITarget"] = float(add_target)
+                        st.session_state["paper_positions"] = p_list
+                        save_paper_account_data(st.session_state.get("paper_cash", 100000.0), st.session_state.get("realized_profit", 0.0), p_list)
+                        st.success(f"✅ Updated {clean_s} quantity to {add_shares} shares! (Entry: ₹{add_entry}, Target: ₹{add_target}).")
+                        st.rerun()
 
         with tab_p2:
             # Auto-sync active holdings into paper positions so paper trading always reflects user positions
@@ -2232,9 +2272,16 @@ with col_main_content:
                     existing_paper_syms.add(sym_to_add)
                 else:
                     for pp in paper_positions:
-                        if pp.get("Ticker") == sym_to_add and pp.get("Shares") != expected_shares:
-                            pp["Shares"] = expected_shares
-                            sync_changed = True
+                        if pp.get("Ticker") == sym_to_add:
+                            pp_sh = int(pp.get("Shares", 1))
+                            if pp_sh != expected_shares:
+                                max_sh = max(pp_sh, expected_shares)
+                                if pp_sh != max_sh:
+                                    pp["Shares"] = max_sh
+                                    sync_changed = True
+                                if ah.get("shares") != max_sh:
+                                    ah["shares"] = max_sh
+                                    save_user_active_holdings(active_h_sync)
 
             if sync_changed:
                 st.session_state["paper_positions"] = paper_positions
@@ -2392,6 +2439,36 @@ with col_main_content:
                             save_paper_account_data(st.session_state["paper_cash"], st.session_state["realized_profit"], st.session_state["paper_positions"])
                             st.rerun()
 
+            st.markdown("<div style='height:10px;'></div>", unsafe_allow_html=True)
+            if paper_positions:
+                with st.expander("✏️ Quick Adjust / Set Shares Quantity for Any Holding (e.g. Set SUZLON to 100 Shares)", expanded=False):
+                    eq_c1, eq_c2, eq_c3 = st.columns([2.2, 1.2, 1.5])
+                    with eq_c1:
+                        eq_label = st.selectbox("Select Holding to Set Exact Quantity", pos_options_labels, key="eq_pos_select")
+                    eq_idx = int(eq_label.split(" • ")[0].replace("#", "")) if eq_label else 0
+                    eq_holding = paper_positions[eq_idx] if 0 <= eq_idx < len(paper_positions) else None
+                    cur_qty = eq_holding["Shares"] if eq_holding else 1
+                    with eq_c2:
+                        new_shares_qty = st.number_input("Set Exact Quantity (Shares)", min_value=1, step=1, value=cur_qty, key="eq_new_shares")
+                    with eq_c3:
+                        st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True)
+                        if st.button("💾 Update Quantity Now", key="btn_save_shares_qty", use_container_width=True):
+                            if eq_holding:
+                                t_name = eq_holding["Ticker"]
+                                eq_holding["Shares"] = int(new_shares_qty)
+                                save_paper_account_data(st.session_state["paper_cash"], st.session_state["realized_profit"], paper_positions)
+                                try:
+                                    cur_h = load_user_active_holdings()
+                                    for h in cur_h:
+                                        if h.get("symbol") == t_name:
+                                            h["shares"] = int(new_shares_qty)
+                                            break
+                                    save_user_active_holdings(cur_h)
+                                except Exception:
+                                    pass
+                                st.success(f"✅ Successfully updated {t_name} to {new_shares_qty} shares!")
+                                st.rerun()
+
             st.markdown("<div style='height:15px;'></div>", unsafe_allow_html=True)
 
             # MATHEMATICAL 1% CAPITAL RISK & POSITION SIZING CALCULATOR IN VIRTUAL ORDER FORM
@@ -2449,62 +2526,121 @@ with col_main_content:
                         st.warning("⚠️ Please enter a stock ticker (e.g. MOTHERSON, CIPLA, DIXON) to trade.")
                     else:
                         sym_r = resolve_ticker(v_stock)
-                    base_p = BASE_PRICE_MAP.get(sym_r, 2811.40 if "TRENT" in sym_r else 1680.00)
-                    try:
-                        t_data = yf.Ticker(sym_r).history(period="1d")
-                        if not t_data.empty:
-                            est_buy = round(float(t_data['Close'].iloc[-1]), 2)
-                        else:
-                            est_buy = base_p
-                    except Exception:
-                        est_buy = base_p
-
-                    if "INTRADAY" in v_horizon:
-                        h_type = "INTRADAY (MIS)"
-                        t_price = round(est_buy * 1.025, 2)
-                    elif "LONG-TERM" in v_horizon:
-                        h_type = "LONG-TERM (CNC)"
-                        t_price = round(est_buy * 1.400, 2)
-                    else:
-                        h_type = "DELIVERY (CNC)"
-                        t_price = round(est_buy * 1.150, 2)
-                    
-                    if v_action == "SELL":
-                        existing = [p for p in st.session_state["paper_positions"] if p["Ticker"] == sym_r]
-                        if existing:
-                            curr_p = existing[0]
-                            if v_shares >= curr_p["Shares"]:
-                                st.session_state["paper_positions"] = [p for p in st.session_state["paper_positions"] if p["Ticker"] != sym_r]
-                                realized = curr_p["Shares"] * est_buy
-                                st.session_state["paper_cash"] += realized
-                                st.success(f"✅ Closed all {curr_p['Shares']} shares of {sym_r}! Realized ₹{realized:,.2f} credited to Cash.")
-                                try:
-                                    cur_h = [h for h in load_user_active_holdings() if h.get("symbol") != sym_r]
-                                    save_user_active_holdings(cur_h)
-                                except Exception:
-                                    pass
+                        base_p = BASE_PRICE_MAP.get(sym_r, 2811.40 if "TRENT" in sym_r else 1680.00)
+                        try:
+                            t_data = yf.Ticker(sym_r).history(period="1d")
+                            if not t_data.empty:
+                                est_buy = round(float(t_data['Close'].iloc[-1]), 2)
                             else:
-                                curr_p["Shares"] -= v_shares
-                                realized = v_shares * est_buy
-                                st.session_state["paper_cash"] += realized
-                                st.success(f"✅ Partially Sold {v_shares} shares of {sym_r}! Remaining: {curr_p['Shares']} shares. Realized ₹{realized:,.2f} credited to Cash.")
-                            save_paper_account_data(st.session_state["paper_cash"], st.session_state["realized_profit"], st.session_state["paper_positions"])
-                            st.rerun()
+                                est_buy = base_p
+                        except Exception:
+                            est_buy = base_p
+
+                        if "INTRADAY" in v_horizon:
+                            h_type = "INTRADAY (MIS)"
+                            t_price = round(est_buy * 1.025, 2)
+                        elif "LONG-TERM" in v_horizon:
+                            h_type = "LONG-TERM (CNC)"
+                            t_price = round(est_buy * 1.400, 2)
                         else:
-                            st.warning(f"⚠️ You do not currently hold {sym_r} in your paper portfolio to sell.")
-                    else:
-                        st.session_state["paper_positions"].append({
-                            "Ticker": sym_r,
-                            "Type": h_type,
-                            "BuyPrice": est_buy,
-                            "Shares": v_shares,
-                            "AITarget": t_price,
-                            "AIScore": "94% (High Confidence)" if "TRENT" in sym_r else "87% (High Confidence)",
-                            "BuyTime": datetime.now().strftime("%Y-%m-%d %H:%M")
-                        })
-                        save_paper_account_data(st.session_state["paper_cash"], st.session_state["realized_profit"], st.session_state["paper_positions"])
-                        st.success(f"✅ Executed Virtual {h_type} Order: BUY {v_shares} shares of {sym_r}! Target: ₹{t_price}")
-                        st.rerun()
+                            h_type = "DELIVERY (CNC)"
+                            t_price = round(est_buy * 1.150, 2)
+                        
+                        if v_action == "SELL":
+                            existing = [p for p in st.session_state["paper_positions"] if isinstance(p, dict) and p.get("Ticker") == sym_r]
+                            if existing:
+                                curr_p = existing[0]
+                                curr_sh = int(curr_p.get("Shares", 1))
+                                if v_shares >= curr_sh:
+                                    st.session_state["paper_positions"] = [p for p in st.session_state["paper_positions"] if isinstance(p, dict) and p.get("Ticker") != sym_r]
+                                    realized = round(curr_sh * est_buy, 2)
+                                    profit_or_loss = round((est_buy - curr_p.get("BuyPrice", est_buy)) * curr_sh, 2)
+                                    st.session_state["paper_cash"] = round(st.session_state.get("paper_cash", 100000.0) + realized, 2)
+                                    st.session_state["realized_profit"] = round(st.session_state.get("realized_profit", 0.0) + profit_or_loss, 2)
+                                    st.success(f"✅ Closed all {curr_sh} shares of {sym_r}! Realized ₹{realized:,.2f} credited to Cash.")
+                                    try:
+                                        cur_h = [h for h in load_user_active_holdings() if h.get("symbol") != sym_r]
+                                        save_user_active_holdings(cur_h)
+                                    except Exception:
+                                        pass
+                                else:
+                                    curr_p["Shares"] = curr_sh - int(v_shares)
+                                    realized = round(int(v_shares) * est_buy, 2)
+                                    profit_or_loss = round((est_buy - curr_p.get("BuyPrice", est_buy)) * int(v_shares), 2)
+                                    st.session_state["paper_cash"] = round(st.session_state.get("paper_cash", 100000.0) + realized, 2)
+                                    st.session_state["realized_profit"] = round(st.session_state.get("realized_profit", 0.0) + profit_or_loss, 2)
+                                    st.success(f"✅ Partially Sold {v_shares} shares of {sym_r}! Remaining: {curr_p['Shares']} shares. Realized ₹{realized:,.2f} credited to Cash.")
+                                    try:
+                                        cur_h = load_user_active_holdings()
+                                        for h in cur_h:
+                                            if h.get("symbol") == sym_r:
+                                                h["shares"] = curr_p["Shares"]
+                                                break
+                                        save_user_active_holdings(cur_h)
+                                    except Exception:
+                                        pass
+                                save_paper_account_data(st.session_state["paper_cash"], st.session_state["realized_profit"], st.session_state["paper_positions"])
+                                st.rerun()
+                            else:
+                                st.warning(f"⚠️ You do not currently hold {sym_r} in your paper portfolio to sell.")
+                        else:
+                            # BUY ORDER: Add or update holding with accurate quantity
+                            existing = [p for p in st.session_state["paper_positions"] if isinstance(p, dict) and p.get("Ticker") == sym_r]
+                            if existing:
+                                curr_p = existing[0]
+                                old_shares = int(curr_p.get("Shares", 1))
+                                if old_shares <= 1 and int(v_shares) > 1:
+                                    final_shares = int(v_shares)
+                                    curr_p["BuyPrice"] = est_buy
+                                else:
+                                    final_shares = old_shares + int(v_shares)
+                                    curr_p["BuyPrice"] = round(((float(curr_p.get("BuyPrice", est_buy)) * old_shares) + (est_buy * int(v_shares))) / final_shares, 2)
+                                curr_p["Shares"] = final_shares
+                                curr_p["Type"] = h_type
+                                curr_p["AITarget"] = t_price
+                                curr_p["AIScore"] = "94% (High Conviction)"
+                            else:
+                                final_shares = int(v_shares)
+                                curr_p = {
+                                    "Ticker": sym_r,
+                                    "Type": h_type,
+                                    "BuyPrice": est_buy,
+                                    "Shares": final_shares,
+                                    "AITarget": t_price,
+                                    "AIScore": "94% (High Confidence)" if "TRENT" in sym_r else "89% (High Conviction)",
+                                    "BuyTime": datetime.now().strftime("%Y-%m-%d %H:%M")
+                                }
+                                st.session_state["paper_positions"].append(curr_p)
+                            
+                            order_cost = round(est_buy * int(v_shares), 2)
+                            st.session_state["paper_cash"] = max(0.0, round(float(st.session_state.get("paper_cash", 100000.0)) - order_cost, 2))
+                            
+                            # Sync directly into user active holdings so all tabs match
+                            cur_h = load_user_active_holdings()
+                            found_h = False
+                            for h in cur_h:
+                                if h.get("symbol") == sym_r:
+                                    h["shares"] = final_shares
+                                    h["entry"] = curr_p["BuyPrice"]
+                                    h["target"] = t_price
+                                    found_h = True
+                                    break
+                            if not found_h:
+                                cur_h.append({
+                                    "symbol": sym_r,
+                                    "name": sym_r.replace(".NS", ""),
+                                    "shares": final_shares,
+                                    "entry": curr_p["BuyPrice"],
+                                    "target": t_price,
+                                    "sl": round(curr_p["BuyPrice"] * 0.95, 2),
+                                    "trade_type": "Delivery" if "DELIVERY" in h_type or "LONG-TERM" in h_type else "Intraday",
+                                    "buy_time": datetime.now().strftime("%Y-%m-%d %H:%M"),
+                                    "status": "ACTIVE"
+                                })
+                            save_user_active_holdings(cur_h)
+                            save_paper_account_data(st.session_state["paper_cash"], st.session_state["realized_profit"], st.session_state["paper_positions"])
+                            st.success(f"✅ Executed Virtual Order: BUY {v_shares} shares of {sym_r}! Total Portfolio Shares: {final_shares} (Invested: ₹{(curr_p['BuyPrice'] * final_shares):,.2f})")
+                            st.rerun()
 
         with tab_p3:
             st.markdown("### 🔗 Connect Live Demat Account (Zerodha, Groww, AngelOne, Upstox)")

@@ -31,5 +31,16 @@
     "trade_type": "Delivery",
     "buy_time": "2026-09-24 07:38",
     "status": "ACTIVE"
+  },
+  {
+    "symbol": "SUZLON.NS",
+    "name": "SUZLON",
+    "entry": 39.06,
+    "target": 44.92,
+    "sl": 37.1,
+    "shares": 100,
+    "trade_type": "Delivery",
+    "buy_time": "2026-10-12 11:23",
+    "status": "ACTIVE"
   }
 ]
