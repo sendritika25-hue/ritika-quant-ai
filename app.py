@@ -1483,6 +1483,13 @@ with col_main_content:
             target_label = "+2.5%"
             sl_pct = 0.015
             trade_type_label = "Intraday"
+            # Institutional RMS Filter: For Intraday MIS, exclude high-slippage low-priced stocks under ₹100
+            all_sorted = [item for item in all_sorted if item[1]['price'] >= 100.0]
+            balanced_list = [item for item in balanced_list if item[1]['price'] >= 100.0]
+            momentum_list = [item for item in momentum_list if item[1]['price'] >= 100.0]
+            fii_list = [item for item in fii_list if item[1]['price'] >= 100.0]
+            multibagger_list = [item for item in multibagger_list if item[1]['price'] >= 100.0]
+            safe_list = [item for item in safe_list if item[1]['price'] >= 100.0]
         elif is_longterm:
             target_pct = 0.400
             target_label = "+40.0%"
@@ -1493,6 +1500,14 @@ with col_main_content:
             target_label = "+15.0%"
             sl_pct = 0.050
             trade_type_label = "Delivery"
+
+        if is_intraday:
+            st.markdown("""
+            <div style="background:rgba(56, 189, 248, 0.08); border-left:4px solid #38bdf8; border-radius:8px; padding:8px 14px; margin-bottom:12px;">
+                <span style="color:#38bdf8; font-weight:700; font-size:12px;">🛡️ INSTITUTIONAL RMS ACTIVE:</span>
+                <span style="color:#94a3b8; font-size:12px;"> Stocks under ₹100 are strictly filtered out of Intraday scanners to eliminate illiquid tick-slippage. Only high-liquidity large-cap & F&O candidates with deep order books are displayed.</span>
+            </div>
+            """, unsafe_allow_html=True)
 
         # REAL-TIME HIGHEST PROFIT LEADERS QUICK RADAR
         top_gainers_quick = all_sorted[:3]
@@ -2186,6 +2201,9 @@ with col_main_content:
                 else:
                     clean_s = resolve_ticker(add_sym)
                     is_intra = "intra" in add_trade_type.lower()
+                    if is_intra and add_entry < 100.0:
+                        is_intra = False
+                        st.toast(f"🛡️ Institutional Risk Policy: {clean_s} (₹{add_entry:.2f}) is under ₹100. Restricting from Intraday (MIS) due to high tick slippage. Routed to DELIVERY (CNC) for capital protection.", icon="🛡️")
                     h_type_str = "Intraday" if is_intra else "Delivery"
                     p_type_str = "INTRADAY (MIS)" if is_intra else "DELIVERY (CNC)"
                     cur_h = load_user_active_holdings()
@@ -2410,6 +2428,52 @@ with col_main_content:
 
                 st.dataframe(pd.DataFrame(display_paper), use_container_width=True)
                 
+                # INSTITUTIONAL RMS 1-CLICK MARKET CLOSE SQUARE-OFF (FOR INTRADAY POSITIONS)
+                mis_positions = [p for p in paper_positions if "intra" in str(p.get("Type", "")).lower()]
+                if mis_positions:
+                    st.markdown(f"""
+                    <div style="background:linear-gradient(90deg, rgba(239,68,68,0.15) 0%, rgba(30,41,59,0.7) 100%); border-left:4px solid #ef4444; border-radius:8px; padding:10px 14px; margin:12px 0;">
+                        <span style="color:#ef4444; font-weight:700; font-size:13px;">⚠️ RMS Market Close Notice:</span>
+                        <span style="color:#e2e8f0; font-size:12px;"> You have <b>{len(mis_positions)} open Intraday (MIS) position(s)</b>. Institutional guidelines mandate squaring off all intraday trades before 3:30 PM market close to avoid compulsory broker penalty.</span>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    sq_c1, sq_c2 = st.columns([2.5, 1.5])
+                    with sq_c1:
+                        st.markdown("<span style='font-size:12px; color:#94a3b8;'>Close all MIS positions at current market prices and credit cash immediately:</span>", unsafe_allow_html=True)
+                    with sq_c2:
+                        if st.button("🚨 1-Click Square-Off All Intraday (MIS)", key="btn_square_off_all_mis", use_container_width=True):
+                            total_credited = 0.0
+                            total_realized_pnl = 0.0
+                            remaining_positions = []
+                            for p in paper_positions:
+                                if "intra" in str(p.get("Type", "")).lower():
+                                    t_name = p["Ticker"]
+                                    sh = int(p.get("Shares", 1))
+                                    bp = float(p.get("BuyPrice", 1000.0))
+                                    matched_c = live_price_cache.get(t_name)
+                                    cur_p = float(matched_c.get("current", bp)) if matched_c else BASE_PRICE_MAP.get(t_name, bp)
+                                    proceeds = round(cur_p * sh, 2)
+                                    pnl = round((cur_p - bp) * sh, 2)
+                                    total_credited += proceeds
+                                    total_realized_pnl += pnl
+                                    register_untracked_trade(t_name, p.get("BuyTime", ""))
+                                else:
+                                    remaining_positions.append(p)
+                            st.session_state["paper_positions"] = remaining_positions
+                            st.session_state["paper_cash"] = round(st.session_state.get("paper_cash", 100000.0) + total_credited, 2)
+                            st.session_state["realized_profit"] = round(st.session_state.get("realized_profit", 0.0) + total_realized_pnl, 2)
+                            save_paper_account_data(st.session_state["paper_cash"], st.session_state["realized_profit"], st.session_state["paper_positions"])
+                            try:
+                                cur_h = load_user_active_holdings()
+                                cur_h = [h for h in cur_h if not ("intra" in str(h.get("trade_type", "")).lower() or "intra" in str(h.get("Type", "")).lower())]
+                                save_user_active_holdings(cur_h)
+                            except Exception:
+                                pass
+                            st.success(f"✅ Squared-off {len(mis_positions)} Intraday Position(s)! Cash Credited: +₹{total_credited:,.2f} | Realized P&L: {total_realized_pnl:+,.2f}.")
+                            st.rerun()
+                else:
+                    st.markdown("<div style='font-size:11px; color:#4ade80; margin:4px 0 10px 0;'>🛡️ <b>RMS Compliance Check:</b> 0 open Intraday (MIS) trades. All current portfolio holdings are safely in Delivery (CNC) mode with zero overnight forced square-off risk.</div>", unsafe_allow_html=True)
+
                 # INTERACTIVE POSITION CLOSER WITH LOT DETAILS & PARTIAL EXIT
                 st.markdown("#### 🔴 1-Click Close / Reduce Position & Realize Profit")
                 pos_options_labels = [
@@ -2564,8 +2628,13 @@ with col_main_content:
                             est_buy = base_p
 
                         if "INTRADAY" in v_horizon:
-                            h_type = "INTRADAY (MIS)"
-                            t_price = round(est_buy * 1.025, 2)
+                            if est_buy < 100.0:
+                                h_type = "DELIVERY (CNC)"
+                                t_price = round(est_buy * 1.150, 2)
+                                st.toast(f"🛡️ Institutional Risk Policy: {sym_r} (₹{est_buy:.2f}) is under ₹100. Restricted from Intraday (MIS) due to high tick-spread slippage. Auto-routed to DELIVERY (CNC) for capital protection.", icon="🛡️")
+                            else:
+                                h_type = "INTRADAY (MIS)"
+                                t_price = round(est_buy * 1.025, 2)
                         elif "LONG-TERM" in v_horizon:
                             h_type = "LONG-TERM (CNC)"
                             t_price = round(est_buy * 1.400, 2)
