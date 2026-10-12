@@ -299,6 +299,18 @@ def detect_stock_in_query(user_text: str, history: list = None) -> str:
         if word in words or f" {word} " in f" {lower} ":
             return sym
 
+    stopwords = {
+        "kya", "hai", "hain", "batao", "btao", "kaise", "kaisa", "kaisi", "share", "stock", "rate", "target", "today", 
+        "price", "analysis", "karna", "chahiye", "chaiye", "kisse", "buy", "sell", "holding", 
+        "result", "entry", "exit", "about", "view", "chart", "call", "put", "loss", "profit", 
+        "order", "level", "open", "high", "low", "close", "hold", "le", "lu", "mera", "meri", 
+        "mere", "aaj", "kal", "karu", "karein", "nuksan", "fayeda", "lena", "bechna", "kitna", 
+        "nahi", "nhai", "raha", "diya", "par", "dekh", "kar", "mujhe", "kaun", "kaunsa", "konsa", 
+        "acha", "achha", "kharab", "kisko", "the", "and", "for", "with", "from", "this", "that", "what", 
+        "which", "when", "where", "how", "who", "should", "will", "can", "good", "bad", "best", 
+        "top", "stop", "trading", "market", "nse", "bse", "portfolio", "terminal", "screen", 
+        "scanner", "bot", "copilot"
+    }
     non_ticker_acronyms = {
         "CPR", "GTT", "VWAP", "RSI", "MACD", "EMA", "SMA", "ATM", "ITM", "OTM", 
         "PE", "CE", "SL", "MIS", "CNC", "AMO", "F&O", "IPO", "GMP", "ATR", "ADX", 
