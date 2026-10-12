@@ -1986,17 +1986,16 @@ with col_main_content:
             ]
 
         # Chat Control Bar (Clean & Unrestricted)
-        q_c1, q_c2 = st.columns([3.5, 1.2])
+        col_chat_info, col_clear = st.columns([4.2, 1.0])
         user_prompt_to_process = None
-        with q_c1:
-            if st.button("📊 Live Market Trend (Nifty & Sensex)", use_container_width=True, key="qp_mkt"):
-                user_prompt_to_process = "Aaj market ka overview aur Nifty trend kaisa hai?"
-        with q_c2:
+        with col_chat_info:
+            st.markdown("<span style='font-size:12px; color:#94a3b8;'>💬 <b>Open AI Terminal:</b> Zero restrictions — type any stock or trading query below.</span>", unsafe_allow_html=True)
+        with col_clear:
             if st.button("🗑️ Clear Chat", use_container_width=True, key="qp_clear"):
                 st.session_state["copilot_chat_history"] = []
                 st.rerun()
 
-        st.markdown("<div style='height:12px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
 
         # Render Chat Container
         chat_container = st.container()
