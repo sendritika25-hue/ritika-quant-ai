@@ -17,6 +17,12 @@ LOG_FILE = os.path.join(BASE_DIR, "cloudflared.log")
 PUBLIC_URL_FILE = os.path.join(BASE_DIR, "public_url.txt")
 NTFY_URL = "https://ntfy.sh/ritika_quant_ai_engine"
 
+if hasattr(sys.stdout, 'reconfigure'):
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
+
 def send_ntfy_link(public_url):
     try:
         title = "👑 MOBILE APP LINK READY"
@@ -49,6 +55,11 @@ def main():
     if "cloudflared.exe" in check.stdout:
         print("cloudflared is already running.")
     else:
+        if os.path.exists(LOG_FILE):
+            try:
+                os.remove(LOG_FILE)
+            except Exception:
+                pass
         print("Starting cloudflared tunnel with native logfile...")
         subprocess.Popen(
             [

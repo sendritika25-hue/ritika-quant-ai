@@ -3987,3 +3987,4 @@ with col_main_content:
             👑 Ritika Quant AI Terminal • Institutional Grade AI Powered Stock Analysis ({selected_tf_period} • {mode_badge})
         </div>
         """, unsafe_allow_html=True)
+u
