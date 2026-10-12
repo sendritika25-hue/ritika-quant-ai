@@ -16,13 +16,18 @@ APP_DIR = "/home/sendritika25/trading_ai"
 MODEL_PATH = os.path.join(APP_DIR, "offline_quant_model.pkl")
 NTFY_URL = "https://ntfy.sh/ritika_quant_ai_engine"
 
-# ENHANCED CANDIDATES POOL COVERING ALL TOP BALANCED, MULTIBAGGER, AND BLUECHIP PICKS
-candidates = [
-    'SOLARINDS.NS', 'POLYCAB.NS', 'HAL.NS', 'BHARTIARTL.NS', 'SUZLON.NS', 'MAZDOCK.NS',
-    'BEL.NS', 'TRENT.NS', 'DIXON.NS', 'KAYNES.NS', 'ZOMATO.NS',
-    'GOLDBEES.NS', 'RELIANCE.NS', 'TCS.NS', 'INFY.NS', 'HDFCBANK.NS',
-    'ICICIBANK.NS', 'SBIN.NS', 'MARUTI.NS', 'TITAN.NS', 'SUNPHARMA.NS',
-    'KEI.NS', 'CUMMINSIND.NS', 'TATAELXSI.NS', 'COFORGE.NS', 'PERSISTENT.NS', 'OFSS.NS'
+# STRICT INSTITUTIONAL SEPARATION: High-Liquidity Large-Caps for Intraday, Growth/Multibaggers for Delivery
+INTRADAY_CANDIDATES = [
+    'POLYCAB.NS', 'HAL.NS', 'BHARTIARTL.NS', 'TRENT.NS', 'DIXON.NS',
+    'RELIANCE.NS', 'TCS.NS', 'INFY.NS', 'HDFCBANK.NS', 'ICICIBANK.NS',
+    'SBIN.NS', 'MARUTI.NS', 'TITAN.NS', 'SUNPHARMA.NS', 'BAJFINANCE.NS',
+    'COFORGE.NS', 'PERSISTENT.NS'
+]
+
+DELIVERY_CANDIDATES = [
+    'SUZLON.NS', 'MAZDOCK.NS', 'SOLARINDS.NS', 'BEL.NS', 'KAYNES.NS',
+    'ZOMATO.NS', 'GOLDBEES.NS', 'KEI.NS', 'CUMMINSIND.NS', 'OFSS.NS',
+    'POLYCAB.NS', 'HAL.NS', 'BHARTIARTL.NS', 'TRENT.NS'
 ]
 
 def run_morning_recommendations_alert():
@@ -39,10 +44,11 @@ def run_morning_recommendations_alert():
     intraday_picks = []
     delivery_picks = []
 
-    for sym in candidates:
+    # 1. PROCESS STRICT INTRADAY PICKS (High-liquidity, tight-spread large caps ONLY)
+    for sym in INTRADAY_CANDIDATES:
         try:
             df = yf.Ticker(sym).history(period="5d", interval="15m").reset_index()
-            if df.empty or len(df) < 5:
+            if df.empty or len(df) < 15:
                 continue
                 
             df['Returns'] = df['Close'].pct_change()
@@ -59,13 +65,7 @@ def run_morning_recommendations_alert():
             cum_vol = df['Volume'].cumsum()
             df['VWAP'] = cum_vol_price / (cum_vol + 1e-9)
             
-            tr1 = df['High'] - df['Low']
-            tr2 = (df['High'] - df['Close'].shift(1)).abs()
-            tr3 = (df['Low'] - df['Close'].shift(1)).abs()
-            tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)
-            df['ATR'] = tr.rolling(window=7, min_periods=1).mean()
-            
-            df.dropna(subset=['Returns', 'RSI', 'SMA_Ratio', 'Volatility', 'ATR'], inplace=True)
+            df.dropna(subset=['Returns', 'RSI', 'SMA_Ratio', 'Volatility'], inplace=True)
             if df.empty:
                 continue
                 
@@ -73,26 +73,35 @@ def run_morning_recommendations_alert():
             price = round(float(row['Close']), 2)
             rsi = round(float(row['RSI']), 1)
             vwap = round(float(row['VWAP']), 2)
-            atr = float(row['ATR']) if pd.notnull(row['ATR']) else (price * 0.01)
+            last_ret = float(row['Returns'])
             
             if m is not None:
-                feat = np.array([[row['Returns'], row['RSI'], row['SMA_Ratio'], row['Volatility']]])
+                feat = np.array([[last_ret, rsi, float(row['SMA_Ratio']), float(row['Volatility'])]])
                 conf = round(float(m.predict_proba(feat)[0][1]) * 100, 1)
             else:
                 conf = 85.0
                 
             stock_name = sym.replace(".NS", "")
             
-            # Intraday BUY Condition
-            if price >= vwap or conf >= 50.0:
+            # STRICT QUANT INTRADAY BUY: Must be Above VWAP, RSI in sweet bullish zone (48-68), positive momentum
+            if price > vwap and 48.0 <= rsi <= 68.0 and last_ret > 0 and conf >= 70.0:
                 target_p = round(price * 1.025, 2)
                 sl_p = round(price * 0.985, 2)
                 intraday_picks.append((conf, f"🟢 BUY {stock_name}: Entry ₹{price:,.2f} | Target ₹{target_p:,.2f} | SL ₹{sl_p:,.2f}"))
-                
-            # Delivery BUY Condition
+        except Exception:
+            continue
+
+    # 2. PROCESS DELIVERY & MULTIBAGGER PICKS (Hold 1-5 Days / Swing)
+    for sym in DELIVERY_CANDIDATES:
+        try:
+            df = yf.Ticker(sym).history(period="1mo", interval="1d").reset_index()
+            if df.empty or len(df) < 5:
+                continue
+            price = round(float(df['Close'].iloc[-1]), 2)
             deliv_target = round(price * 1.15, 2)
             deliv_sl = round(price * 0.95, 2)
-            delivery_picks.append((conf, f"🟢 BUY {stock_name}: Entry ₹{price:,.2f} | Target ₹{deliv_target:,.2f} (+15%) | SL ₹{deliv_sl:,.2f}"))
+            stock_name = sym.replace(".NS", "")
+            delivery_picks.append((88.0, f"🟢 BUY {stock_name}: Entry ₹{price:,.2f} | Target ₹{deliv_target:,.2f} (+15%) | SL ₹{deliv_sl:,.2f}"))
         except Exception:
             continue
 
