@@ -1985,23 +1985,13 @@ with col_main_content:
                 }
             ]
 
-        # Top Quick Starter Prompts
-        st.markdown("<span style='font-size:12px; color:#94a3b8; font-weight:600;'>⚡ QUICK 1-CLICK PROMPTS:</span>", unsafe_allow_html=True)
-        q_c1, q_c2, q_c3, q_c4, q_c5 = st.columns(5)
+        # Chat Control Bar (Clean & Unrestricted)
+        q_c1, q_c2 = st.columns([3.5, 1.2])
         user_prompt_to_process = None
         with q_c1:
-            if st.button("📊 Market Trend (Nifty)", use_container_width=True, key="qp_mkt"):
+            if st.button("📊 Live Market Trend (Nifty & Sensex)", use_container_width=True, key="qp_mkt"):
                 user_prompt_to_process = "Aaj market ka overview aur Nifty trend kaisa hai?"
         with q_c2:
-            if st.button("💼 My Portfolio", use_container_width=True, key="qp_port"):
-                user_prompt_to_process = "Mera portfolio check karo"
-        with q_c3:
-            if st.button("🚀 Tomorrow's Pick", use_container_width=True, key="qp_pick"):
-                user_prompt_to_process = "Kal ke liye best stock pick kya hai?"
-        with q_c4:
-            if st.button("🛡️ Trailing SL?", use_container_width=True, key="qp_tsl"):
-                user_prompt_to_process = "Trailing Stop-Loss kya hota hai?"
-        with q_c5:
             if st.button("🗑️ Clear Chat", use_container_width=True, key="qp_clear"):
                 st.session_state["copilot_chat_history"] = []
                 st.rerun()
