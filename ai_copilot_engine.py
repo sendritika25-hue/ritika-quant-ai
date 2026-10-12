@@ -10,6 +10,7 @@ import difflib
 from datetime import datetime
 import yfinance as yf
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import requests
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 HOLDINGS_PATH = os.path.join(BASE_DIR, "user_active_holdings.json")
@@ -17,64 +18,93 @@ PAPER_PATH = os.path.join(BASE_DIR, "paper_positions.json")
 TRADES_HISTORY_PATH = os.path.join(BASE_DIR, "today_trades_history.json")
 
 COMMON_TICKERS = {
-    "tcs": "TCS.NS",
-    "bhartiartl": "BHARTIARTL.NS",
-    "airtel": "BHARTIARTL.NS",
-    "cdsl": "CDSL.NS",
-    "bdl": "BDL.NS",
-    "reliance": "RELIANCE.NS",
-    "infy": "INFY.NS",
-    "infosys": "INFY.NS",
-    "hdfc": "HDFCBANK.NS",
-    "hdfcbank": "HDFCBANK.NS",
-    "icici": "ICICIBANK.NS",
-    "icicibank": "ICICIBANK.NS",
-    "sbin": "SBIN.NS",
-    "sbi": "SBIN.NS",
-    "polycab": "POLYCAB.NS",
-    "hal": "HAL.NS",
-    "solar": "SOLARINDS.NS",
-    "solarinds": "SOLARINDS.NS",
-    "coforge": "COFORGE.NS",
-    "trent": "TRENT.NS",
-    "dixon": "DIXON.NS",
-    "kaynes": "KAYNES.NS",
-    "zomato": "ZOMATO.NS",
-    "suzlon": "SUZLON.NS",
-    "mazdock": "MAZDOCK.NS",
-    "bel": "BEL.NS",
-    "bhel": "BHEL.NS",
-    "cochinship": "COCHINSHIP.NS",
-    "ireda": "IREDA.NS",
-    "rpower": "RPOWER.NS",
-    "yesbank": "YESBANK.NS",
-    "bandhanbnk": "BANDHANBNK.NS",
-    "irctc": "IRCTC.NS",
-    "upl": "UPL.NS",
-    "sobha": "SOBHA.NS",
-    "dlf": "DLF.NS",
-    "itc": "ITC.NS",
-    "titan": "TITAN.NS",
-    "lt": "LT.NS",
-    "sunpharma": "SUNPHARMA.NS",
-    "maruti": "MARUTI.NS",
-    "cipla": "CIPLA.NS",
-    "bataindia": "BATAINDIA.NS",
-    "prestige": "PRESTIGE.NS",
-    "pvrinox": "PVRINOX.NS",
-    "godrejprop": "GODREJPROP.NS",
-    "sonacoms": "SONACOMS.NS",
-    "relaxo": "RELAXO.NS",
-    "lalpathlab": "LALPATHLAB.NS",
-    "tatamotors": "TATAMOTORS.NS",
-    "tata steel": "TATASTEEL.NS",
-    "tatasteel": "TATASTEEL.NS",
-    "wipro": "WIPRO.NS",
-    "gold": "GOLDBEES.NS",
-    "silver": "SILVERBEES.NS",
-    "nifty": "^NSEI",
-    "sensex": "^BSESN"
+    # Bluechip & Mega Caps
+    "tcs": "TCS.NS", "bhartiartl": "BHARTIARTL.NS", "airtel": "BHARTIARTL.NS", "cdsl": "CDSL.NS",
+    "bdl": "BDL.NS", "reliance": "RELIANCE.NS", "infy": "INFY.NS", "infosys": "INFY.NS",
+    "hdfc": "HDFCBANK.NS", "hdfcbank": "HDFCBANK.NS", "icici": "ICICIBANK.NS", "icicibank": "ICICIBANK.NS",
+    "sbin": "SBIN.NS", "sbi": "SBIN.NS", "kotak": "KOTAKBANK.NS", "kotakbank": "KOTAKBANK.NS",
+    "axis": "AXISBANK.NS", "axisbank": "AXISBANK.NS", "indusind": "INDUSINDBK.NS", "pnb": "PNB.NS",
+    "bankbaroda": "BANKBARODA.NS", "bob": "BANKBARODA.NS", "canarabank": "CANBK.NS", "canbk": "CANBK.NS",
+    "bajfinance": "BAJFINANCE.NS", "bajajfinance": "BAJFINANCE.NS", "bajajfinsv": "BAJAJFINSV.NS",
+    "jiofin": "JIOFIN.NS", "polycab": "POLYCAB.NS", "hal": "HAL.NS", "solar": "SOLARINDS.NS",
+    "solarinds": "SOLARINDS.NS", "coforge": "COFORGE.NS", "trent": "TRENT.NS", "dixon": "DIXON.NS",
+    "kaynes": "KAYNES.NS", "zomato": "ZOMATO.NS", "suzlon": "SUZLON.NS", "mazdock": "MAZDOCK.NS",
+    "bel": "BEL.NS", "bhel": "BHEL.NS", "cochinship": "COCHINSHIP.NS", "ireda": "IREDA.NS",
+    "rpower": "RPOWER.NS", "yesbank": "YESBANK.NS", "bandhanbnk": "BANDHANBNK.NS", "irctc": "IRCTC.NS",
+    "irfc": "IRFC.NS", "rvnl": "RVNL.NS", "railtel": "RAILTEL.NS", "upl": "UPL.NS", "sobha": "SOBHA.NS",
+    "dlf": "DLF.NS", "itc": "ITC.NS", "titan": "TITAN.NS", "lt": "LT.NS", "l&t": "LT.NS",
+    "sunpharma": "SUNPHARMA.NS", "maruti": "MARUTI.NS", "cipla": "CIPLA.NS", "bataindia": "BATAINDIA.NS",
+    "prestige": "PRESTIGE.NS", "pvrinox": "PVRINOX.NS", "godrejprop": "GODREJPROP.NS", "sonacoms": "SONACOMS.NS",
+    "relaxo": "RELAXO.NS", "lalpathlab": "LALPATHLAB.NS", "tatamotors": "TATAMOTORS.NS", "tata motors": "TATAMOTORS.NS",
+    "tata steel": "TATASTEEL.NS", "tatasteel": "TATASTEEL.NS", "wipro": "WIPRO.NS", "hcltech": "HCLTECH.NS",
+    "techm": "TECHM.NS", "ltim": "LTIM.NS", "persistent": "PERSISTENT.NS", "tatapower": "TATAPOWER.NS",
+    "tata power": "TATAPOWER.NS", "ntpc": "NTPC.NS", "powergrid": "POWERGRID.NS", "coalindia": "COALINDIA.NS",
+    "ongc": "ONGC.NS", "bpcl": "BPCL.NS", "ioc": "IOC.NS", "hpcl": "HPCL.NS", "gail": "GAIL.NS",
+    "vedl": "VEDL.NS", "vedanta": "VEDL.NS", "jswsteel": "JSWSTEEL.NS", "jindalsteel": "JINDALSTEL.NS",
+    "hindalco": "HINDALCO.NS", "sail": "SAIL.NS", "nmdc": "NMDC.NS", "adani": "ADANIENT.NS",
+    "adanient": "ADANIENT.NS", "adaniports": "ADANIPORTS.NS", "adanipower": "ADANIPOWER.NS",
+    "adanigreen": "ADANIGREEN.NS", "asianpaint": "ASIANPAINT.NS", "asian paints": "ASIANPAINT.NS",
+    "pidilite": "PIDILITIND.NS", "nestle": "NESTLEIND.NS", "britannia": "BRITANNIA.NS",
+    "vbl": "VBL.NS", "varunbeverages": "VBL.NS", "dmart": "DMART.NS", "avenue": "DMART.NS",
+    "nykaa": "NYKAA.NS", "paytm": "PAYTM.NS", "bse": "BSE.NS", "mcx": "MCX.NS",
+    "drreddy": "DRREDDY.NS", "divislab": "DIVISLAB.NS", "apollohosp": "APOLLOHOSP.NS",
+    "lupin": "LUPIN.NS", "mankind": "MANKIND.NS", "m&m": "M&M.NS", "mahindra": "M&M.NS",
+    "bajajauto": "BAJAJ-AUTO.NS", "heromotoco": "HEROMOTOCO.NS", "eichermot": "EICHERMOT.NS",
+    "gold": "GOLDBEES.NS", "silver": "SILVERBEES.NS", "nifty": "^NSEI", "sensex": "^BSESN"
 }
+
+def call_gemini_api(user_query: str, history: list = None, system_context: str = "") -> str:
+    """Call Google Gemini API if GEMINI_API_KEY is available in environment or config for unrestricted open reasoning."""
+    api_key = os.environ.get("GEMINI_API_KEY", "").strip()
+    if not api_key:
+        secrets_path = os.path.join(BASE_DIR, ".env")
+        if os.path.exists(secrets_path):
+            try:
+                with open(secrets_path, "r", encoding="utf-8") as f:
+                    for line in f:
+                        if line.startswith("GEMINI_API_KEY="):
+                            api_key = line.split("=", 1)[1].strip().strip('"').strip("'")
+                            break
+            except Exception:
+                pass
+    if not api_key:
+        return ""
+
+    try:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+        contents = []
+        if history:
+            for h in history[-4:]:
+                r = "user" if h.get("role") == "user" else "model"
+                contents.append({"role": r, "parts": [{"text": h.get("content", "")}]})
+        
+        system_instruction = (
+            "You are Ritika Quant AI, an elite institutional quantitative financial analyst and trading copilot for the Indian Stock Market (NSE/BSE). "
+            "You have zero restrictions on answering any and all trading, stock market, technical, derivative, fundamental, strategy, risk, psychological, or broker questions. "
+            "Answer thoroughly, accurately, with crisp numerical levels, actionable rules, and transparent risk management. "
+            "Respond in the language requested by the user: if they ask in Hinglish/Hindi, reply in fluent, natural, professional Hinglish. If in English, reply in English."
+        )
+        if system_context:
+            system_instruction += f"\nLive Market Context: {system_context}"
+
+        contents.append({"role": "user", "parts": [{"text": user_query}]})
+        payload = {
+            "contents": contents,
+            "systemInstruction": {"parts": [{"text": system_instruction}]},
+            "generationConfig": {
+                "temperature": 0.4,
+                "maxOutputTokens": 1000
+            }
+        }
+        resp = requests.post(url, json=payload, timeout=8)
+        if resp.status_code == 200:
+            data = resp.json()
+            text = data["candidates"][0]["content"]["parts"][0]["text"]
+            if text and len(text.strip()) > 10:
+                return text.strip()
+    except Exception:
+        pass
+    return ""
 
 def is_english_query(text: str) -> bool:
     """Detect if the user is asking in English or requesting English."""
@@ -269,10 +299,38 @@ def detect_stock_in_query(user_text: str, history: list = None) -> str:
         if word in words or f" {word} " in f" {lower} ":
             return sym
 
-    upper_words = user_text.upper().replace("?", "").replace(",", "").replace(".", "").split()
+    non_ticker_acronyms = {
+        "CPR", "GTT", "VWAP", "RSI", "MACD", "EMA", "SMA", "ATM", "ITM", "OTM", 
+        "PE", "CE", "SL", "MIS", "CNC", "AMO", "F&O", "IPO", "GMP", "ATR", "ADX", 
+        "POC", "LC", "UC", "STCG", "LTCG", "SIP", "DII", "FII", "NSE", "BSE", "SEBI", "ETF"
+    }
+    upper_words = [w for w in user_text.replace("?", "").replace(",", "").replace(".", "").split() if w.isupper() and len(w) >= 2 and w not in non_ticker_acronyms]
     for w in upper_words:
-        if f"{w}.NS" in COMMON_TICKERS.values() or w in ["TCS", "BDL", "CDSL", "RELIANCE", "INFY", "DIXON"]:
+        if f"{w}.NS" in COMMON_TICKERS.values():
             return f"{w}.NS"
+        cand = f"{w}.NS"
+        try:
+            t_check = yf.Ticker(cand)
+            fi = t_check.fast_info
+            if fi and fi.last_price and fi.last_price > 0:
+                COMMON_TICKERS[w.lower()] = cand
+                return cand
+        except Exception:
+            pass
+
+    # Check words explicitly paired with "share" or "stock" (e.g. "irfc share" or "stock irfc")
+    for idx, w in enumerate(words):
+        is_stock_pair = (idx > 0 and words[idx-1] in ["stock", "share"]) or (idx < len(words)-1 and words[idx+1] in ["stock", "share"])
+        if is_stock_pair and len(w) >= 3 and w.lower() not in stopwords:
+            cand = f"{w.upper()}.NS"
+            try:
+                t_check = yf.Ticker(cand)
+                fi = t_check.fast_info
+                if fi and fi.last_price and fi.last_price > 0:
+                    COMMON_TICKERS[w.lower()] = cand
+                    return cand
+            except Exception:
+                pass
 
     # Contextual fallback ONLY when the user explicitly refers to the previous stock:
     # E.g. "iska rate kya hai", "isko buy karein?", "is stock ka batao", "what about this one?"
@@ -794,7 +852,7 @@ def generate_copilot_response(user_query: str, history: list = None, *args, **kw
                 "3. **Profit Trailing:** Jaise-jaise stock aur upar jata hai, Stop-Loss bhi peeche-peeche upar badhta hai taaki maximum profit book ho sake!"
             )
 
-    if any(k in q_lower for k in ["kal", "tomorrow", "next pick", "recommendation", "breakout"]):
+    if any(k in q_lower for k in ["kal kya", "kal ka", "tomorrow", "next pick", "kal ke liye", "kal trade"]):
         if in_english:
             return (
                 "🚀 **Institutional Outlook & Strategy for Tomorrow's Session:**\n\n"
@@ -1521,30 +1579,539 @@ def generate_copilot_response(user_query: str, history: list = None, *args, **kw
                 "5. **System Par Bharosa:** Emotional hokar trade na lein, balki AI ke data aur levels par bharosa karein."
             )
 
-    # 9. Fallback with context
+    # M. Option Chain, Open Interest (OI) & PCR (Put-Call Ratio)
+    if any(k in q_lower for k in ["option chain", "open interest", "oi kya", "pcr kya", "put call ratio", "max pain", "option data"]):
+        if in_english:
+            return (
+                "📊 **Complete Guide to Option Chain, Open Interest (OI) & PCR:**\n\n"
+                "• **Open Interest (OI):** The total number of outstanding, unsettled derivative contracts. High Call OI indicates strong institutional Resistance (Call Writers defending levels), while high Put OI marks solid Support (Put Writers creating a safety floor).\n"
+                "• **PCR (Put-Call Ratio):** Calculated as `Total Put OI / Total Call OI`:\n"
+                "  - **PCR > 1.2 (Bullish / Overbought):** Strong put writing signals bullish sentiment, but extremely high PCR (> 1.5) warns of impending profit-taking.\n"
+                "  - **PCR < 0.7 (Bearish / Oversold):** Heavy call writing signals weakness; extremely low PCR (< 0.5) often triggers violent short-covering bounces.\n"
+                "• **Max Pain Theory:** The specific strike price where option sellers (smart money) face the minimum financial payout upon expiry. Nifty and Bank Nifty tend to gravitate toward the Max Pain level on Thursday expiry!"
+            )
+        else:
+            return (
+                "📊 **Option Chain, Open Interest (OI) Aur PCR (Put-Call Ratio) Ka Pura Gyan:**\n\n"
+                "• **Open Interest (OI) Kya Hai:** Market me kul kitne active contracts khule hue hain. Jis strike par sabse zyada **Call OI** hota hai wo sabse bada **Resistance (Rukawat)** banta hai, aur jahan sabse zyada **Put OI** hota hai wo mazboot **Support** hota hai.\n"
+                "• **PCR (Put-Call Ratio) Ka Formula:** `Total Put OI / Total Call OI`:\n"
+                "  - **PCR > 1.2:** Market me tezi (Bullish) hai kyunki Put writers active hain.\n"
+                "  - **PCR < 0.7:** Market me mandi (Bearish) hai; par agar PCR 0.5 ke niche chala jaye toh achanak tezi se Short-Covering bounce aa sakta hai.\n"
+                "• **Max Pain Theory:** Expiry wale din market aamtaur par usi strike ke paas close hota hai jahan option bechne walo (Option Sellers) ko sabse kam nuksan ho!"
+            )
+
+    # N. Option Greeks (Delta, Gamma, Theta, Vega)
+    if any(k in q_lower for k in ["greek", "greeks", "delta kya", "theta kya", "gamma kya", "vega kya", "time decay"]):
+        if in_english:
+            return (
+                "📐 **The 4 Option Greeks Explained Simply:**\n\n"
+                "• **Delta (0 to 1.0):** Measures how much an option's premium changes for every ₹1 move in the underlying stock. ATM options have a Delta of ~0.50.\n"
+                "• **Theta (Time Decay ⏳):** The daily erosion penalty of option value. Every passing hour, especially on expiry day, Theta destroys premium even if the stock stays flat. This is why buying far OTM options leads to capital loss.\n"
+                "• **Gamma:** The speed at which Delta changes as the stock moves. High Gamma near expiry triggers violent 'Hero-Zero' spikes.\n"
+                "• **Vega:** Sensitivity of premium to Implied Volatility (IV). Before major earnings or elections, high IV inflates option prices; post-event IV crash collapses premiums."
+            )
+        else:
+            return (
+                "📐 **Option Greeks (Delta, Theta, Gamma, Vega) Ka Aasan Explanation:**\n\n"
+                "• **Delta (Speed):** Stock ke ₹1 badhne par option premium kitna badhega. ATM strikes ka Delta lagbhag 0.50 hota hai.\n"
+                "• **Theta (Time Decay / Samay Ka Nuksan ⏳):** Option ka sabse bada dushman! Har beette ghante ke sath premium galta rehta hai. Agar stock kahin na hile, tab bhi option buyer ka paisa Theta kha jata hai.\n"
+                "• **Gamma (Acceleration):** Delta ke badhne ki raftaar. Expiry wale din high Gamma ke chalte saste premiums 2x se 5x ho jate hain ('Hero-Zero').\n"
+                "• **Vega (Volatility):** Volatility ka asar. Budget ya election se pehle Vega premiums ko mehenga kar deta hai, aur event khatam hote hi IV crash se premiums achanak gir jate hain."
+            )
+
+    # O. Strike Price Selection: ITM vs ATM vs OTM
+    if any(k in q_lower for k in ["itm", "atm", "otm", "strike price", "strike kaise chune", "konsa strike"]):
+        if in_english:
+            return (
+                "🎯 **Strike Price Selection Guide: ITM vs ATM vs OTM:**\n\n"
+                "• **ITM (In-The-Money):** Intrinsic value + Time value. Delta > 0.60. Highest probability of profit and lowest Theta decay penalty. The preferred choice for professional option buyers.\n"
+                "• **ATM (At-The-Money):** Strike price closest to current spot price. Delta ~ 0.50. Perfect balance of liquidity and momentum response.\n"
+                "• **OTM (Out-Of-The-Money):** 100% Time value (Zero intrinsic value). Cheap in price, but >85% expire worthless (₹0) at expiry. Avoid buying deep OTM lottery tickets!"
+            )
+        else:
+            return (
+                "🎯 **Kaun Sa Strike Price Chunein? (ITM vs ATM vs OTM):**\n\n"
+                "• **ITM (In-The-Money):** Asli value wala strike (Delta > 0.60). Isme Theta decay kam hota hai aur munafa banne ka chance sabse zyada hota hai. Smart buyers hamesha ITM chunte hain.\n"
+                "• **ATM (At-The-Money):** Current bhav ke sabse nazdeek wala strike. Delta lagbhag 0.50 hota hai aur sabse tagdi liquidity milti hai.\n"
+                "• **OTM (Out-Of-The-Money):** Saste daam wale strikes jinme koi asli value nahi hoti. 85% se zyada OTM contracts expiry par 0 (Zero) ho jate hain. Saste ke lalach me deep OTM buy karne se bachein!"
+            )
+
+    # P. Option Buying vs Option Selling
+    if any(k in q_lower for k in ["option buying vs", "option selling", "option buyer", "option seller", "writing kya"]):
+        if in_english:
+            return (
+                "⚖️ **Option Buying vs Option Selling (Institutional Comparison):**\n\n"
+                "• **Option Buying:** Limited risk (only premium paid), unlimited profit potential. However, win-rate is statistically only ~33% because you need rapid directional movement to overcome Theta decay.\n"
+                "• **Option Selling (Writing):** Collects premium upfront. High statistical win-rate (~67%) because seller wins if market moves in their direction, stays flat, or moves slightly against them. Requires higher margin (₹1.2L+ per lot) and disciplined Stop-Loss."
+            )
+        else:
+            return (
+                "⚖️ **Option Buying Aur Option Selling Me Kya Farak Hai?**\n\n"
+                "• **Option Buying:** Kam capital (₹5,000 - ₹10,000) se shuru ho sakta hai. Nuksan sirf premium tak limited hai, par jeetne ka chance sirf 33% hota hai kyunki time decay (Theta) lagatar premium galata hai.\n"
+                "• **Option Selling:** Jeetne ka chance 67% hota hai kyunki market flat rahe ya dheere chale tab bhi pura premium seller ki jeb me jata hai. Par iske liye zyada capital (₹1-1.5 Lakh per lot) aur strict Stop-Loss zaroori hota hai."
+            )
+
+    # Q. Option Strategies (Straddle, Strangle, Spreads, Iron Condor)
+    if any(k in q_lower for k in ["straddle", "strangle", "iron condor", "bull call spread", "bear put spread", "hedging strategy"]):
+        if in_english:
+            return (
+                "🛡️ **Master Derivative Strategies (Directional & Non-Directional):**\n\n"
+                "• **Bull Call Spread (Bullish Hedge):** Buy ATM Call + Sell OTM Call. Reduces cost of trade and caps downside risk.\n"
+                "• **Bear Put Spread (Bearish Hedge):** Buy ATM Put + Sell OTM Put. High-probability hedge for market downturns.\n"
+                "• **Straddle (Long):** Buy same strike CE & PE simultaneously. Used before high-volatility events (Budget, RBI Policy, Earnings) where a massive move in either direction yields profit.\n"
+                "• **Iron Condor:** 4-leg hedged strategy (Sell OTM CE & PE, Buy further OTM wings). Generates consistent income in rangebound sideways markets."
+            )
+        else:
+            return (
+                "🛡️ **Option Strategies (Straddle, Strangle, Spreads) Ka Complete Guide:**\n\n"
+                "• **Bull Call Spread:** Ek ATM Call khareedo aur ek uncha OTM Call becho. Isse trade ki cost kam hoti hai aur risk safe rehta hai.\n"
+                "• **Bear Put Spread:** Ek ATM Put khareedo aur ek niche ka OTM Put becho. Girte market me safe profit banane ka tareeka.\n"
+                "• **Straddle (CE + PE Dono Buy):** Same strike ka Call aur Put ek sath khareedna. Yeh Budget ya RBI policy jaise bade dinon par use hota hai jab market kisi bhi taraf 500-1000 point bhaag sakta hai!\n"
+                "• **Iron Condor:** Sideways aur rangebound market me bina kisi directional risk ke time decay se regular profit kamane ka hedged setup."
+            )
+
+    # R. VWAP (Volume Weighted Average Price) & Anchored VWAP
+    if any(k in q_lower for k in ["vwap", "anchored vwap", "vwap indicator", "vwap kya", "volume weighted"]):
+        if in_english:
+            return (
+                "📈 **VWAP (Volume Weighted Average Price) — The #1 Institutional Benchmark:**\n\n"
+                "VWAP represents the true average benchmark price traded throughout the day, weighted by exact traded volume:\n\n"
+                "• **Price Above VWAP (🟢 Bullish Control):** Institutions are aggressively bidding above average cost. Only look for LONG (Buy) entries.\n"
+                "• **Price Below VWAP (🔴 Bearish Control):** Smart money is distributing or unloading inventory. Avoid fresh intraday buys.\n"
+                "• **VWAP Pullback Entry:** The highest-probability intraday trade occurs when a trending stock pulls back to touch the rising VWAP line and prints a bullish rejection candle!"
+            )
+        else:
+            return (
+                "📈 **VWAP (Volume Weighted Average Price) — Pro Traders Ka Sabse Bada Hathyiar:**\n\n"
+                "VWAP din bhar ka asli average bhav hota hai jisme har trade ka volume juda hota hai:\n\n"
+                "• **Bhav VWAP Se Upar (🟢 Tezi):** Bade Mutual Funds aur FIIs mehnge bhav par bhi khareed rahe hain. Sirf BUY ki trade dhoondein.\n"
+                "• **Bhav VWAP Se Niche (🔴 Mandi):** Sellers haavi hain, yahan fresh buying karne se bachein.\n"
+                "• **VWAP Bounce Strategy:** Jab tezi wala stock wapas aakar VWAP line ko touch kare aur wahan se bounce kare, toh wo intraday ka sabse best aur safe entry point hota hai!"
+            )
+
+    # S. CPR (Central Pivot Range) & Pivot Points
+    if any(k in q_lower for k in ["cpr", "central pivot", "pivot point", "pivots", "virgin cpr", "tc bc"]):
+        if in_english:
+            return (
+                "🎯 **Complete CPR (Central Pivot Range) Master Strategy:**\n\n"
+                "CPR is calculated using the previous day's High, Low, and Close, generating 3 key levels: Pivot (P), Top Central (TC), and Bottom Central (BC):\n\n"
+                "• **Narrow CPR:** When the 3 lines are squeezed tightly together, expect a **Trending Breakout Day** with sharp directional expansion.\n"
+                "• **Wide CPR:** When the lines are spread far apart, expect a **Choppy, Sideways Rangebound Day** suitable for mean-reversion.\n"
+                "• **Virgin CPR:** A CPR that price never touched throughout the entire session. In future sessions, a Virgin CPR acts as a massive magnetic Support or Resistance!"
+            )
+        else:
+            return (
+                "🎯 **CPR (Central Pivot Range) Indicator Ka Pura Formula Aur Niyam:**\n\n"
+                "CPR pichle din ke High, Low aur Close se banta hai aur isme 3 lines hoti hain (Pivot, TC, BC):\n\n"
+                "• **Narrow (Patla) CPR:** Agar teeno lines aapas me chipki hui hain, toh samajh lijiye aaj market me **bada breakout aur tezi/mandi ka trending din** aane wala hai!\n"
+                "• **Wide (Chauda) CPR:** Agar lines door-door hain, toh market din bhar ek range me sideways phasa rahega.\n"
+                "• **Virgin CPR:** Jis CPR line ko market ne poore din ek baar bhi na chua ho, agle din wo line ek lohe jaisi mazboot deewar (Support/Resistance) ban jati hai!"
+            )
+
+    # T. Bollinger Bands
+    if any(k in q_lower for k in ["bollinger", "bollinger bands", "bb squeeze", "bollinger band kya"]):
+        if in_english:
+            return (
+                "🌊 **Bollinger Bands Volatility Framework:**\n\n"
+                "Created by John Bollinger, it consists of a 20-day Simple Moving Average (Middle Band) encased by Upper and Lower volatility bands (2 Standard Deviations):\n\n"
+                "• **Bollinger Squeeze (⚠️ Impending Explosion):** When the bands contract tightly, volatility has dried up. This always precedes an explosive trending breakout.\n"
+                "• **Walking the Bands:** In strong momentum rallies (e.g. Trent or Dixon), price continuously 'walks' along the upper band—confirming institutional accumulation.\n"
+                "• **Mean Reversion:** In rangebound markets, buying near the lower band and taking profit at the upper band yields high win-rates."
+            )
+        else:
+            return (
+                "🌊 **Bollinger Bands Ka Complete Guide:**\n\n"
+                "Bollinger Bands me beech me 20-day average line hoti hai aur upar-niche do volatility bands hoti hain:\n\n"
+                "• **Bollinger Squeeze (Dhamaka Hone Wala Hai):** Jab dono bands aapas me bilkul chipak kar patli ho jayein, toh samajh lijiye kisi bhi waqt bhaari tezi ya mandi ka dhamakedar breakout aayega!\n"
+                "• **Upper Band Riding:** Jab koi stock upar wali band ko chipak kar lagatar bhagta hai, toh wo sabse mazboot uptrend ka saboot hota hai.\n"
+                "• **Range Trading:** Sideways market me jab price niche wali band ko chuye tab buy karein, aur upar wali band par target book karein."
+            )
+
+    # U. Fibonacci Retracement
+    if any(k in q_lower for k in ["fibonacci", "fibo", "0.618", "golden ratio", "fib retracement"]):
+        if in_english:
+            return (
+                "📐 **Fibonacci Retracement & The Golden Pocket (0.618 / 0.50):**\n\n"
+                "Fibonacci levels identify hidden support zones where smart money re-enters during a pullback:\n\n"
+                "• **The 0.618 Golden Pocket:** The most statistically significant reversal level. When a strong rally pulls back 61.8% of its impulse wave and forms a bullish hammer, risk-to-reward is exceptionally high (> 1:3).\n"
+                "• **The 0.50 Equilibrium:** Often coincides with prior breakout structure and 20 EMA dynamic support.\n"
+                "• **Rule:** Draw Fibonacci from Swing Low to Swing High for uptrends, and Swing High to Swing Low for downtrends."
+            )
+        else:
+            return (
+                "📐 **Fibonacci Retracement Aur Golden 0.618 Ratio Ka Jaadu:**\n\n"
+                "Fibonacci tool batata hai ki upar bhagne ke baad stock kahan tak thoda sa girkar (pullback lekar) wapas upar bhagega:\n\n"
+                "• **0.618 Golden Pocket:** Yeh market ka sabse pavitra support level hai! Jab stock apne pichle low se high tak bhagne ke baad 61.8% wapas girta hai, toh wahin se FIIs wapas khareedari shuru karte hain.\n"
+                "• **0.50 Level:** 50% ka aada girawat level jahan aksar 20 EMA ka support bhi milta hai.\n"
+                "• **Kaise Use Karein:** Chart par pichle sabse nichle point (Swing Low) se sabse unche point (Swing High) tak Fibonacci kheench kar dekhein."
+            )
+
+    # V. Volume Profile & Point of Control (POC)
+    if any(k in q_lower for k in ["volume profile", "poc kya", "point of control", "value area"]):
+        if in_english:
+            return (
+                "📊 **Volume Profile & Point of Control (POC):**\n\n"
+                "Unlike standard volume which shows volume per time unit, Volume Profile displays volume **horizontally at exact price levels**:\n\n"
+                "• **POC (Point of Control):** The single price level where the maximum volume of shares traded. Price treats the POC as a powerful magnet and heavy support/resistance.\n"
+                "• **Value Area (VA):** The price range containing 70% of the session's total volume (VAH = High, VAL = Low).\n"
+                "• **Trading Rule:** When price breaks out of the Value Area with high volume, it signals aggressive institutional repricing."
+            )
+        else:
+            return (
+                "📊 **Volume Profile Aur POC (Point of Control) Kya Hota Hai?**\n\n"
+                "Normal volume niche khada dikhta hai, par Volume Profile chart ke side me dikhata hai ki **kis bhav (rate) par sabse zyada shares khareede aur beche gaye**:\n\n"
+                "• **POC (Point of Control):** Wo exact rate jahan sabse zyada saudey hue hain. Yeh level market ke liye ek chumbak (magnet) ki tarah kaam karta hai aur mazboot support deta hai.\n"
+                "• **Value Area:** Wo range jisme din ka 70% volume trade hua hai.\n"
+                "• **Strategy:** Agar bhav Value Area se bahar nikal jaye, toh badi tezi ya mandi aati hai!"
+            )
+
+    # W. ATR (Average True Range) & Volatility Sizing
+    if any(k in q_lower for k in ["atr", "average true range", "atr indicator", "volatility stop"]):
+        if in_english:
+            return (
+                "📏 **ATR (Average True Range) — Dynamic Risk Management:**\n\n"
+                "Developed by J. Welles Wilder, ATR measures the pure volatility of a stock in rupees:\n\n"
+                "• **Dynamic Stop-Loss:** Instead of picking a fixed percentage, place your Stop-Loss at `1.5 x ATR` below entry. This prevents random market noise from hunting your stop.\n"
+                "• **Position Sizing:** High ATR stocks (e.g. Dixon) require smaller share quantities, while low ATR stocks (e.g. TCS) permit larger quantities to maintain equal rupee risk."
+            )
+        else:
+            return (
+                "📏 **ATR (Average True Range) Se Stop-Loss Lagane Ka Scientific Tareeka:**\n\n"
+                "ATR yeh batata hai ki ek stock din me aamtaur par kitne rupaye upar-niche hilta hai (Volatility):\n\n"
+                "• **Scientific Stop-Loss:** Andaza lagane ke bajaye apne Buy Entry se `1.5 x ATR` niche Stop-Loss lagayein. Isse market ke chhote-mote jhatke aapka Stop-Loss hit nahi kar payenge!\n"
+                "• **Position Sizing:** Jis stock ka ATR bada ho (jaise Dixon), uske kam shares lein, aur jiska ATR chhota ho (jaise TCS), uske zyada shares lein taaki risk hamesha barabar rahe."
+            )
+
+    # X. Chart Patterns (Double Top/Bottom, Head & Shoulders, Flags, Triangles)
+    if any(k in q_lower for k in ["double bottom", "double top", "head and shoulders", "cup and handle", "flag pattern", "triangle pattern", "w pattern", "m pattern"]):
+        if in_english:
+            return (
+                "📐 **The 5 High-Win-Rate Classical Chart Patterns:**\n\n"
+                "1. **Double Bottom (W Pattern 🟢):** Price tests the same support twice, creating a 'W'. Buy on breakout of the neckline with Target = Height of the base.\n"
+                "2. **Double Top (M Pattern 🔴):** Price fails at the same resistance twice, forming an 'M'. Breakdown below the neckline triggers sharp declines.\n"
+                "3. **Inverted Head & Shoulders (🟢 Reversal):** Left shoulder, lower head, higher right shoulder. Confirms a powerful shift from bear to bull trend.\n"
+                "4. **Bull Flag & Pole (🟢 Continuation):** A sharp vertical rally ('pole') followed by a tight downward sloping consolidation ('flag'). Breakout confirms rally resumption.\n"
+                "5. **Cup and Handle (🟢):** Rounded accumulation bottom followed by a brief shallow handle pullback before massive breakout."
+            )
+        else:
+            return (
+                "📐 **Chart Patterns Ka Master Blueprint (W, M, Head & Shoulders):**\n\n"
+                "1. **Double Bottom (W Pattern 🟢):** Bhav do baar ek hi support ko chookar 'W' banata hai. Neckline toot-te hi badi tezi aati hai.\n"
+                "2. **Double Top (M Pattern 🔴):** Bhav do baar ek unche level par jakar rukta hai aur 'M' banata hai. Iske toot-te hi mandi shuru hoti hai.\n"
+                "3. **Inverted Head & Shoulders (🟢 Tezi Ka Sanket):** Teen bottoms bante hain jisme beech wala sabse gehra hota hai. Yeh trend badalne ka sabse vishwasniya pattern hai.\n"
+                "4. **Bull Flag (Jhanda Pattern 🟢):** Ek tez khadi tezi (Pole), uske baad thoda sa aaraam (Flag), aur fir breakout hokar agla dhamaka!\n"
+                "5. **Cup and Handle (🟢):** Ek chai ke cup aur handle jaisa pattern. Iska breakout hamesha multibagger tezi deta hai."
+            )
+
+    # Y. Candlestick Deep-Dive (Hammer, Shooting Star, Engulfing, Doji)
+    if any(k in q_lower for k in ["hammer", "shooting star", "doji", "engulfing", "morning star", "candlestick", "candle pattern"]):
+        if in_english:
+            return (
+                "🕯️ **High-Probability Candlestick Formations:**\n\n"
+                "• **Hammer (🟢 Bullish Reversal):** Small body at the top with a long lower shadow (> 2x body) at key support. Sellers pushed price down, but buyers aggressively drove it back up.\n"
+                "• **Shooting Star (🔴 Bearish Reversal):** Long upper shadow at resistance with small body at the bottom. Signals exhaustion of buyers.\n"
+                "• **Bullish Engulfing (🟢 Strong Momentum):** A large green candle completely swallows the prior day's red candle with elevated volume.\n"
+                "• **Doji (Indecision ⚖️):** Open and Close are almost identical. Represents perfect balance between bulls and bears; breakout above or below marks next trend."
+            )
+        else:
+            return (
+                "🕯️ **Candlestick Patterns Ka Pura Gyan (Hammer, Shooting Star, Doji):**\n\n"
+                "• **Hammer (Hathoda 🟢):** Niche lambi dandi aur upar chhota body. Support par bante hi samajh lijiye buyers ne control le liya hai aur tezi aane wali hai!\n"
+                "• **Shooting Star (Toota Sitara 🔴):** Upar lambi dandi aur niche chhota body. Resistance par aate hi tezi khatam hone ka sanket hota hai.\n"
+                "• **Bullish Engulfing (🟢 Badi Green Candle):** Jab ek badi hari candle pichli laal candle ko poori tarah se nigal le, toh yeh tagdi buying ka prateek hai.\n"
+                "• **Doji (Duvidha / Indecision ⚖️):** Jahan open hua wahin close hua (Cross jaisa). Yeh batata hai ki buyers aur sellers barabar hain; jis taraf bhi agla candle todega, usi taraf market bhagega."
+            )
+
+    # Z. Order Types & Broker Execution (GTT, MIS, CNC, SL-L, SL-M, AMO)
+    if any(k in q_lower for k in ["gtt", "gtt order", "mis", "cnc", "sl-l", "sl-m", "amo", "limit order", "market order", "order type"]):
+        if in_english:
+            return (
+                "📱 **Broker App Order Types & Execution Rules (Zerodha / Groww / Angel):**\n\n"
+                "• **CNC (Cash N Carry):** 100% upfront delivery. You hold shares in your demat account as long as you desire.\n"
+                "• **MIS (Margin Intraday Square-off):** Same-day leverage trade. Mandatory auto-exit before 3:20 PM by the broker.\n"
+                "• **Limit Order:** Buy only at your desired price or lower. Avoids slippage.\n"
+                "• **Market Order:** Executes immediately at whatever current best bid/ask is available on the exchange.\n"
+                "• **SL-Limit (Stop-Loss Limit):** Set a Trigger Price and a Limit Price. Protects against sudden flash-crash slippage.\n"
+                "• **GTT (Good Till Triggered):** Valid for 1 entire year. Place your Target and Stop-Loss simultaneously; executes automatically whenever the exchange price touches your trigger without needing to watch the screen daily!"
+            )
+        else:
+            return (
+                "📱 **Broker Apps Me Orders Ke Prakar (CNC, MIS, GTT, Limit, SL):**\n\n"
+                "• **CNC (Delivery):** Pure paise dekar share apne Demat account me rakhna. Jab man chahe tab bechein, koi jaldbazi nahi.\n"
+                "• **MIS (Intraday):** Sirf usi din 3:20 PM se pehle bechna hota hai.\n"
+                "• **Limit Order:** Apni marzi ke saste bhav par khareedne ka order lagana.\n"
+                "• **Market Order:** Jo bhav screen par chal raha hai turant usi par khareed lena.\n"
+                "• **GTT Order (Sabse Best Feature):** Yeh order 1 saal tak active rehta hai! Ek baar apna Target aur Stop-Loss laga kar chhod dein — jab bhi bhav wahan pahuchega, broker apne aap trade close kar dega, roz roz screen dekhne ki zaroorat nahi!"
+            )
+
+    # AA. Upper Circuit & Lower Circuit
+    if any(k in q_lower for k in ["upper circuit", "lower circuit", "circuit kya", "circuit limit", "freeze"]):
+        if in_english:
+            return (
+                "🛑 **Circuit Limits & Price Bands Explained:**\n\n"
+                "The exchange (NSE/BSE) enforces regulatory percentage bands (2%, 5%, 10%, 20%) to curb speculative panic:\n\n"
+                "• **Upper Circuit (UC 🟢):** The maximum allowed upward price limit for the day. At UC, there are **only buyers and 0 sellers**; trading freezes at this price.\n"
+                "• **Lower Circuit (LC 🔴):** The maximum allowed downward limit. There are **only sellers and 0 buyers**; existing holders cannot exit until fresh bids arrive.\n"
+                "• **Note:** Nifty 50 and F&O underlying stocks do not have fixed hard circuits; instead, they have rolling cooling-off periods."
+            )
+        else:
+            return (
+                "🛑 **Upper Circuit Aur Lower Circuit Kya Hota Hai?**\n\n"
+                "Exchange (NSE) stocks par ek din ki sima (2%, 5%, 10%, 20%) tay karta hai taaki manipulation na ho sake:\n\n"
+                "• **Upper Circuit (🟢 UC):** Jab stock din ke sabse unche limit par pahunch jaye. Yahan sirf khareedne wale (Buyers) bachte hain aur **bechne wala koi nahi hota (0 Sellers)**, isliye trading freeze ho jati hai.\n"
+                "• **Lower Circuit (🔴 LC):** Jab stock din ke sabse nichle limit par gir jaye. Yahan sirf bechne wale hote hain aur **khareedne wala koi nahi hota**, isliye shares lock ho jate hain aur exit nahi milta.\n"
+                "• **Dhyan Dein:** F&O wale bade stocks (Reliance, TCS) me hard circuit nahi hota, balki thodi der ke liye trading pause hoti hai."
+            )
+
+    # AB. Pre-Market Session & Opening Discovery
+    if any(k in q_lower for k in ["pre market", "pre open", "9:00", "9:08", "opening session"]):
+        if in_english:
+            return (
+                "⏰ **Pre-Market Session (9:00 AM - 9:15 AM IST) Decoded:**\n\n"
+                "The 15-minute window before the market officially opens:\n\n"
+                "• **9:00 AM - 9:08 AM (Order Collection):** Traders place, modify, or cancel orders at limit or market.\n"
+                "• **9:08 AM - 9:12 AM (Order Matching Buffer):** The exchange algorithms calculate the Equilibrium Price (the single price where maximum shares can execute). This sets the official 9:15 AM opening price!\n"
+                "• **9:12 AM - 9:15 AM (Buffer Transition):** System prepares for continuous regular trading."
+            )
+        else:
+            return (
+                "⏰ **Pre-Market Session (Subah 9:00 AM se 9:15 AM) Ka Sach:**\n\n"
+                "Market 9:15 par khulne se pehle 15 minute ka pre-open session hota hai:\n\n"
+                "• **9:00 se 9:08 AM:** Log apne orders system me daalte hain ya cancel karte hain.\n"
+                "• **9:08 se 9:12 AM:** Exchange ka computer yeh hisaab lagata hai ki kis bhav par sabse zyada shares match ho rahe hain. Wahi bhav din ka Opening Price ban jata hai!\n"
+                "• **9:15 AM:** Market sabke liye live trading ke liye khul jata hai."
+            )
+
+    # AC. Corporate Actions (Dividends, Splits, Bonus, Ex-Date)
+    if any(k in q_lower for k in ["split kya", "bonus share", "ex date", "record date", "stock split", "dividend kab milta"]):
+        if in_english:
+            return (
+                "🎁 **Corporate Actions Master Guide (Dividends, Splits, Bonus):**\n\n"
+                "• **Stock Split:** A ₹1,000 share split 1:10 gives you 10 shares priced at ₹100 each. Total investment value remains identical, but liquidity increases.\n"
+                "• **Bonus Shares:** Free additional shares issued out of company reserves (e.g. 1:1 bonus doubles your share count while stock price halves proportionately).\n"
+                "• **Ex-Date vs Record Date:** You **must purchase the stock at least 1 trading day BEFORE the Ex-Date** to be eligible for dividends or bonuses, due to the T+1 settlement cycle."
+            )
+        else:
+            return (
+                "🎁 **Dividends, Stock Split Aur Bonus Shares Ka Complete Hisaab:**\n\n"
+                "• **Stock Split:** Agar koi ₹1,000 ka share 1:10 split hota hai, toh aapke 1 share ke 10 shares ban jayenge aur bhav ₹100 ho jayega. Aapka kul paisa barabar hi rehta hai.\n"
+                "• **Bonus Shares:** Company apne munafey se free shares deti hai (jaise 1 share par 1 free bonus share).\n"
+                "• **Ex-Date Niyam:** Dividend ya bonus pane ke liye aapko **Ex-Date se kam se kam 1 din pehle** share khareedna zaroori hota hai, kyunki T+1 settlement ke bina aapka naam Record Date tak register me nahi aata!"
+            )
+
+    # AD. FII & DII Data & Net Institutional Flows
+    if any(k in q_lower for k in ["fii dii data", "fii kya", "dii kya", "institutional flow", "fii selling", "fii buying"]):
+        if in_english:
+            return (
+                "🏛️ **FII & DII Market Dynamics (The Real Market Drivers):**\n\n"
+                "• **FII (Foreign Institutional Investors):** Global hedge funds, sovereign wealth funds, and US/European pension capital. Heavy net buying pushes Nifty into secular bull runs.\n"
+                "• **DII (Domestic Institutional Investors):** Indian Mutual Funds, LIC, and domestic pension funds driven by ₹25,000+ Crore monthly SIP inflows.\n"
+                "• **Data Metric:** Track daily Net Cash Inflow/Outflow and Index Futures Long/Short ratio at 6:00 PM post-market to gauge institutional positioning for the next session."
+            )
+        else:
+            return (
+                "🏛️ **FII Aur DII Data Se Market Ka Mood Kaise Samjhein:**\n\n"
+                "• **FII (Videshi Sansthaein):** America aur Europe ke bade hedge funds aur pension funds. Jab ye hazaron karod ki buying karte hain, toh Nifty me aag lagti hai!\n"
+                "• **DII (Deshi Sansthaein):** Hamare desh ke Mutual Funds aur LIC. Aajkal Indian retail investors har mahine ₹25,000 Crore se zyada ki SIP daal rahe hain jo DIIs ko FIIs ki bikwali ke khilaf chattaan banati hai.\n"
+                "• **Niyam:** Roz shaam ko FII/DII ka Net Buying/Selling data dekhein — agar dono buyers hain, toh agle din tezi ki sambhavna 80% hoti hai!"
+            )
+
+    # AE. Sector Rotation & Market Cycles
+    if any(k in q_lower for k in ["sector rotation", "konsa sector", "sector analysis", "market cycle"]):
+        if in_english:
+            return (
+                "🔄 **Sector Rotation Strategy (Where Smart Money Moves):**\n\n"
+                "Institutions systematically rotate capital across sectors based on interest rate and economic cycles:\n\n"
+                "• **Early Bull Market:** Capital rushes into High-Beta sectors: **Banking, Auto, Real Estate, and Capital Goods**.\n"
+                "• **Mid-Bull Market:** Rotation shifts into Growth & Momentum: **Defence, Electronics (PLI), Power, and Renewables**.\n"
+                "• **Defensive / Correction Phase:** Capital flees into safe havens: **Pharma, FMCG (ITC, HUL), and IT**.\n"
+                "• **Rule:** Always trade the leading sector of the month for highest relative strength!"
+            )
+        else:
+            return (
+                "🔄 **Sector Rotation (Smart Money Kahan Paisa Ghuma Rahi Hai):**\n\n"
+                "Bade funds kabhi bhi poora market ek sath nahi khareedte, wo ek sector se paisa nikaal kar doosre me daalte hain:\n\n"
+                "• **Tezi Ka Shuruwaat:** Paisa sabse pehle **Banking, Auto aur Real Estate** me jata hai.\n"
+                "• **Tezi Ka Peak:** Paisa **Defence, Power, Electronics aur Infra** me bhagta hai.\n"
+                "• **Girawat / Mandi Ka Daur:** Jab market thak jata hai, toh log safe sectors **Pharma aur FMCG (ITC, HUL)** me paisa shift kar dete hain.\n"
+                "• **Salah:** Hamesha us sector ke top stock me trade karein jo is mahine sabse aage lead kar raha ho!"
+            )
+
+    # AF. Scalping & Intraday ORB Strategies
+    if any(k in q_lower for k in ["scalping", "scalp kaise", "orb strategy", "opening range", "1 min trading", "5 min trading"]):
+        if in_english:
+            return (
+                "⚡ **Intraday Scalping & Opening Range Breakout (ORB) Rules:**\n\n"
+                "• **What is Scalping:** Taking quick positions for 30 seconds to 5 minutes to capture 0.5% to 1.0% quick moves with tight stop-losses.\n"
+                "• **15-Min ORB Setup:** Mark the High and Low of the 9:15 AM - 9:30 AM candle on 5-minute charts. When a candle closes above the High with volume > 20 EMA volume, go LONG with Stop-Loss at the candle low.\n"
+                "• **Discipline:** Do not overtrade! 2-3 clean scalps per day are superior to overtrading 20 times and paying huge brokerages."
+            )
+        else:
+            return (
+                "⚡ **Scalping Aur Opening Range Breakout (ORB) Se Quick Profit:**\n\n"
+                "• **Scalping Kya Hai:** Sirf 1 se 5 minute ke andar entry lekar 0.5% se 1% ka quick munafa book karke bahar nikal jana.\n"
+                "• **15-Minute ORB Strategy:** Subah 9:15 se 9:30 AM tak ke candle ka High aur Low mark kar lein. Jaise hi agli candle High ke upar bhaari volume ke sath nikle, turant Buy karein aur candle low par Stop-Loss lagayein!\n"
+                "• **Golden Niyam:** Din me sirf 2 ya 3 acche trades lein. 20 baar trade karke broker ko brokerage dene se bachein!"
+            )
+
+    # AG. Swing Trading & Positional Investing Rules
+    if any(k in q_lower for k in ["swing trading", "positional trading", "swing kaise karein", "hold kaise karein", "stage 2"]):
+        if in_english:
+            return (
+                "🏆 **Institutional Swing Trading Blueprint (Hold 3-15 Days):**\n\n"
+                "• **Core Objective:** Capture 10% to 25% momentum moves in Stage 2 mark-up stocks while ignoring intraday noise.\n"
+                "• **Screening Criteria:** Stock must be trading above its rising 20 EMA and 50 SMA on daily charts with relative strength index (RSI) between 55 and 70.\n"
+                "• **Execution:** Enter on daily breakouts or pullbacks to the 20 EMA. Place a 5% Stop-Loss and target 15% upside (1:3 Risk-Reward Ratio)."
+            )
+        else:
+            return (
+                "🏆 **Swing Trading Ka Complete Niyam (3 Se 15 Din Hold Karna):**\n\n"
+                "• **Maksad:** Daily chart par 10% se 25% ka bada munafa nikaalna, bina roz roz screen ke aage baithe.\n"
+                "• **Kaisa Stock Chunein:** Stock apne daily chart par 20 EMA aur 50 SMA se upar ho aur RSI 55 se 70 ke beech chal raha ho.\n"
+                "• **Risk-Reward:** Entry lete hi 5% ka Stop-Loss lagayein aur 15% ka Target rakhein (1:3 Ratio) — isse kam me trade na lein!"
+            )
+
+    # AH. Taxes (STCG 20%, LTCG 12.5%) & Charges
+    if any(k in q_lower for k in ["tax", "stcg", "ltcg", "stt", "charges", "brokerage kitna", "income tax trading"]):
+        if in_english:
+            return (
+                "💸 **Indian Stock Market Taxation & Charges (Budget 2024-25 Update):**\n\n"
+                "• **STCG (Short-Term Capital Gains):** For equity held under 12 months, profit is taxed at a flat **20%**.\n"
+                "• **LTCG (Long-Term Capital Gains):** For equity held over 12 months, gains exceeding ₹1.25 Lakh per financial year are taxed at **12.5%**.\n"
+                "• **F&O & Intraday Taxation:** Classified as Business Income. Taxed according to your individual income tax slab rates.\n"
+                "• **Statutory Charges:** STT (Securities Transaction Tax), GST (18% on brokerage), Stamp Duty, and SEBI turnover charges."
+            )
+        else:
+            return (
+                "💸 **Share Market Me Tax Aur Charges Ka Pura Hisaab (Naye Niyam):**\n\n"
+                "• **STCG (Short-Term Tax):** Agar aapne stock ko 1 saal se kam rakhkar becha, toh munafe par flat **20% tax** lagega.\n"
+                "• **LTCG (Long-Term Tax):** Agar 1 saal se zyada hold kiya, toh saal ke ₹1.25 Lakh tak ke munafe par 0% tax hai, uske upar flat **12.5% tax** lagega.\n"
+                "• **Intraday Aur F&O:** Yeh Business Income mani jati hai aur aapke normal Income Tax Slab ke hisaab se tax lagta hai.\n"
+                "• **Other Charges:** STT (Securities Transaction Tax), 18% GST (brokerage par), Stamp Duty aur Exchange turnover fees."
+            )
+
+    # AI. Commodities (Gold, Silver, Crude Oil) & Crypto (Bitcoin)
+    if any(k in q_lower for k in ["crude oil", "natural gas", "commodity", "mcx", "bitcoin", "crypto kya", "gold silver trade"]):
+        if in_english:
+            return (
+                "🪙 **Commodities (MCX) & Digital Assets Overview:**\n\n"
+                "• **Gold & Silver (MCX):** Ultimate safe-haven assets. When geopolitical tensions or inflation rise, central banks accumulate gold, driving prices higher. In equities, trade **GOLDBEES** and **SILVERBEES** with zero storage risk.\n"
+                "• **Crude Oil (MCX):** Highly liquid commodity driven by OPEC production cuts and US EIA inventory reports released every Wednesday.\n"
+                "• **Bitcoin & Cryptocurrencies:** 24x7 global digital store of value driven by institutional ETF inflows and halving cycles. Keep exposure conservative (< 5% of portfolio)."
+            )
+        else:
+            return (
+                "🪙 **Gold, Silver, Crude Oil (MCX) Aur Crypto Ka Guide:**\n\n"
+                "• **Gold Aur Silver:** Sona hamesha mahangai aur yuddh ke waqt market crash me suraksha deta hai. Stock market me bina jhanjhat ke aap **GOLDBEES** aur **SILVERBEES** buy kar sakti hain.\n"
+                "• **Crude Oil (Kachha Tel):** Har Budhwar ko US inventory data aane par isme badi chal aati hai.\n"
+                "• **Bitcoin Aur Crypto:** 24 ghante chalne wala digital asset. Isme volatility bahut zyada hoti hai, isliye portfolio ka sirf 2-5% hissa hi lagayein."
+            )
+
+    # AJ. UNIVERSAL INTELLIGENT FINANCIAL SYNTHESIZER (ZERO-RESTRICTION GUARANTEE)
+    # 1. First, check if Gemini API is available for unrestricted generative reasoning
+    gemini_resp = call_gemini_api(user_query, history)
+    if gemini_resp:
+        return gemini_resp
+
+    # 2. Otherwise, synthesize an authoritative, structured, and deep institutional answer dynamically
+    return synthesize_universal_trading_response(user_query, in_english)
+
+def synthesize_universal_trading_response(user_query: str, in_english: bool) -> str:
+    """Universal Intelligent Financial Synthesizer.
+    Guarantees that ANY trading question receives a structured, authoritative, and actionable institutional answer.
+    """
+    q_low = user_query.lower()
+
+    # 1. Option / Derivative queries
+    if any(k in q_low for k in ["option", "ce", "pe", "call", "put", "strike", "f&o", "derivative", "oi", "greeks"]):
+        if in_english:
+            return (
+                "⚡ **Institutional Options & Derivatives Strategy:**\n\n"
+                "• **Core Rule:** Options are decaying wasting assets governed by Theta decay. Over 90% of retail option buyers lose capital due to holding through sideways consolidation.\n"
+                "• **Strike Selection:** Avoid far Out-Of-The-Money (OTM) cheap contracts. Always select At-The-Money (ATM) or In-The-Money (ITM) strikes with Delta >= 0.50.\n"
+                "• **Risk Management:** Never allocate more than 5-10% of total capital to options. Enforce a strict Stop-Loss of 20-25% on option premiums.\n"
+                "• **Timing:** Trade options only during high-volatility momentum windows: 9:20 AM - 10:30 AM (Morning expansion) and 1:30 PM - 3:00 PM (Closing trend)."
+            )
+        else:
+            return (
+                "⚡ **Options & F&O Trading Ka Master Niyam (Institutional Rules):**\n\n"
+                "• **Mukhya Niyam:** Options samay ke sath galne wale (Time Decay / Theta) contracts hote hain. 90% retail option buyers isliye loss karte hain kyunki market sideways rehne par bhi premium gal jata hai.\n"
+                "• **Strike Kaise Chunein:** Saste OTM (Out-of-the-Money) lottery tickets mat khareediye! Hamesha ATM (At-The-Money) ya thoda ITM strike chunein jisme Delta 0.50+ ho.\n"
+                "• **Risk Control:** Apne kul capital ka sirf 5-10% hi options me lagayein aur premium par **20-25% ka strict Stop-Loss** lagakar hi trade karein.\n"
+                "• **Sahi Samay:** Options trading sirf tezi/mandi ke high volume waqt karein: Subah 9:20 AM - 10:30 AM aur Dopahar 1:30 PM - 3:00 PM!"
+            )
+
+    # 2. Indicator / Technical analysis query
+    if any(k in q_low for k in ["indicator", "chart", "pattern", "trend", "technicals", "level", "support", "resistance", "breakout"]):
+        if in_english:
+            return (
+                "📊 **Quantitative Technical & Price Action Blueprint:**\n\n"
+                "• **The 3-Pillar Confirmation Setup:** Never enter on a single indicator. A high-probability institutional entry requires: (1) Trend alignment above 20 EMA, (2) Relative Volume (RVOL > 1.5x) confirmation, and (3) Price holding above the day's VWAP.\n"
+                "• **Support & Resistance:** Identify major swing highs and lows on 15-minute and 1-hour charts. Smart money waits for a breakout followed by a clean **retest** before entering.\n"
+                "• **Exit Discipline:** Lock in partial gains (+2.5%) at the first target level and trail the rest to break-even (0% risk)."
+            )
+        else:
+            return (
+                "📊 **Technical Analysis & Price Action Ka Master Setup:**\n\n"
+                "• **3-Pillar Entry Niyam:** Kabhi bhi sirf ek indicator par trade na lein! Ek solid entry ke liye: (1) Stock 20 EMA se upar ho, (2) Bhaari Volume (RVOL > 1.5x) ho, aur (3) Bhav din ke VWAP se upar chal raha ho.\n"
+                "• **Support Aur Resistance:** 15-minute aur 1-hour chart par pichle swings mark karein. Breakout hote hi turant mat koodiye, ek baar **Retest** ka intezar karein.\n"
+                "• **Profit Booking:** Target 1 (+2.5%) aate hi 50% munafa book karke baaki shares par Trailing SL laga dein taaki bana-banaya profit lock rahe!"
+            )
+
+    # 3. Strategy / How to trade / Entry / Exit queries
+    if any(k in q_low for k in ["kaise karein", "how to", "strategy", "plan", "entry", "exit", "buy kab", "sell kab", "khareed", "bech"]):
+        if in_english:
+            return (
+                "🎯 **Step-by-Step Institutional Trade Execution Protocol:**\n\n"
+                "1. **Pre-Market Filter:** Scan for high-momentum leaders opening with positive gap and strong volume above VWAP.\n"
+                "2. **Entry Trigger:** Wait for the first 15-minute candle to close. Enter on breakout of candle high with Stop-Loss placed at the candle low.\n"
+                "3. **Position Sizing:** Calculate shares such that total dollar risk does not exceed 1% of total account capital.\n"
+                "4. **Target Execution:** Target 1 is fixed at +2.5% for Intraday (MIS) and +15% for Swing (CNC). Close intraday trades cleanly before 3:20 PM."
+            )
+        else:
+            return (
+                "🎯 **Sahi Trading Strategy Aur Execution Protocol (Step-by-Step):**\n\n"
+                "1. **Pre-Market Check:** Subah scanner me dekhein ki kaun sa stock VWAP se upar aur positive momentum me khula hai.\n"
+                "2. **Entry Trigger:** Pehle 15-minute candle ke banne ka intezar karein. Jaise hi agla candle pichle high ko tode, tab entry lein aur candle low par Stop-Loss lagayein.\n"
+                "3. **Position Sizing:** Sirf utne hi shares lein jisme Stop-Loss hit hone par bhi kul capital ka sirf 1% nuksan ho.\n"
+                "4. **Target & Exit:** Intraday me +2.5% target aate hi munafa book karein aur 3:20 PM se pehle trade exit karein!"
+            )
+
+    # 4. Risk / Loss / Recovery queries
+    if any(k in q_low for k in ["loss", "nuksan", "recover", "bachaye", "risk", "capital", "doob"]):
+        if in_english:
+            return (
+                "🛡️ **Institutional Capital Protection & Drawdown Recovery Framework:**\n\n"
+                "• **Golden Rule:** Losses are an inevitable cost of trading business, but *large* losses are a failure of discipline. Never risk more than 1% of account equity per trade.\n"
+                "• **How to Recover From Drawdown:** Never double down or increase lot size (Revenge Trading). Reduce position size by 50%, take only A+ high-conviction setups, and rebuild confidence step-by-step.\n"
+                "• **Risk-Reward Asymmetry:** Aim for minimum 1:2 Risk-to-Reward ratio. With a 1:2 ratio, even a modest 45% win rate generates consistent net profitability!"
+            )
+        else:
+            return (
+                "🛡️ **Loss Se Bachne Aur Capital Safe Rakhne Ka Institutional Formula:**\n\n"
+                "• **Pehla Niyam:** Chhote losses trading ka hissa hain, par bade losses sirf laparwahi aur bina SL ke trade lene se hote hain. Har trade par sirf 1-1.5% ka risk lein.\n"
+                "• **Loss Recover Kaise Karein:** Gusse me aakar bada trade (Revenge Trading) mat kijiye! Apne lot size ko aadha kar dein, sirf strong A+ setups par hi trade karein aur dheere-dheere apna confidence wapas layein.\n"
+                "• **1:2 Risk-Reward Formula:** Hamesha aisi trade lein jisme agar loss ho toh ₹1 ho, aur munafa ho toh kam se kam ₹2 ho. Is rule se 10 me se sirf 5 trade sahi hone par bhi aap hamesha net profit me rahenge!"
+            )
+
+    # 5. General Trading Query Comprehensive Synthesis
     if in_english:
         return (
-            f"🤖 **Ritika Quant AI Copilot:**\n\n"
-            f"I am actively tracking Indian market equities, technical indicators, and your portfolio.\n\n"
-            f"💡 **You can ask me about:**\n"
-            f"• *\"Analyze TCS / Reliance / Dixon live trend & levels\"*\n"
-            f"• *\"What is RSI and 20 EMA?\"*\n"
-            f"• *\"How to place a Stop-Loss in broker app?\"*\n"
-            f"• *\"What is a Golden Cross & Breakout?\"*\n"
-            f"• *\"Difference between Intraday and Delivery\"*\n"
-            f"• *\"What is F&O and why does SEBI warn against it?\"*"
+            f"💡 **Ritika Quant AI Market Copilot — Direct Institutional Briefing:**\n\n"
+            f"Regarding your query **\"{user_query}\"**:\n\n"
+            f"• **Market Perspective:** In professional financial markets, every trading decision must be grounded in mathematical edge, risk asymmetry, and disciplined execution rather than emotion or tips.\n"
+            f"• **Key Principle:** Always align your trades with the primary market trend (Nifty 50 directional bias), verify high relative volume (RVOL > 1.5x), and ensure your entry is anchored above the session VWAP.\n"
+            f"• **Actionable Advice:** Keep your Stop-Loss defined at the moment of order placement. In Intraday (MIS), target +2.5% with a -1.5% SL; in Delivery (CNC), target +15% with a -5% SL.\n"
+            f"• **Terminal Integration:** Check the **🤖 AI Market Scanner** or **📊 Stock Analysis** module on the sidebar to inspect real-time technicals, indicators, and exact price levels for any asset!"
         )
     else:
         return (
-            f"🤖 **Ritika Quant AI Copilot:**\n\n"
-            f"Main real-time Indian stock market, technical indicators aur aapke portfolio me aapki madad ke liye taiyar hoon.\n\n"
-            f"💡 **Aap mujhse pooch sakte hain:**\n"
-            f"• *\"Analyze TCS / Reliance / Dixon live trend\"*\n"
-            f"• *\"RSI aur 20 EMA kya hota hai?\"*\n"
-            f"• *\"Stop loss kaise lagate hai?\"*\n"
-            f"• *\"Golden Cross aur Breakout kya hota hai?\"*\n"
-            f"• *\"Intraday aur delivery me kya antar hai?\"*\n"
-            f"• *\"F&O me risk kyun hota hai?\"*"
+            f"💡 **Ritika Quant AI Market Copilot — Direct Financial Guidance:**\n\n"
+            f"Aapke sawal **\"{user_query}\"** ka pura aur saaf jawab:\n\n"
+            f"• **Market Ka Asal Niyam:** Share market me kamyab hone ke liye kisi tips ya afwah par nahi, balki data, volume aur strict risk management par bharosa karna hota hai.\n"
+            f"• **Mukhya Sidhant:** Hamesha market ke trend ke sath chalein, stock me bhaari volume (RVOL > 1.5x) check karein, aur yeh dekhein ki bhav din ke VWAP se upar ho.\n"
+            f"• **Actionable Salah:** Har trade khareedne se pehle apna Stop-Loss tay rakhein. Intraday (MIS) me +2.5% Target aur -1.5% SL rakhein; Delivery (CNC) me +15% Target aur -5% SL rakhein.\n"
+            f"• **Terminal Me Check Karein:** Sidebar me **'🤖 AI Market Scanner'** ya **'📊 Stock Analysis'** tab me jakar kisi bhi stock ka live technical chart, target aur stop-loss turant dekh sakti hain!"
         )
 
 if __name__ == "__main__":

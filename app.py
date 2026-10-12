@@ -1974,13 +1974,13 @@ with col_main_content:
                     "role": "assistant",
                     "content": (
                         "👋 **Welcome! I am your Ritika Quant AI Copilot.**\n\n"
-                        "I analyze real-time NSE market data, your portfolio positions, and institutional quantitative indicators to answer any of your trading queries.\n\n"
-                        "💡 *Here are a few questions you can ask me:*\n"
-                        "• *\"Analyze TCS live trend and target\"*\n"
-                        "• *\"How is my portfolio performing?\"*\n"
-                        "• *\"What are Reliance target and stop-loss levels?\"*\n"
-                        "• *\"Explain Trailing Stop-Loss risk management\"*\n"
-                        "• *\"What is the best breakout pick for tomorrow?\"*"
+                        "I am an unrestricted institutional trading intelligence engine. You can ask me **ANY question related to trading, stocks, derivatives, technicals, or strategies with ZERO restrictions!**\n\n"
+                        "💡 *Examples of what you can ask:*\n"
+                        "• *\"Analyze any stock (e.g. NTPC / Reliance / Dixon / Tata Motors)\"*\n"
+                        "• *\"Explain Option Greeks: Delta, Theta, Gamma, Vega\"*\n"
+                        "• *\"How does CPR and VWAP indicator work?\"*\n"
+                        "• *\"How to set GTT and Stop-Loss orders in broker app?\"*\n"
+                        "• *\"How to recover from trading losses & overcome revenge trading?\"*"
                     )
                 }
             ]
@@ -2019,8 +2019,7 @@ with col_main_content:
                     with st.chat_message("assistant", avatar="👑"):
                         st.markdown(msg["content"])
 
-        # Chat Input
-        typed_input = st.chat_input("Ask any trading query (e.g. Analyze TCS / Check portfolio / What is Trailing SL?)...")
+        typed_input = st.chat_input("Ask ANY trading question with Zero Restrictions (Technicals, F&O, Any Stock, Indicators, Rules)...")
         if typed_input:
             user_prompt_to_process = typed_input
 
