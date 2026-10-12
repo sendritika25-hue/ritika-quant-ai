@@ -28,6 +28,15 @@
       "AITarget": 1561.01,
       "AIScore": "86% (Banking Breakout)",
       "BuyTime": "2026-09-24 07:38"
+    },
+    {
+      "Ticker": "MAZDOCK.NS",
+      "Type": "DELIVERY (CNC)",
+      "BuyPrice": 2060.7,
+      "Shares": 9,
+      "AITarget": 2369.8,
+      "AIScore": "91% (Defence Moat)",
+      "BuyTime": "2026-10-12 16:11"
     }
   ]
 }

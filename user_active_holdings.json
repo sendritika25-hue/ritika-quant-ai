@@ -31,5 +31,16 @@
     "trade_type": "Delivery",
     "buy_time": "2026-09-24 07:38",
     "status": "ACTIVE"
+  },
+  {
+    "symbol": "MAZDOCK.NS",
+    "name": "MAZDOCK",
+    "entry": 2060.7,
+    "target": 2369.8,
+    "sl": 1957.66,
+    "shares": 9,
+    "trade_type": "Delivery",
+    "buy_time": "2026-10-12 16:11",
+    "status": "ACTIVE"
   }
 ]
