@@ -2153,7 +2153,7 @@ with col_main_content:
                         st.session_state["add_h_tg"] = round(p_fetch * 1.15, 2)
                         st.session_state["add_h_sl"] = round(p_fetch * 0.95, 2)
 
-            ac1, ac2, ac3, ac4, ac5 = st.columns([1.4, 0.8, 1.0, 1.0, 1.0])
+            ac1, ac2, ac3, ac4, ac5, ac6 = st.columns([1.3, 0.7, 0.9, 0.9, 0.9, 1.1])
             with ac1:
                 add_sym = st.text_input("Stock Ticker", value="", placeholder="e.g. SBIN, BDL, DIXON", key="add_h_sym", help="Type any stock name or typo e.g. mothrson, sbi, dixon. Auto-corrects automatically!")
                 if add_sym.strip():
@@ -2173,6 +2173,8 @@ with col_main_content:
             with ac5:
                 default_sl_val = float(st.session_state.get("add_h_sl", round(default_entry_val * 0.95, 2)))
                 add_sl = st.number_input("Stop Loss Price (₹)", value=default_sl_val, min_value=1.0, key="add_h_sl")
+            with ac6:
+                add_trade_type = st.selectbox("Trade Type", ["Delivery (CNC)", "Intraday (MIS)"], key="add_h_type")
 
             # Real-time Position Sizing suggestion for Manual Tracking
             safe_p1_shares = calculate_position_sizing(100000.0, 1.0, add_entry, add_sl)
@@ -2183,6 +2185,9 @@ with col_main_content:
                     st.warning("⚠️ Please enter a stock ticker (e.g. SBIN, DIXON, BDL) to track.")
                 else:
                     clean_s = resolve_ticker(add_sym)
+                    is_intra = "intra" in add_trade_type.lower()
+                    h_type_str = "Intraday" if is_intra else "Delivery"
+                    p_type_str = "INTRADAY (MIS)" if is_intra else "DELIVERY (CNC)"
                     cur_h = load_user_active_holdings()
                     existing_symbols = [h.get("symbol") for h in cur_h if isinstance(h, dict)]
                     if clean_s not in existing_symbols:
@@ -2193,7 +2198,7 @@ with col_main_content:
                             "entry": add_entry,
                             "target": add_target,
                             "sl": add_sl,
-                            "trade_type": "Delivery",
+                            "trade_type": h_type_str,
                             "buy_time": datetime.now().strftime("%Y-%m-%d %H:%M"),
                             "status": "ACTIVE"
                         })
@@ -2204,10 +2209,12 @@ with col_main_content:
                         if p_match:
                             p_match["Shares"] = int(add_shares)
                             p_match["BuyPrice"] = float(add_entry)
+                            p_match["Type"] = p_type_str
+                            p_match["AITarget"] = float(add_target)
                         else:
                             p_list.append({
                                 "Ticker": clean_s,
-                                "Type": "DELIVERY (CNC)",
+                                "Type": p_type_str,
                                 "BuyPrice": float(add_entry),
                                 "Shares": int(add_shares),
                                 "AITarget": float(add_target),
@@ -2216,7 +2223,7 @@ with col_main_content:
                             })
                         st.session_state["paper_positions"] = p_list
                         save_paper_account_data(st.session_state.get("paper_cash", 100000.0), st.session_state.get("realized_profit", 0.0), p_list)
-                        st.success(f"✅ Active tracking started for {clean_s} ({add_shares} shares)! Target: ₹{add_target}, SL: ₹{add_sl}.")
+                        st.success(f"✅ Active tracking started for {clean_s} ({add_shares} shares in {h_type_str})! Target: ₹{add_target}, SL: ₹{add_sl}.")
                         st.rerun()
                     else:
                         for h in cur_h:
@@ -2225,6 +2232,7 @@ with col_main_content:
                                 h["entry"] = float(add_entry)
                                 h["target"] = float(add_target)
                                 h["sl"] = float(add_sl)
+                                h["trade_type"] = h_type_str
                                 break
                         save_user_active_holdings(cur_h)
                         p_list = st.session_state.get("paper_positions", [])
@@ -2232,10 +2240,11 @@ with col_main_content:
                             if isinstance(p, dict) and p.get("Ticker") == clean_s:
                                 p["Shares"] = int(add_shares)
                                 p["BuyPrice"] = float(add_entry)
+                                p["Type"] = p_type_str
                                 p["AITarget"] = float(add_target)
                         st.session_state["paper_positions"] = p_list
                         save_paper_account_data(st.session_state.get("paper_cash", 100000.0), st.session_state.get("realized_profit", 0.0), p_list)
-                        st.success(f"✅ Updated {clean_s} quantity to {add_shares} shares! (Entry: ₹{add_entry}, Target: ₹{add_target}).")
+                        st.success(f"✅ Updated {clean_s}: {add_shares} shares in {h_type_str}! (Entry: ₹{add_entry}, Target: ₹{add_target}).")
                         st.rerun()
 
         with tab_p2:
@@ -2282,6 +2291,14 @@ with col_main_content:
                                 if ah.get("shares") != max_sh:
                                     ah["shares"] = max_sh
                                     save_user_active_holdings(active_h_sync)
+                            # Sync trade type / horizon
+                            ah_type = ah.get("trade_type", "Delivery")
+                            mapped_type = f"{ah_type.upper()} (MIS)" if "intra" in ah_type.lower() else "DELIVERY (CNC)"
+                            if pp.get("Type") != mapped_type:
+                                pp["Type"] = mapped_type
+                                sync_changed = True
+                            if ah.get("target") and float(ah.get("target")) > 0:
+                                pp["AITarget"] = float(ah.get("target"))
 
             if sync_changed:
                 st.session_state["paper_positions"] = paper_positions
@@ -2441,32 +2458,42 @@ with col_main_content:
 
             st.markdown("<div style='height:10px;'></div>", unsafe_allow_html=True)
             if paper_positions:
-                with st.expander("✏️ Quick Adjust / Set Shares Quantity for Any Holding (e.g. Set SUZLON to 100 Shares)", expanded=False):
-                    eq_c1, eq_c2, eq_c3 = st.columns([2.2, 1.2, 1.5])
+                with st.expander("✏️ Quick Adjust / Set Shares Quantity & Horizon for Any Holding", expanded=False):
+                    eq_c1, eq_c2, eq_c3, eq_c4 = st.columns([1.8, 1.0, 1.4, 1.2])
                     with eq_c1:
-                        eq_label = st.selectbox("Select Holding to Set Exact Quantity", pos_options_labels, key="eq_pos_select")
+                        eq_label = st.selectbox("Select Holding to Set Exact Quantity / Type", pos_options_labels, key="eq_pos_select")
                     eq_idx = int(eq_label.split(" • ")[0].replace("#", "")) if eq_label else 0
                     eq_holding = paper_positions[eq_idx] if 0 <= eq_idx < len(paper_positions) else None
                     cur_qty = eq_holding["Shares"] if eq_holding else 1
+                    cur_type_idx = 1 if (eq_holding and "intra" in str(eq_holding.get("Type", "")).lower()) else 0
                     with eq_c2:
-                        new_shares_qty = st.number_input("Set Exact Quantity (Shares)", min_value=1, step=1, value=cur_qty, key="eq_new_shares")
+                        new_shares_qty = st.number_input("Shares Qty", min_value=1, step=1, value=cur_qty, key="eq_new_shares")
                     with eq_c3:
+                        new_horizon = st.selectbox("Trade Horizon", ["DELIVERY (CNC)", "INTRADAY (MIS)"], index=cur_type_idx, key="eq_new_horizon")
+                    with eq_c4:
                         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True)
-                        if st.button("💾 Update Quantity Now", key="btn_save_shares_qty", use_container_width=True):
+                        if st.button("💾 Save Changes", key="btn_save_shares_qty", use_container_width=True):
                             if eq_holding:
                                 t_name = eq_holding["Ticker"]
+                                b_p = float(eq_holding.get("BuyPrice", 1000.0))
                                 eq_holding["Shares"] = int(new_shares_qty)
+                                eq_holding["Type"] = new_horizon
+                                is_in = "intra" in new_horizon.lower()
+                                eq_holding["AITarget"] = round(b_p * (1.025 if is_in else 1.15), 2)
                                 save_paper_account_data(st.session_state["paper_cash"], st.session_state["realized_profit"], paper_positions)
                                 try:
                                     cur_h = load_user_active_holdings()
                                     for h in cur_h:
                                         if h.get("symbol") == t_name:
                                             h["shares"] = int(new_shares_qty)
+                                            h["trade_type"] = "Intraday" if is_in else "Delivery"
+                                            h["target"] = eq_holding["AITarget"]
+                                            h["sl"] = round(b_p * (0.985 if is_in else 0.95), 2)
                                             break
                                     save_user_active_holdings(cur_h)
                                 except Exception:
                                     pass
-                                st.success(f"✅ Successfully updated {t_name} to {new_shares_qty} shares!")
+                                st.success(f"✅ Successfully updated {t_name}: {new_shares_qty} shares in {new_horizon}!")
                                 st.rerun()
 
             st.markdown("<div style='height:15px;'></div>", unsafe_allow_html=True)
