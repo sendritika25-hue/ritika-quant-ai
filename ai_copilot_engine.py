@@ -37,7 +37,7 @@ COMMON_TICKERS = {
     "dlf": "DLF.NS", "itc": "ITC.NS", "titan": "TITAN.NS", "lt": "LT.NS", "l&t": "LT.NS",
     "sunpharma": "SUNPHARMA.NS", "maruti": "MARUTI.NS", "cipla": "CIPLA.NS", "bataindia": "BATAINDIA.NS",
     "prestige": "PRESTIGE.NS", "pvrinox": "PVRINOX.NS", "godrejprop": "GODREJPROP.NS", "sonacoms": "SONACOMS.NS",
-    "relaxo": "RELAXO.NS", "lalpathlab": "LALPATHLAB.NS", "tatamotors": "TATAMOTORS.NS", "tata motors": "TATAMOTORS.NS",
+    "relaxo": "RELAXO.NS", "lalpathlab": "LALPATHLAB.NS", "tatamotors": "TMPV.NS", "tata motors": "TMPV.NS",
     "tata steel": "TATASTEEL.NS", "tatasteel": "TATASTEEL.NS", "wipro": "WIPRO.NS", "hcltech": "HCLTECH.NS",
     "techm": "TECHM.NS", "ltim": "LTIM.NS", "persistent": "PERSISTENT.NS", "tatapower": "TATAPOWER.NS",
     "tata power": "TATAPOWER.NS", "ntpc": "NTPC.NS", "powergrid": "POWERGRID.NS", "coalindia": "COALINDIA.NS",
@@ -52,7 +52,7 @@ COMMON_TICKERS = {
     "drreddy": "DRREDDY.NS", "divislab": "DIVISLAB.NS", "apollohosp": "APOLLOHOSP.NS",
     "lupin": "LUPIN.NS", "mankind": "MANKIND.NS", "m&m": "M&M.NS", "mahindra": "M&M.NS",
     "bajajauto": "BAJAJ-AUTO.NS", "heromotoco": "HEROMOTOCO.NS", "eichermot": "EICHERMOT.NS",
-    "gold": "GOLDBEES.NS", "silver": "SILVERBEES.NS", "nifty": "^NSEI", "sensex": "^BSESN"
+    "gold": "GOLDBEES.NS", "goldbees": "GOLDBEES.NS", "silver": "SILVERBEES.NS", "silverbees": "SILVERBEES.NS", "nifty": "^NSEI", "sensex": "^BSESN"
 }
 
 def call_gemini_api(user_query: str, history: list = None, system_context: str = "") -> str:
@@ -657,7 +657,7 @@ def detect_stock_in_query(user_text: str, history: list = None) -> str:
         "which", "when", "where", "how", "who", "should", "will", "can", "good", "bad", "best", 
         "top", "stop", "trading", "market", "nse", "bse", "portfolio", "terminal", "screen", 
         "scanner", "bot", "copilot", "kitne", "add", "colum", "column", "detail", "chiye", "paper", "papaer", "virtual", "hoga", "hogi",
-        "kis", "kisi", "sab", "sabhi", "har", "muje", "hona"
+        "kis", "kisi", "sab", "sabhi", "har", "muje", "hona", "lene", "kharidne", "khareedne", "kharidna", "khareedna"
     }
     non_ticker_acronyms = {
         "CPR", "GTT", "VWAP", "RSI", "MACD", "EMA", "SMA", "ATM", "ITM", "OTM", 
@@ -909,7 +909,7 @@ def generate_copilot_response(user_query: str, history: list = None, *args, **kw
         ]) or (
             ("share" in q_lower or "stock" in q_lower or "quantity" in q_lower) and
             ("kitne" in q_lower or "kitna" in q_lower or "how many" in q_lower) and
-            any(w in q_lower for w in ["lena", "lene", "buy", "kharid", "purchase", "chahiye", "chaiye", "size", "sizing", "allocation"])
+            any(w in q_lower for w in ["lena", "lene", "le", "lu", "buy", "kharid", "purchase", "chahiye", "chaiye", "karu", "karein", "size", "sizing", "allocation"])
         ) or (
             ("kis stock" in q_lower or "kisme" in q_lower) and
             ("kitne" in q_lower or "kitna" in q_lower) and
