@@ -2322,6 +2322,25 @@ with col_main_content:
                 except Exception:
                     pass
 
+            # Fetch live real-time market prices for active paper positions if not in alert cache
+            missing_tickers = [p.get("Ticker") for p in paper_positions if p.get("Ticker") and p.get("Ticker") not in live_price_cache]
+            if missing_tickers:
+                try:
+                    import yfinance as yf
+                    batch_data = yf.download(missing_tickers, period="1d", interval="5m", progress=False)
+                    for m_tk in missing_tickers:
+                        try:
+                            if len(missing_tickers) == 1:
+                                series_close = batch_data['Close'].dropna()
+                            else:
+                                series_close = batch_data['Close'][m_tk].dropna()
+                            if not series_close.empty:
+                                live_price_cache[m_tk] = {"current": round(float(series_close.iloc[-1]), 2)}
+                        except Exception:
+                            pass
+                except Exception:
+                    pass
+
             total_paper_invested = sum([p["BuyPrice"] * p["Shares"] for p in paper_positions])
             current_active_val = 0.0
             unrealized_pnl = 0.0
