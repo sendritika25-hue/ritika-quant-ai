@@ -426,6 +426,33 @@ if "paper_positions" in st.session_state:
         if isinstance(p, dict) and not is_trade_untracked_or_expired(p.get("Ticker"), p.get("BuyTime"), p.get("Type", "Delivery"))
     ]
 
+# 2-Way Startup Sync: Ensure all active holdings from user_active_holdings.json are populated in paper trading
+try:
+    _startup_holdings = load_user_active_holdings()
+    _cur_paper = st.session_state.get("paper_positions", [])
+    _cur_paper_syms = {p.get("Ticker") for p in _cur_paper if isinstance(p, dict)}
+    _startup_changed = False
+    for _sh in _startup_holdings:
+        _sh_sym = _sh.get("symbol", "")
+        if _sh_sym and _sh_sym not in _cur_paper_syms:
+            _sh_type = _sh.get("trade_type", "Delivery")
+            _cur_paper.append({
+                "Ticker": _sh_sym,
+                "Type": f"{_sh_type.upper()} (MIS)" if "intra" in _sh_type.lower() else "DELIVERY (CNC)",
+                "BuyPrice": float(_sh.get("entry", 1000.0)),
+                "Shares": int(_sh.get("shares", 1)),
+                "AITarget": float(_sh.get("target", 0.0)),
+                "AIScore": "90% (AI Recommended)",
+                "BuyTime": _sh.get("buy_time", datetime.now().strftime("%Y-%m-%d %H:%M"))
+            })
+            _cur_paper_syms.add(_sh_sym)
+            _startup_changed = True
+    if _startup_changed:
+        st.session_state["paper_positions"] = _cur_paper
+        save_paper_account_data(st.session_state.get("paper_cash", 63982.90), st.session_state.get("realized_profit", 2216.91), _cur_paper)
+except Exception:
+    pass
+
 if "watchlist_items" not in st.session_state:
     st.session_state["watchlist_items"] = [
         {"Ticker": "NYKAA.NS", "Name": "FSN E-Commerce Ventures", "Sector": "E-Commerce", "Price": "₹339.10", "Change": "+1.25%", "Signal": "BUY", "Target": "₹379.79"},
@@ -3730,13 +3757,46 @@ with col_main_content:
                 </div>
                 """, unsafe_allow_html=True)
             with st_c2:
+                # Dynamic Sector Peers Resolution based on selected ticker's actual industry
+                sector_peers_map = {
+                    "IT": [("INFY.NS", "89% AI Score"), ("TCS.NS", "92% AI Score"), ("WIPRO.NS", "84% AI Score")],
+                    "BANK": [("HDFCBANK.NS", "91% AI Score"), ("SBIN.NS", "88% AI Score"), ("KOTAKBANK.NS", "85% AI Score")],
+                    "AUTO": [("TATAMOTORS.NS", "90% AI Score"), ("MARUTI.NS", "88% AI Score"), ("BAJAJ-AUTO.NS", "86% AI Score")],
+                    "DEFENCE": [("HAL.NS", "93% AI Score"), ("BEL.NS", "90% AI Score"), ("BDL.NS", "87% AI Score")],
+                    "PHARMA": [("SUNPHARMA.NS", "91% AI Score"), ("CIPLA.NS", "88% AI Score"), ("DRREDDY.NS", "86% AI Score")],
+                    "METALS": [("TATASTEEL.NS", "87% AI Score"), ("JINDALSTEL.NS", "85% AI Score"), ("HINDALCO.NS", "89% AI Score")],
+                    "ENERGY": [("RELIANCE.NS", "94% AI Score"), ("NTPC.NS", "89% AI Score"), ("ONGC.NS", "86% AI Score")],
+                    "CONSUMER": [("TITAN.NS", "89% AI Score"), ("TRENT.NS", "93% AI Score"), ("DMART.NS", "87% AI Score")]
+                }
+                
+                # Determine relevant sector
+                matched_peers = [("POLYCAB.NS", "88% AI Score"), ("HAL.NS", "91% AI Score")]
+                s_upper = selected_ticker.upper()
+                if any(x in s_upper for x in ["TCS", "INFY", "WIPRO", "COFORGE", "PERSISTENT", "HCLTECH", "LTIM"]):
+                    matched_peers = sector_peers_map["IT"]
+                elif any(x in s_upper for x in ["BANK", "HDFC", "ICICI", "SBI", "AXIS", "KOTAK", "INDUSIND"]):
+                    matched_peers = sector_peers_map["BANK"]
+                elif any(x in s_upper for x in ["MOTHERSON", "TATA", "MOTOR", "MARUTI", "BAJAJ", "HERO", "MAHINDRA", "M&M", "EICHER"]):
+                    matched_peers = sector_peers_map["AUTO"]
+                elif any(x in s_upper for x in ["MAZDOCK", "HAL", "BEL", "BDL", "COCHIN", "GRSE", "SOLAR"]):
+                    matched_peers = sector_peers_map["DEFENCE"]
+                elif any(x in s_upper for x in ["SUN", "PHARMA", "CIPLA", "REDDY", "APOLLO", "LUPIN", "DIVIS"]):
+                    matched_peers = sector_peers_map["PHARMA"]
+                elif any(x in s_upper for x in ["TITAN", "TRENT", "ZOMATO", "DMART", "NYKAA", "ITC"]):
+                    matched_peers = sector_peers_map["CONSUMER"]
+
+                # Exclude selected stock from its own peer list
+                filtered_peers = [p for p in matched_peers if p[0] != display_name_header][:2]
+                peer_1 = filtered_peers[0] if len(filtered_peers) > 0 else ("POLYCAB.NS", "88% AI Score")
+                peer_2 = filtered_peers[1] if len(filtered_peers) > 1 else ("HAL.NS", "91% AI Score")
+
                 st.markdown(f"""
                 <div class="high-profit-card" style="border-left-color:#818cf8; height:190px; box-sizing:border-box; display:flex; flex-direction:column; justify-content:space-between; overflow:hidden;">
                     <div>
                         <h4 style="margin:0 0 10px 0; color:#818cf8; font-size:15px;">🏛️ SECTOR PEERS COMPARISON</h4>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>{display_name_header}</span><b style="color:#4ade80;">AI Rank #1 (BUY)</b></div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>POLYCAB.NS</span><b style="color:#4ade80;">88% AI Score</b></div>
-                        <div style="display:flex; justify-content:space-between;"><span>HAL.NS</span><b style="color:#4ade80;">91% AI Score</b></div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>{display_name_header}</span><b style="color:#4ade80;">AI Rank #1 (Selected)</b></div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>{peer_1[0]}</span><b style="color:#4ade80;">{peer_1[1]}</b></div>
+                        <div style="display:flex; justify-content:space-between;"><span>{peer_2[0]}</span><b style="color:#4ade80;">{peer_2[1]}</b></div>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
