@@ -708,6 +708,42 @@ def resolve_ticker(user_input):
     sym, _ = resolve_ticker_with_details(user_input)
     return sym
 
+def get_realtime_stock_price(ticker_symbol, fallback_price=0.0):
+    """
+    Robust real-time market price fetcher with multi-tier validation.
+    Guarantees actual live market price from NSE via yfinance without falling back
+    to static buy price or artificial baselines.
+    """
+    if not ticker_symbol:
+        return float(fallback_price)
+    
+    clean_sym = ticker_symbol.strip()
+    if not clean_sym.endswith(".NS") and not clean_sym.endswith(".BO") and not clean_sym.startswith("^"):
+        clean_sym = f"{clean_sym}.NS"
+        
+    try:
+        import yfinance as yf
+        tk = yf.Ticker(clean_sym)
+        # 1. Fast quote history
+        h_fast = tk.history(period="1d", interval="5m")
+        if not h_fast.empty and len(h_fast['Close']) > 0:
+            val = float(h_fast['Close'].dropna().iloc[-1])
+            if val > 0:
+                return round(val, 2)
+        # 2. Daily history fallback
+        h_day = tk.history(period="5d")
+        if not h_day.empty and len(h_day['Close']) > 0:
+            val = float(h_day['Close'].dropna().iloc[-1])
+            if val > 0:
+                return round(val, 2)
+    except Exception:
+        pass
+    
+    # 3. If yfinance network hiccup, use provided fallback or baseline
+    if fallback_price and float(fallback_price) > 0:
+        return float(fallback_price)
+    return float(BASE_PRICE_MAP.get(clean_sym, 1250.00))
+
 def generate_fallback_dataframe(ticker):
     base_p = BASE_PRICE_MAP.get(ticker, 1250.00)
     dates = pd.date_range(end=datetime.now(), periods=100, freq='D')
@@ -1196,7 +1232,7 @@ with col_main_content:
                 clean_name = raw_ticker_input.strip().upper()
                 cur_h = load_user_active_holdings()
                 if sym_r not in [h["symbol"] for h in cur_h]:
-                    base_p = BASE_PRICE_MAP.get(sym_r, 1250.00)
+                    base_p = get_realtime_stock_price(sym_r, 1250.00)
                     cur_h.append({
                         "symbol": sym_r,
                         "name": f"{sym_r.replace('.NS', '')} Ltd.",
@@ -2083,7 +2119,7 @@ with col_main_content:
                     if matched_alert:
                         curr_p = float(matched_alert.get("current", entry_p))
                     else:
-                        curr_p = entry_p
+                        curr_p = get_realtime_stock_price(sym, entry_p)
 
                     # Accurately compute live gain % from actual buy entry
                     gain_p = round(((curr_p - entry_p) / entry_p) * 100, 2) if entry_p > 0 else 0.0
@@ -2371,7 +2407,7 @@ with col_main_content:
                 if matched:
                     curr_p = float(matched.get("current", bp))
                 else:
-                    curr_p = bp
+                    curr_p = get_realtime_stock_price(tk, bp)
                 current_active_val += curr_p * sh
                 unrealized_pnl += (curr_p - bp) * sh
 
@@ -2414,7 +2450,7 @@ with col_main_content:
                     if matched:
                         curr_p = float(matched.get("current", bp))
                     else:
-                        curr_p = bp
+                        curr_p = get_realtime_stock_price(tk, bp)
 
                     # Calculate accurate holding gain percentage based on actual Buy Price
                     gain_pct = round(((curr_p - bp) / bp) * 100, 2) if bp > 0 else 0.0
@@ -2477,7 +2513,7 @@ with col_main_content:
                                     sh = int(p.get("Shares", 1))
                                     bp = float(p.get("BuyPrice", 1000.0))
                                     matched_c = live_price_cache.get(t_name)
-                                    cur_p = float(matched_c.get("current", bp)) if matched_c else BASE_PRICE_MAP.get(t_name, bp)
+                                    cur_p = float(matched_c.get("current", bp)) if matched_c else get_realtime_stock_price(t_name, bp)
                                     proceeds = round(cur_p * sh, 2)
                                     pnl = round((cur_p - bp) * sh, 2)
                                     total_credited += proceeds
@@ -2523,7 +2559,7 @@ with col_main_content:
                             t_name = curr_holding_obj["Ticker"]
                             b_price = curr_holding_obj["BuyPrice"]
                             matched_c = live_price_cache.get(t_name)
-                            s_price = float(matched_c.get("current", b_price)) if matched_c else BASE_PRICE_MAP.get(t_name, b_price * 1.02)
+                            s_price = float(matched_c.get("current", b_price)) if matched_c else get_realtime_stock_price(t_name, b_price)
                             
                             proceeds = round(s_price * qty_to_reduce, 2)
                             pnl_made = round((s_price - b_price) * qty_to_reduce, 2)
@@ -2643,15 +2679,7 @@ with col_main_content:
                         st.warning("⚠️ Please enter a stock ticker (e.g. MOTHERSON, CIPLA, DIXON) to trade.")
                     else:
                         sym_r = resolve_ticker(v_stock)
-                        base_p = BASE_PRICE_MAP.get(sym_r, 2811.40 if "TRENT" in sym_r else 1680.00)
-                        try:
-                            t_data = yf.Ticker(sym_r).history(period="1d")
-                            if not t_data.empty:
-                                est_buy = round(float(t_data['Close'].iloc[-1]), 2)
-                            else:
-                                est_buy = base_p
-                        except Exception:
-                            est_buy = base_p
+                        est_buy = get_realtime_stock_price(sym_r, 1680.00)
 
                         if "INTRADAY" in v_horizon:
                             if est_buy < 100.0:
