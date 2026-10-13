@@ -2836,38 +2836,91 @@ with col_main_content:
                             st.rerun()
 
         with tab_p3:
-            st.markdown("### 🔗 Connect Live Demat Account (Zerodha, Groww, AngelOne, Upstox)")
+            st.markdown("### 🔗 Connect Live Demat Account (DhanHQ ₹0 API, Zerodha, Groww, AngelOne)")
             st.info("🔐 **Bank-Grade Security:** Your API credentials remain encrypted locally on your private GCP Cloud VM server.")
             
-            if st.session_state.get("broker_connected", False):
-                b_name = st.session_state.get("connected_broker_name", "Zerodha Kite")
-                st.success(f"🟢 **{b_name} Connected Successfully!** Auto-syncing live demat portfolio & holdings.")
-                if st.button("🔴 Disconnect Broker Account"):
-                    st.session_state["broker_connected"] = False
-                    st.rerun()
-            else:
-                st.markdown("""
-                <div class="broker-card-box">
-                    <span style="font-size:13px; color:#38bdf8; font-weight:700;">Select Your Broker for 1-Click Connection</span>
+            import dhan_broker
+            dhan_cfg = dhan_broker.get_dhan_config()
+
+            st.markdown("""
+            <div style="background:linear-gradient(135deg, rgba(16,185,129,0.12), rgba(15,23,42,0.8)); border:1px solid #10b981; border-radius:10px; padding:16px 20px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div>
+                        <span style="background:#10b981; color:#000000; font-size:10px; font-weight:800; padding:2px 8px; border-radius:4px; text-transform:uppercase;">RECOMMENDED (100% FREE)</span>
+                        <h4 style="margin:4px 0 2px 0; color:#ffffff; font-size:16px;">⚡ DhanHQ Superfast Free Trading API (₹0 Fee)</h4>
+                        <span style="font-size:12px; color:#94a3b8;">Free Demat Account + Lifetime Free Unlimited API Access. Zerodha charges ₹2,000/month for API, but Dhan is 100% Free!</span>
+                    </div>
+                    <div>
+                        <a href="https://web.dhan.co" target="_blank" style="background:#10b981; color:#000000; font-weight:800; font-size:12px; padding:8px 16px; border-radius:6px; text-decoration:none; display:inline-block;">🌐 Open DhanHQ Portal</a>
+                    </div>
                 </div>
-                """, unsafe_allow_html=True)
+            </div>
+            """, unsafe_allow_html=True)
+
+            if dhan_cfg.get("enabled") and dhan_cfg.get("client_id"):
+                c_id_saved = dhan_cfg.get("client_id")
+                st.success(f"🟢 **DhanHQ Connected!** Client ID: `{c_id_saved}` | Mode: {'🔴 LIVE REAL TRADING' if dhan_cfg.get('is_live') else '🛡️ PAPER AUDIT TRADING'}")
                 
+                c_test1, c_test2 = st.columns([2, 1])
+                with c_test1:
+                    if st.button("🧪 Test Live Balance & Connection", key="btn_test_dhan_conn"):
+                        ok, msg, f_data = dhan_broker.test_dhan_connection(dhan_cfg.get("client_id"), dhan_cfg.get("access_token"))
+                        if ok:
+                            st.success(f"✅ {msg}")
+                        else:
+                            st.error(f"❌ {msg}")
+                with c_test2:
+                    if st.button("🔴 Disconnect Account", key="btn_disc_dhan"):
+                        dhan_broker.save_dhan_config("", "", enabled=False, is_live=False)
+                        st.rerun()
+            else:
+                st.markdown("#### 🔑 Enter DhanHQ Free API Credentials:")
+                with st.expander("❓ How to get Free Dhan Client ID & Access Token (3 Simple Steps)", expanded=False):
+                    st.markdown("""
+                    1. **Open Dhan Account (Free):** Go to [Dhan.co](https://dhan.co) and login.
+                    2. **Go to DhanHQ Developer Console:** Click on your Profile ➔ Access DhanHQ APIs / Developer.
+                    3. **Generate Access Token:** Click on *'Generate New Token'* (valid for 30 days) and copy your **Client ID (e.g. 1000123456)** and **Access Token**.
+                    """)
+
+                dh_col1, dh_col2 = st.columns(2)
+                with dh_col1:
+                    in_dhan_cid = st.text_input("👤 Dhan Client ID", value=dhan_cfg.get("client_id", ""), placeholder="e.g. 1000123456", key="dhan_input_cid")
+                    in_dhan_live = st.checkbox("🔴 Enable Real Live Market Order Punching (Warning: Real Money)", value=dhan_cfg.get("is_live", False), key="dhan_chk_live")
+                with dh_col2:
+                    in_dhan_token = st.text_input("🔑 Dhan Access Token (JWT)", value=dhan_cfg.get("access_token", ""), type="password", placeholder="eyJhbGciOiJIUzI1NiIs...", key="dhan_input_token")
+                
+                if st.button("🔗 Connect DhanHQ & Save Credentials", use_container_width=True, key="btn_save_dhan"):
+                    if in_dhan_cid.strip() and in_dhan_token.strip():
+                        with st.spinner("Testing live connection with DhanHQ servers..."):
+                            is_ok, test_msg, _ = dhan_broker.test_dhan_connection(in_dhan_cid.strip(), in_dhan_token.strip())
+                            if is_ok:
+                                dhan_broker.save_dhan_config(in_dhan_cid.strip(), in_dhan_token.strip(), enabled=True, is_live=in_dhan_live)
+                                st.success(f"🎉 Connected Successfully! {test_msg}")
+                                st.rerun()
+                            else:
+                                # Save with warning so user can correct token later
+                                dhan_broker.save_dhan_config(in_dhan_cid.strip(), in_dhan_token.strip(), enabled=True, is_live=in_dhan_live)
+                                st.warning(f"⚠️ Saved, but test ping returned: {test_msg}. Please verify your Token.")
+                                st.rerun()
+                    else:
+                        st.warning("⚠️ Please enter both Dhan Client ID and Access Token!")
+
+            st.markdown("---")
+            with st.expander("🏦 Connect Alternative Brokers (Zerodha, AngelOne, Groww, Upstox)", expanded=False):
                 b_c1, b_c2 = st.columns(2)
                 with b_c1:
-                    broker_choice = st.selectbox("🏦 Choose Indian Broker", ["Zerodha Kite Connect", "Groww API", "AngelOne SmartAPI", "Upstox Pro API", "DhanHQ API", "ICICI Direct DirectConnect"])
-                    client_id = st.text_input("👤 Broker Client ID / User Code", placeholder="e.g. AB1234")
+                    broker_choice = st.selectbox("🏦 Broker Name", ["Zerodha Kite Connect", "AngelOne SmartAPI", "Upstox Pro API", "Groww API", "ICICI Direct DirectConnect"], key="alt_b_choice")
+                    client_id = st.text_input("👤 Broker Client ID", placeholder="e.g. AB1234", key="alt_b_cid")
                 with b_c2:
-                    api_key = st.text_input("🔑 API Key / App Key", type="password", placeholder="Enter Broker API Key")
-                    api_secret = st.text_input("🛡️ API Secret / Access Token", type="password", placeholder="Enter Access Token")
-
-                if st.button("🔗 Connect Broker & Sync Live Portfolio", use_container_width=True):
+                    api_key = st.text_input("🔑 API Key", type="password", placeholder="Enter Broker API Key", key="alt_b_key")
+                    api_secret = st.text_input("🛡️ API Secret", type="password", placeholder="Enter API Secret", key="alt_b_secret")
+                if st.button("Connect Alternative Broker", key="btn_alt_broker"):
                     if client_id.strip():
                         st.session_state["broker_connected"] = True
                         st.session_state["connected_broker_name"] = broker_choice
-                        st.success(f"✅ Connected to {broker_choice}! Portfolio synced successfully.")
-                        st.rerun()
+                        st.success(f"✅ Connected to {broker_choice}!")
                     else:
-                        st.warning("⚠️ Please enter your Broker Client ID!")
+                        st.warning("⚠️ Please enter Client ID!")
 
         with tab_p4:
             st.markdown("### ✈️ 24x7 Telegram VIP Signal & Alert Hub")
