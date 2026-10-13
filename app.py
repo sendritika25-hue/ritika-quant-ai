@@ -2051,6 +2051,25 @@ with col_main_content:
                     except Exception:
                         pass
 
+                # Fetch real-time market prices for any active holdings not in alert cache
+                missing_h_syms = [h.get("symbol") for h in current_h if h.get("symbol") and h.get("symbol") not in h_alerts_map]
+                if missing_h_syms:
+                    try:
+                        import yfinance as yf
+                        h_batch = yf.download(missing_h_syms, period="1d", interval="5m", progress=False)
+                        for m_sym in missing_h_syms:
+                            try:
+                                if len(missing_h_syms) == 1:
+                                    s_close = h_batch['Close'].dropna()
+                                else:
+                                    s_close = h_batch['Close'][m_sym].dropna()
+                                if not s_close.empty:
+                                    h_alerts_map[m_sym] = {"current": round(float(s_close.iloc[-1]), 2)}
+                            except Exception:
+                                pass
+                    except Exception:
+                        pass
+
                 display_rows = []
                 for h in current_h:
                     sym = h.get("symbol", "")
