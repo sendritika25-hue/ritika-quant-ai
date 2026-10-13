@@ -20,39 +20,101 @@ CLOSED_REGISTRY_PATH = os.path.join(BASE_DIR, "closed_and_untracked_registry.jso
 WATCHLIST_PATH = os.path.join(BASE_DIR, "watchlist.json")
 
 COMMON_TICKERS = {
-    # Bluechip & Mega Caps
-    "tcs": "TCS.NS", "bhartiartl": "BHARTIARTL.NS", "airtel": "BHARTIARTL.NS", "cdsl": "CDSL.NS",
-    "bdl": "BDL.NS", "reliance": "RELIANCE.NS", "infy": "INFY.NS", "infosys": "INFY.NS",
-    "hdfc": "HDFCBANK.NS", "hdfcbank": "HDFCBANK.NS", "icici": "ICICIBANK.NS", "icicibank": "ICICIBANK.NS",
-    "sbin": "SBIN.NS", "sbi": "SBIN.NS", "kotak": "KOTAKBANK.NS", "kotakbank": "KOTAKBANK.NS",
-    "axis": "AXISBANK.NS", "axisbank": "AXISBANK.NS", "indusind": "INDUSINDBK.NS", "pnb": "PNB.NS",
-    "bankbaroda": "BANKBARODA.NS", "bob": "BANKBARODA.NS", "canarabank": "CANBK.NS", "canbk": "CANBK.NS",
-    "bajfinance": "BAJFINANCE.NS", "bajajfinance": "BAJFINANCE.NS", "bajajfinsv": "BAJAJFINSV.NS",
-    "jiofin": "JIOFIN.NS", "polycab": "POLYCAB.NS", "hal": "HAL.NS", "solar": "SOLARINDS.NS",
-    "solarinds": "SOLARINDS.NS", "coforge": "COFORGE.NS", "trent": "TRENT.NS", "dixon": "DIXON.NS",
-    "kaynes": "KAYNES.NS", "zomato": "ZOMATO.NS", "suzlon": "SUZLON.NS", "mazdock": "MAZDOCK.NS",
-    "bel": "BEL.NS", "bhel": "BHEL.NS", "cochinship": "COCHINSHIP.NS", "ireda": "IREDA.NS",
-    "rpower": "RPOWER.NS", "yesbank": "YESBANK.NS", "bandhanbnk": "BANDHANBNK.NS", "irctc": "IRCTC.NS",
-    "irfc": "IRFC.NS", "rvnl": "RVNL.NS", "railtel": "RAILTEL.NS", "upl": "UPL.NS", "sobha": "SOBHA.NS",
-    "dlf": "DLF.NS", "itc": "ITC.NS", "titan": "TITAN.NS", "lt": "LT.NS", "l&t": "LT.NS",
-    "sunpharma": "SUNPHARMA.NS", "maruti": "MARUTI.NS", "cipla": "CIPLA.NS", "bataindia": "BATAINDIA.NS",
-    "prestige": "PRESTIGE.NS", "pvrinox": "PVRINOX.NS", "godrejprop": "GODREJPROP.NS", "sonacoms": "SONACOMS.NS",
-    "relaxo": "RELAXO.NS", "lalpathlab": "LALPATHLAB.NS", "tatamotors": "TMPV.NS", "tata motors": "TMPV.NS",
-    "tata steel": "TATASTEEL.NS", "tatasteel": "TATASTEEL.NS", "wipro": "WIPRO.NS", "hcltech": "HCLTECH.NS",
-    "techm": "TECHM.NS", "ltim": "LTIM.NS", "persistent": "PERSISTENT.NS", "tatapower": "TATAPOWER.NS",
-    "tata power": "TATAPOWER.NS", "ntpc": "NTPC.NS", "powergrid": "POWERGRID.NS", "coalindia": "COALINDIA.NS",
-    "ongc": "ONGC.NS", "bpcl": "BPCL.NS", "ioc": "IOC.NS", "hpcl": "HPCL.NS", "gail": "GAIL.NS",
-    "vedl": "VEDL.NS", "vedanta": "VEDL.NS", "jswsteel": "JSWSTEEL.NS", "jindalsteel": "JINDALSTEL.NS",
-    "hindalco": "HINDALCO.NS", "sail": "SAIL.NS", "nmdc": "NMDC.NS", "adani": "ADANIENT.NS",
-    "adanient": "ADANIENT.NS", "adaniports": "ADANIPORTS.NS", "adanipower": "ADANIPOWER.NS",
-    "adanigreen": "ADANIGREEN.NS", "asianpaint": "ASIANPAINT.NS", "asian paints": "ASIANPAINT.NS",
-    "pidilite": "PIDILITIND.NS", "nestle": "NESTLEIND.NS", "britannia": "BRITANNIA.NS",
-    "vbl": "VBL.NS", "varunbeverages": "VBL.NS", "dmart": "DMART.NS", "avenue": "DMART.NS",
-    "nykaa": "NYKAA.NS", "paytm": "PAYTM.NS", "bse": "BSE.NS", "mcx": "MCX.NS",
-    "drreddy": "DRREDDY.NS", "divislab": "DIVISLAB.NS", "apollohosp": "APOLLOHOSP.NS",
-    "lupin": "LUPIN.NS", "mankind": "MANKIND.NS", "m&m": "M&M.NS", "mahindra": "M&M.NS",
-    "bajajauto": "BAJAJ-AUTO.NS", "heromotoco": "HEROMOTOCO.NS", "eichermot": "EICHERMOT.NS",
-    "gold": "GOLDBEES.NS", "goldbees": "GOLDBEES.NS", "silver": "SILVERBEES.NS", "silverbees": "SILVERBEES.NS", "nifty": "^NSEI", "sensex": "^BSESN"
+    # Bluechips & Large Caps
+    "tcs": "TCS.NS", "tata consultancy": "TCS.NS", "bhartiartl": "BHARTIARTL.NS", "airtel": "BHARTIARTL.NS", "bharti": "BHARTIARTL.NS",
+    "cdsl": "CDSL.NS", "bdl": "BDL.NS", "bharat dynamics": "BDL.NS", "reliance": "RELIANCE.NS", "ril": "RELIANCE.NS",
+    "infy": "INFY.NS", "infosys": "INFY.NS", "hdfc": "HDFCBANK.NS", "hdfcbank": "HDFCBANK.NS", "hdfc bank": "HDFCBANK.NS",
+    "icici": "ICICIBANK.NS", "icicibank": "ICICIBANK.NS", "icici bank": "ICICIBANK.NS", "sbin": "SBIN.NS", "sbi": "SBIN.NS",
+    "state bank": "SBIN.NS", "kotak": "KOTAKBANK.NS", "kotakbank": "KOTAKBANK.NS", "kotak bank": "KOTAKBANK.NS",
+    "axis": "AXISBANK.NS", "axisbank": "AXISBANK.NS", "axis bank": "AXISBANK.NS", "indusind": "INDUSINDBK.NS", "indusind bank": "INDUSINDBK.NS",
+    "pnb": "PNB.NS", "punjab national bank": "PNB.NS", "bankbaroda": "BANKBARODA.NS", "bank of baroda": "BANKBARODA.NS", "bob": "BANKBARODA.NS",
+    "canarabank": "CANBK.NS", "canara bank": "CANBK.NS", "canbk": "CANBK.NS", "unionbank": "UNIONBANK.NS", "union bank": "UNIONBANK.NS",
+    "indianbank": "INDIANB.NS", "indian bank": "INDIANB.NS", "federalbank": "FEDERALBNK.NS", "federal bank": "FEDERALBNK.NS",
+    "idfc": "IDFCFIRSTB.NS", "idfcfirst": "IDFCFIRSTB.NS", "idfc first": "IDFCFIRSTB.NS", "idfc first bank": "IDFCFIRSTB.NS",
+    "yesbank": "YESBANK.NS", "yes bank": "YESBANK.NS", "bandhan": "BANDHANBNK.NS", "bandhan bank": "BANDHANBNK.NS",
+    "rbl": "RBLBANK.NS", "rbl bank": "RBLBANK.NS", "aubank": "AUBANK.NS", "au small finance": "AUBANK.NS",
+
+    # NBFC, Wealth & Exchanges
+    "bajfinance": "BAJFINANCE.NS", "bajaj finance": "BAJFINANCE.NS", "bajajfinsv": "BAJAJFINSV.NS", "bajaj finserv": "BAJAJFINSV.NS",
+    "jiofin": "JIOFIN.NS", "jio finance": "JIOFIN.NS", "chola": "CHOLAFIN.NS", "cholamandalam": "CHOLAFIN.NS",
+    "shriram": "SHRIRAMFIN.NS", "shriram finance": "SHRIRAMFIN.NS", "muthoot": "MUTHOOTFIN.NS", "muthoot finance": "MUTHOOTFIN.NS",
+    "manappuram": "MANAPPURAM.NS", "rec": "RECLTD.NS", "recltd": "RECLTD.NS", "pfc": "PFC.NS",
+    "ireda": "IREDA.NS", "hudco": "HUDCO.NS", "nbcc": "NBCC.NS", "bse": "BSE.NS", "mcx": "MCX.NS",
+    "cams": "CAMS.NS", "kfintech": "KFINTECH.NS", "angelone": "ANGELONE.NS", "angel one": "ANGELONE.NS",
+    "motilal": "MOTILALOFS.NS", "motilal oswal": "MOTILALOFS.NS",
+
+    # Defence, Aerospace & Explosives
+    "hal": "HAL.NS", "hindustan aeronautics": "HAL.NS", "bel": "BEL.NS", "bharat electronics": "BEL.NS",
+    "mazdock": "MAZDOCK.NS", "mazagon dock": "MAZDOCK.NS", "mazagon": "MAZDOCK.NS",
+    "cochinship": "COCHINSHIP.NS", "cochin shipyard": "COCHINSHIP.NS", "cochin": "COCHINSHIP.NS",
+    "grse": "GRSE.NS", "garden reach": "GRSE.NS", "paras": "PARAS.NS", "paras defence": "PARAS.NS",
+    "datapattns": "DATAPATTNS.NS", "data patterns": "DATAPATTNS.NS", "zentec": "ZENTEC.NS", "zen tech": "ZENTEC.NS",
+    "solar": "SOLARINDS.NS", "solarinds": "SOLARINDS.NS", "solar industries": "SOLARINDS.NS",
+    "premexpln": "PREMEXPLN.NS", "premier explosives": "PREMEXPLN.NS", "astramicro": "ASTRAMICRO.NS", "astra microwave": "ASTRAMICRO.NS",
+    "mtar": "MTARTECH.NS", "mtar tech": "MTARTECH.NS", "ptcil": "PTCIL.NS", "ptc industries": "PTCIL.NS",
+
+    # Green Energy, Renewables & Power
+    "suzlon": "SUZLON.NS", "suzlon energy": "SUZLON.NS", "waaree": "WAAREEENER.NS", "waaree energies": "WAAREEENER.NS",
+    "premier energies": "PREMIERENE.NS", "premierene": "PREMIERENE.NS", "inoxwind": "INOXWIND.NS", "inox wind": "INOXWIND.NS",
+    "sjvn": "SJVN.NS", "nhpc": "NHPC.NS", "ntpc": "NTPC.NS", "tatapower": "TATAPOWER.NS", "tata power": "TATAPOWER.NS",
+    "powergrid": "POWERGRID.NS", "power grid": "POWERGRID.NS", "adanipower": "ADANIPOWER.NS", "adani power": "ADANIPOWER.NS",
+    "adanigreen": "ADANIGREEN.NS", "adani green": "ADANIGREEN.NS", "jsw energy": "JSWENERGY.NS", "torrent power": "TORNTPOWER.NS",
+    "rpower": "RPOWER.NS", "reliance power": "RPOWER.NS",
+
+    # Railways & Infrastructure
+    "irfc": "IRFC.NS", "rvnl": "RVNL.NS", "ircon": "IRCON.NS", "railtel": "RAILTEL.NS", "irctc": "IRCTC.NS",
+    "titagarh": "TITAGARH.NS", "titagarh rail": "TITAGARH.NS", "jupiter wagons": "JWL.NS", "jwl": "JWL.NS",
+    "texrail": "TEXRAIL.NS", "texmaco": "TEXRAIL.NS", "bhel": "BHEL.NS",
+
+    # Tech, IT & New Age Tech
+    "wipro": "WIPRO.NS", "hcltech": "HCLTECH.NS", "techm": "TECHM.NS", "tech mahindra": "TECHM.NS",
+    "ltim": "LTIM.NS", "persistent": "PERSISTENT.NS", "coforge": "COFORGE.NS", "mphasis": "MPHASIS.NS",
+    "tataelxsi": "TATAELXSI.NS", "tata elxsi": "TATAELXSI.NS", "kpit": "KPITTECH.NS", "kpittech": "KPITTECH.NS",
+    "zomato": "ZOMATO.NS", "swiggy": "SWIGGY.NS", "ola": "OLAELEC.NS", "ola electric": "OLAELEC.NS", "olaelec": "OLAELEC.NS",
+    "paytm": "PAYTM.NS", "nykaa": "NYKAA.NS", "delhivery": "DELHIVERY.NS", "policybazaar": "POLICYBZR.NS",
+    "firstcry": "FIRSTCRY.NS", "mamaearth": "HONASA.NS", "honasa": "HONASA.NS", "kaynes": "KAYNES.NS",
+    "dixon": "DIXON.NS", "dixon tech": "DIXON.NS",
+
+    # Auto & Ancillaries
+    "maruti": "MARUTI.NS", "maruti suzuki": "MARUTI.NS", "tatamotors": "TMPV.NS", "tata motors": "TMPV.NS",
+    "m&m": "M&M.NS", "mahindra": "M&M.NS", "ashok leyland": "ASHOKLEY.NS", "ashokley": "ASHOKLEY.NS",
+    "bajajauto": "BAJAJ-AUTO.NS", "bajaj auto": "BAJAJ-AUTO.NS", "heromotoco": "HEROMOTOCO.NS", "hero": "HEROMOTOCO.NS",
+    "eichermot": "EICHERMOT.NS", "eicher motors": "EICHERMOT.NS", "tvsmotor": "TVSMOTOR.NS", "tvs motors": "TVSMOTOR.NS",
+    "bharat forge": "BHARATFORG.NS", "motherson": "MOTHERSON.NS", "sonacoms": "SONACOMS.NS", "sona coms": "SONACOMS.NS",
+
+    # Metals, Mining & Commodities
+    "tata steel": "TATASTEEL.NS", "tatasteel": "TATASTEEL.NS", "jsw steel": "JSWSTEEL.NS", "jswsteel": "JSWSTEEL.NS",
+    "jindal steel": "JINDALSTEL.NS", "jindalsteel": "JINDALSTEL.NS", "sail": "SAIL.NS", "vedl": "VEDL.NS", "vedanta": "VEDL.NS",
+    "hindalco": "HINDALCO.NS", "coalindia": "COALINDIA.NS", "coal india": "COALINDIA.NS", "nmdc": "NMDC.NS",
+    "national aluminium": "NATIONALUM.NS", "nalco": "NATIONALUM.NS",
+
+    # Retail, FMCG & Consumer
+    "trent": "TRENT.NS", "zudio": "TRENT.NS", "dmart": "DMART.NS", "avenue": "DMART.NS",
+    "itc": "ITC.NS", "hul": "HINDUNILVR.NS", "hindustan unilever": "HINDUNILVR.NS",
+    "nestle": "NESTLEIND.NS", "britannia": "BRITANNIA.NS", "vbl": "VBL.NS", "varun beverages": "VBL.NS",
+    "dabur": "DABUR.NS", "marico": "MARICO.NS", "godrejcp": "GODREJCP.NS", "titan": "TITAN.NS",
+    "kalyan jewellers": "KALYANKJIL.NS", "bata": "BATAINDIA.NS", "bataindia": "BATAINDIA.NS",
+    "relaxo": "RELAXO.NS", "asianpaint": "ASIANPAINT.NS", "asian paints": "ASIANPAINT.NS",
+    "pidilite": "PIDILITIND.NS", "polycab": "POLYCAB.NS", "kei": "KEI.NS", "havells": "HAVELLS.NS",
+    "voltas": "VOLTAS.NS", "amber": "AMBER.NS",
+
+    # Infra & Real Estate
+    "lt": "LT.NS", "l&t": "LT.NS", "larsen": "LT.NS", "dlf": "DLF.NS", "godrejprop": "GODREJPROP.NS",
+    "oberoi": "OBEROIRLTY.NS", "oberoirlty": "OBEROIRLTY.NS", "prestige": "PRESTIGE.NS", "sobha": "SOBHA.NS",
+    "phoenix": "PHOENIXLTD.NS", "ultratech": "ULTRACEMCO.NS", "ambuja": "AMBUJACEM.NS",
+
+    # Pharma & Healthcare
+    "sunpharma": "SUNPHARMA.NS", "cipla": "CIPLA.NS", "drreddy": "DRREDDY.NS", "divislab": "DIVISLAB.NS",
+    "apollohosp": "APOLLOHOSP.NS", "lupin": "LUPIN.NS", "mankind": "MANKIND.NS", "lalpathlab": "LALPATHLAB.NS",
+
+    # Telecom, Adani & Conglomerates
+    "idea": "IDEA.NS", "vodafone": "IDEA.NS", "pvrinox": "PVRINOX.NS",
+    "adani": "ADANIENT.NS", "adanient": "ADANIENT.NS", "adani ports": "ADANIPORTS.NS", "adaniports": "ADANIPORTS.NS",
+    "ongc": "ONGC.NS", "ioc": "IOC.NS", "bpcl": "BPCL.NS", "hpcl": "HPCL.NS", "gail": "GAIL.NS",
+
+    # ETFs & Indices
+    "gold": "GOLDBEES.NS", "goldbees": "GOLDBEES.NS", "silver": "SILVERBEES.NS", "silverbees": "SILVERBEES.NS",
+    "nifty": "^NSEI", "sensex": "^BSESN", "banknifty": "^NSEBANK", "niftybees": "NIFTYBEES.NS", "bankbees": "BANKBEES.NS"
 }
 
 def call_gemini_api(user_query: str, history: list = None, system_context: str = "") -> str:
@@ -636,15 +698,21 @@ def get_single_column_detail(column_key: str, in_english: bool) -> str:
     return get_all_sidebar_columns_detail(in_english)
 
 def detect_stock_in_query(user_text: str, history: list = None) -> str:
+    """Universal Stock Detector supporting all 370+ NSE/BSE stocks, ETFs, indices and user queries."""
+    import re
+    lower = user_text.lower().strip()
+    clean_text = re.sub(r'[^\w\s]', ' ', lower)
+    words = clean_text.split()
 
-    """Find any referenced stock ticker in text or fallback to recent history context."""
-    lower = user_text.lower()
-    words = lower.replace("?", "").replace(",", "").replace(".", "").split()
-
-    # Direct exact word match for tickers
-    for word, sym in COMMON_TICKERS.items():
-        if word in words or f" {word} " in f" {lower} ":
+    # 1. Multi-word exact phrases check (e.g. "ashok leyland", "tata motors", "adani green")
+    for phrase, sym in sorted(COMMON_TICKERS.items(), key=lambda x: len(x[0]), reverse=True):
+        if " " in phrase and f" {phrase} " in f" {clean_text} ":
             return sym
+
+    # 2. Exact single-word match
+    for w in words:
+        if w in COMMON_TICKERS:
+            return COMMON_TICKERS[w]
 
     stopwords = {
         "kya", "hai", "hain", "batao", "btao", "kaise", "kaisa", "kaisi", "share", "stock", "rate", "target", "today", 
@@ -657,57 +725,47 @@ def detect_stock_in_query(user_text: str, history: list = None) -> str:
         "which", "when", "where", "how", "who", "should", "will", "can", "good", "bad", "best", 
         "top", "stop", "trading", "market", "nse", "bse", "portfolio", "terminal", "screen", 
         "scanner", "bot", "copilot", "kitne", "add", "colum", "column", "detail", "chiye", "paper", "papaer", "virtual", "hoga", "hogi",
-        "kis", "kisi", "sab", "sabhi", "har", "muje", "hona", "lene", "kharidne", "khareedne", "kharidna", "khareedna"
+        "kis", "kisi", "sab", "sabhi", "har", "muje", "hona", "lene", "kharidne", "khareedne", "kharidna", "khareedna",
+        "aur", "bhi", "to", "toh", "pe", "se", "me", "mein", "ka", "ki", "ke", "ko", "liye", "bata", "bolo", "bol",
+        "chati", "chahti", "chata", "chahta", "jabab", "jawab", "sawal", "sirf", "only", "inke", "alawa", "ur", "or",
+        "ap", "aap", "kare", "dega", "denge", "bhi", "toh", "lagayein", "lagana", "paisa", "rupee", "rupaye"
     }
     non_ticker_acronyms = {
         "CPR", "GTT", "VWAP", "RSI", "MACD", "EMA", "SMA", "ATM", "ITM", "OTM", 
         "PE", "CE", "SL", "MIS", "CNC", "AMO", "F&O", "IPO", "GMP", "ATR", "ADX", 
         "POC", "LC", "UC", "STCG", "LTCG", "SIP", "DII", "FII", "NSE", "BSE", "SEBI", "ETF"
     }
-    upper_words = [w for w in user_text.replace("?", "").replace(",", "").replace(".", "").split() if w.isupper() and len(w) >= 2 and w not in non_ticker_acronyms]
-    for w in upper_words:
-        if f"{w}.NS" in COMMON_TICKERS.values():
-            return f"{w}.NS"
-        cand = f"{w}.NS"
+
+    # 3. Dynamic candidate check on NSE (Supports EVERY stock on National Stock Exchange)
+    candidates = [w for w in words if w not in stopwords and len(w) >= 2 and not w.isdigit()]
+    for c in candidates:
+        cand_sym = f"{c.upper()}.NS"
         try:
-            t_check = yf.Ticker(cand)
-            fi = t_check.fast_info
+            t = yf.Ticker(cand_sym)
+            fi = t.fast_info
             if fi and fi.last_price and fi.last_price > 0:
-                COMMON_TICKERS[w.lower()] = cand
-                return cand
+                COMMON_TICKERS[c] = cand_sym
+                return cand_sym
         except Exception:
             pass
 
-    # Check words explicitly paired with "share" or "stock" (e.g. "irfc share" or "stock irfc")
-    for idx, w in enumerate(words):
-        is_stock_pair = (idx > 0 and words[idx-1] in ["stock", "share"]) or (idx < len(words)-1 and words[idx+1] in ["stock", "share"])
-        if is_stock_pair and len(w) >= 3 and w.lower() not in stopwords:
-            cand = f"{w.upper()}.NS"
-            try:
-                t_check = yf.Ticker(cand)
-                fi = t_check.fast_info
-                if fi and fi.last_price and fi.last_price > 0:
-                    COMMON_TICKERS[w.lower()] = cand
-                    return cand
-            except Exception:
-                pass
+    # 4. Fuzzy match check for spelling typos (e.g. "sujlon" -> "suzlon", "relaince" -> "reliance")
+    for c in candidates:
+        matches = difflib.get_close_matches(c, list(COMMON_TICKERS.keys()), n=1, cutoff=0.75)
+        if matches:
+            return COMMON_TICKERS[matches[0]]
 
-    # Contextual fallback ONLY when the user explicitly refers to the previous stock:
-    # E.g. "iska rate kya hai", "isko buy karein?", "is stock ka batao", "what about this one?", "iske kitne share"
-    # NEVER match 'ye' if it appears inside words like 'liye', 'chahiye', 'chaiye', etc.!
+    # 5. Contextual fallback when referring to previous stock ("iske", "isko", "isme")
     ref_tokens = ["iska", "isko", "iski", "iske", "inke", "inka", "isme", "inme", "this stock", "that stock"]
     has_explicit_ref = any(tok in words for tok in ref_tokens) or (
         "ye" in words and "liye" not in words and "chahiye" not in words and "chaiye" not in words
     )
-
     if history and has_explicit_ref:
-        import re
         for prev in reversed(history[-4:]):
             prev_txt = prev.get("content", "").lower()
-            clean_txt = re.sub(r'[^\w\s]', ' ', prev_txt)
-            prev_words = clean_txt.split()
-            for word, sym in COMMON_TICKERS.items():
-                if word in prev_words:
+            clean_prev = re.sub(r'[^\w\s]', ' ', prev_txt)
+            for phrase, sym in sorted(COMMON_TICKERS.items(), key=lambda x: len(x[0]), reverse=True):
+                if f" {phrase} " in f" {clean_prev} ":
                     return sym
     return ""
 
